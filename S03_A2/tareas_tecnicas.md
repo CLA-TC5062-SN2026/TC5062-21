@@ -29,7 +29,7 @@ Estas tareas habilitan las cinco historias. Se registran una sola vez, como nota
 | --- | --- | ---: | --- | --- | --- |
 | T00-01 | Preparar servicio backend, conexión y migraciones del incremento | 2 | Gregorio — backend dev | Entorno de Semana 1 disponible | El servicio inicia con configuración de ejemplo sin secretos; las migraciones se ejecutan en una base vacía y crean cuentas, roles, permisos por capa, capas, tipos, campos y elementos, con identificadores y referencias. Se documentan los contratos usados por el frontend. |
 | T00-02 | Preparar frontend y navegación del recorrido | 1 | Liciel — frontend dev | Contratos acordados en T00-01 | La aplicación inicia, conecta con el servicio configurado y permite navegar a acceso, configuración, captura y búsqueda; muestra estados de carga y fallo de conexión. |
-| T00-03 | Provisionar cuentas ficticias y capas iniciales | 1 | Jean Paul — backend dev | T00-01, T01-01 | Un procedimiento repetible crea Administrador, Editor y Consulta activos, las capas Negocio, Datos, Aplicaciones y Tecnología y permiso de edición de Negocio para el Editor. Usa contraseñas cifradas mediante hash y valores locales de prueba; no añade secretos al repositorio ni duplica datos al repetirse. |
+| T00-03 | Provisionar cuentas ficticias y capas iniciales | 1 | Jean Paul — backend dev | T00-01, T01-01 | Un procedimiento repetible crea Administrador, Editor y Consulta activos, las capas Negocio, Datos, Aplicaciones y Tecnología y permiso de edición de Negocio para el Editor. Almacena las contraseñas mediante hash y usa valores locales de prueba; no añade secretos al repositorio ni duplica datos al repetirse. |
 
 ## 3. US-01 — Inicio de sesión — 4 horas
 
