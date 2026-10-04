@@ -5,7 +5,7 @@
 **Actividad:** S03-A2, Parte 1 — Sprint Planning asistido por IA  
 **Fecha de elaboración:** 4 de octubre de 2026  
 **Duración:** dos semanas  
-**Estado:** propuesta aprobada por Jean Paul antes de generar este archivo. Las fechas de ejecución y la disponibilidad efectiva se acordarán con el equipo.
+**Estado:** propuesta aprobada por Jean Paul antes de generar este archivo; capacidad actualizada con el ajuste de DoD aprobado el 4 de octubre de 2026. Las fechas de ejecución y la disponibilidad efectiva se acordarán con el equipo.
 
 ## 1. Base de la planificación
 
@@ -86,12 +86,15 @@ Se utiliza el supuesto aprobado de **tres integrantes, ocho horas semanales por 
 | --- | ---: |
 | Preparación de la aplicación, base de datos y cuentas de prueba | 4 |
 | Implementación y comprobación de las cinco historias | 27 |
-| Integración y pruebas del recorrido completo | 4 |
-| Documentación y demostración | 1 |
-| Coordinación, aprendizaje e imprevistos | 12 |
+| Integración, correcciones y pruebas del recorrido, navegadores y accesibilidad | 6 |
+| Documentación, contrato OpenAPI y demostración | 2 |
+| Coordinación | 6 |
+| Aprendizaje e imprevistos | 3 |
 | **Total** | **48** |
 
-Las 36 horas de trabajo planificado incluyen backend, frontend, pruebas y documentación. Las 12 horas restantes representan una reserva del 25 %: seis horas para coordinación y seis para aprendizaje e imprevistos. La descomposición de la Parte 2 deberá respetar este presupuesto y comprobar que la carga de cada integrante cabe en sus 16 horas disponibles.
+Las **39 horas de trabajo planificado** incluyen backend, frontend, pruebas y documentación. Las nueve horas restantes se distribuyen en seis para coordinación y tres para aprendizaje e imprevistos. La revisión de la DoD añadió TQA-01 (2 h, Liciel — QA) y TDOC-02 (1 h, Gregorio — backend dev), utilizando tres de las seis horas inicialmente reservadas para imprevistos. Jean Paul aprobó este ajuste antes de crear la DoD.
+
+La [descomposición actualizada](tareas_tecnicas.md) contiene 24 tareas. Gregorio y Liciel tienen 13.5 h planificadas, 2 h de coordinación y 0.5 h de reserva cada uno; Jean Paul tiene 12 h planificadas, 2 h de coordinación y 2 h de reserva. Cada integrante conserva un total de 16 h disponibles. Las cinco historias, sus puntos y el Sprint Goal permanecen iguales.
 
 La capacidad propuesta es de **19 story points**. Es una previsión inicial, no una velocidad histórica del equipo: no se cuenta con un sprint anterior completado para calibrarla. Las horas se estiman por el trabajo previsto y los puntos se conservan del backlog; no se define una equivalencia entre un punto y una cantidad de horas. Al terminar el sprint se registrarán los puntos de las historias realmente terminadas y el esfuerzo observado para ajustar la siguiente planificación.
 
@@ -102,7 +105,7 @@ La capacidad propuesta es de **19 story points**. Es una previsión inicial, no 
 3. Configurar el tipo `Proyecto` mediante US-06 y sus campos mediante US-07.
 4. Registrar elementos mediante US-09, con autorización por capa, validación y almacenamiento en el servidor.
 5. Consultar y buscar los elementos mediante US-15.
-6. Completar la integración, las pruebas y la demostración del recorrido.
+6. Comprobar navegadores, teclado, contraste e idioma; completar la integración y las correcciones, validar OpenAPI y preparar la demostración del recorrido.
 
 El frontend puede prepararse en paralelo con el backend una vez acordados los contratos del incremento. Las comprobaciones de renombrar un tipo con elementos y de bloquear sus campos se realizan después de disponer de elementos registrados; esa dependencia no debe omitirse de las tareas técnicas.
 
@@ -126,9 +129,9 @@ La muestra limitada utilizada por QA para probar la paginación no sustituye US-
 - Se conservan historias completas, incluidos el renombrado de tipos con datos, el bloqueo de cambios de campos y la paginación. No se considera terminada una historia por mostrar solamente una pantalla.
 - Se aplazó el mapa porque sus relaciones aún no formarían parte del incremento. También se evitó contar US-21 como terminada por cumplir solo una parte de su persistencia.
 - Se incluyeron preparación, integración, pruebas y documentación en la capacidad. El total de 19 puntos no consume las 48 horas como si todas fueran horas de programación.
-- Se prevé revisar la estimación al descomponer las tareas. Si aparecen dependencias o esfuerzos que excedan las 36 horas planificadas, el alcance se renegociará antes de asumir un compromiso mayor.
+- La revisión de la DoD hizo visibles las comprobaciones de navegadores, accesibilidad y OpenAPI. Se incorporaron como dos tareas de 2 h y 1 h, con un ajuste aprobado de 36 a 39 horas planificadas. Si aparecen dependencias o esfuerzos que excedan las 39 horas, se revisará la reserva y se renegociará el alcance antes de asumir un compromiso mayor.
 
-La evaluación del agente es que este alcance puede servir como primera previsión con tres integrantes y el entorno preparado. Su viabilidad deberá contrastarse con las tareas, la disponibilidad real y la Definition of Done que se elaborará en la Parte 3.
+La evaluación del agente es que este alcance puede servir como primera previsión con tres integrantes y el entorno preparado. Su viabilidad deberá contrastarse con las tareas, la disponibilidad real y la [Definition of Done aprobada](definition_of_done.md). Las estimaciones no equivalen a trabajo ni pruebas ya ejecutados.
 
 ## 8. Responsabilidades SCRUM
 
@@ -147,3 +150,4 @@ Jean Paul aprobó esta propuesta en la conversación antes de la creación del d
 - [SRS del equipo v1.0](https://github.com/CLA-TC5062-SN2026/TC5062-21/blob/86dbddca2b3e55d62ab775bf2dc57717520b748c/S03_A1/SRS_equipo.md).
 - [Guía Scrum 2020 — Sprint Planning](https://scrumguides.org/scrum-guide.html#sprint-planning).
 - [Actividad S03-A2 en Canvas](https://experiencia21.tec.mx/courses/708363/assignments/23606108?module_item_id=44839015).
+- [Tareas técnicas actualizadas](tareas_tecnicas.md) y [Definition of Done](definition_of_done.md).
