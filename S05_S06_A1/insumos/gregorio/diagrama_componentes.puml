@@ -1,0 +1,37 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 14
+skinparam roundcorner 12
+skinparam ArrowColor #334155
+skinparam rectangleBackgroundColor #EFF6FF
+skinparam rectangleBorderColor #2563EB
+skinparam databaseBackgroundColor #ECFDF5
+skinparam databaseBorderColor #059669
+skinparam packageStyle rectangle
+title
+Plataforma de Arquitectura Empresarial
+C4 — Nivel 2: Contenedores
+end title
+actor "Usuario\nAdministrador / Editor / Consulta" as usuario
+rectangle "Plataforma de Arquitectura Empresarial" {
+  rectangle "Cliente web [Contenedor]\nReact + TypeScript\nFormularios, propuestas y mapa\nSe ejecuta en el navegador" as web
+  rectangle "Servidor web / proxy [Contenedor]\nNginx\nArchivos estáticos y terminación TLS\nEnrutamiento de /api" as proxy
+  rectangle "API REST [Contenedor]\nPython + FastAPI\nMonolito modular en capas\nPermisos, validación y casos de uso" as api
+  database "Base de datos [Contenedor]\nPostgreSQL\nConfiguración, elementos, propuestas,\nrelaciones, sesiones y bitácora" as db
+}
+usuario --> web : Interactúa con la interfaz
+web --> proxy : HTTPS 443\nCarga de archivos y /api, JSON
+proxy --> api : HTTP 8000, JSON\nRed privada; contrato OpenAPI 3.x
+api --> db : SQL / TCP 5432\nSQLAlchemy; transacciones
+note bottom of web
+  La interfaz se entrega desde el servidor web.
+  Solo la API accede a PostgreSQL.
+end note
+legend bottom
+  C4 Container Level: unidades ejecutables y almacenamiento.
+  Los módulos internos de la API comparten un despliegue.
+endlegend
+@enduml

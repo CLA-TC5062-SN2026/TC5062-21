@@ -1,0 +1,23 @@
+PostgreSQL 17.11 (Homebrew)
+Base: arquitectura21
+Consulta: SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename
+
+capas
+cargas_demostracion
+decisiones_propuesta
+definiciones_campo
+elementos
+entradas_bitacora
+opciones_campo
+permisos_edicion_capa
+propuestas_relacion
+relaciones_validadas
+sesiones
+tipos_elemento
+tipos_relacion
+usuarios
+valores_campo
+
+Total tablas: 15
+Restricciones por tipo: [('c', 24), ('f', 29), ('p', 15), ('u', 4)]
+Índices: 45

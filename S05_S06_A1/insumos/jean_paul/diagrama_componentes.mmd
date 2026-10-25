@@ -1,0 +1,34 @@
+---
+config:
+    c4:
+        wrap: true
+        width: 280
+        c4ShapeMargin: 70
+        diagramMarginX: 20
+        diagramMarginY: 20
+---
+%% S04-A1 | Parte 2 | C4 Container Level
+%% Línea base: SRS del equipo v1.0 y ADR-001 aceptado.
+%% La actividad llama a esta vista «diagrama de componentes»;
+%% su nivel solicitado es C4 Container, no C4 Component.
+%% Tecnologías concretadas en Parte 2; infraestructura en diagrama_despliegue.mmd.
+C4Container
+    title Plataforma de Arquitectura Empresarial | Contenedores
+
+    Person(usuario, "Usuario de la plataforma", "Administrador, Editor o Consulta. Captura, revisa y explora según su rol.")
+
+    System_Boundary(plataforma, "Plataforma de Arquitectura Empresarial") {
+        Container(frontend, "Frontend web", "React / Vite · navegador", "Formularios configurables, búsqueda, propuestas y mapas. Presentación en español y acceso con teclado.")
+        Container(backend, "Backend modular", "Python / FastAPI · API RESTful", "Acceso, configuración, elementos, relaciones/propuestas y consulta. Autoriza y valida; registra bitácora en la misma transacción.")
+        ContainerDb(database, "Base de datos", "PostgreSQL", "Cuentas, sesiones, permisos por capa, definiciones, elementos, propuestas, relaciones y bitácora. Conserva identidad y referencias.")
+    }
+
+    Rel(usuario, frontend, "Utiliza formularios y mapas", "Interfaz web")
+    Rel(frontend, backend, "Consulta datos y solicita operaciones", "HTTPS · REST/JSON · JWT de sesión")
+    Rel(backend, database, "Lee y guarda datos; confirma transacciones", "SQL sobre TLS")
+
+    UpdateRelStyle(usuario, frontend, $offsetX="100", $offsetY="-50")
+    UpdateRelStyle(frontend, backend, $offsetX="0", $offsetY="-120")
+    UpdateRelStyle(backend, database, $offsetX="0", $offsetY="120")
+
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")

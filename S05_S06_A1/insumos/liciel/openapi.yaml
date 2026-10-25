@@ -1,0 +1,2740 @@
+openapi: 3.0.3
+info:
+  title: API de la Plataforma de Arquitectura Empresarial
+  version: 1.0.0
+  description: |
+    Contrato **spec-first** de la API REST del backend de la Plataforma de Arquitectura Empresarial (Equipo 21).
+    Deriva de `SRS_equipo.md` v1.0 (19 RF, 56 criterios de aceptación) y de `backlog.md` (US-01 a US-21).
+
+    **Convenciones**
+    - Recursos en sustantivos, plural, minúsculas y kebab-case. Versionado por prefijo de ruta (`/api/v1`).
+    - Autenticación con JWT Bearer. Cada JWT lleva un identificador de sesión (`sid`); el servidor lo comprueba en
+      cada petición, de modo que cerrar una sesión, cambiar el rol, desactivar o restablecer una cuenta invalida el token.
+      Las sesiones expiran a las 8 h o tras 30 min de inactividad (RNF-03).
+    - Errores en `application/problem+json` (RFC 7807) con un `code` estable y, si aplica, `errors[]` por campo.
+    - Criterio de códigos de error: **400** petición mal formada; **401** sin sesión válida; **403** sin permiso por rol o capa;
+      **404** recurso inexistente; **409** conflicto con el estado actual (duplicados, tipo en uso, último administrador,
+      propuesta simultánea, revalidación fallida); **422** regla de negocio o validación de valores incumplida; **412/428** falta o no coincide `If-Match`; **429** limitación de frecuencia; **500** error interno. Además, el servidor responde **405** (con `Allow`) a métodos no expuestos y **415** si el cuerpo no es `application/json`.
+    - Concurrencia optimista: los `GET` de un recurso devuelven `ETag`; `PATCH` y `PUT` sobre recursos mutables exigen `If-Match`.
+    - Las respuestas que entregan secretos (token, contraseñas) llevan `Cache-Control: no-store`.
+    - Listados paginados: páginas fijas de 25. Los catálogos acotados (capas, tipos de elemento y de relación) se devuelven completos.
+    - Todo rechazo es atómico: no deja cambios parciales (RNF-05).
+    - La extensión `x-acceptance-criteria` lista los IDs `RF-XX-AC-Y` del SRS que cada operación satisface;
+      `x-required-roles` indica los roles autorizados (el Editor además queda limitado a sus capas asignadas en escrituras).
+    - Sin borrado físico: no existe ningún `DELETE` sobre datos de negocio (RD-05). El único `DELETE` cierra una sesión.
+    - Los códigos de respuesta se escriben en inglés (`admin`, `editor`, `viewer`, `active`, `inactive`, `retired`); la
+      correspondencia con los términos del SRS está en `decisiones_y_trazabilidad.md`.
+  contact:
+    name: Equipo 21 — TC5062
+servers:
+- url: https://api.arquitectura.example.com/api/v1
+  description: Servidor desplegado (HTTPS obligatorio, RNF-03)
+- url: http://localhost:8000/api/v1
+  description: Desarrollo local
+tags:
+- name: auth
+  description: Sesiones (inicio y cierre)
+- name: users
+  description: Cuentas, roles y capas editables
+- name: layers
+  description: Capas del modelo
+- name: element-types
+  description: Tipos de elemento y sus campos
+- name: elements
+  description: Elementos, búsqueda, baja lógica y mapa de relaciones
+- name: relation-types
+  description: Tipos de relación dirigidos
+- name: relationships
+  description: Relaciones validadas
+- name: relationship-proposals
+  description: Propuestas de alta, cambio o retiro y su decisión
+- name: audit
+  description: Bitácora de solo lectura
+- name: demo-data
+  description: Datos ficticios de demostración
+security:
+- bearerAuth: []
+paths:
+  /auth/sessions:
+    post:
+      tags:
+      - auth
+      operationId: createSession
+      summary: Iniciar sesión (crea una sesión)
+      description: Autentica una cuenta activa con credenciales locales. No requiere token.
+      security: []
+      x-acceptance-criteria:
+      - RF-01-AC-1
+      - RF-01-AC-2
+      x-required-roles:
+      - public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '201':
+          description: Sesión creada; se informa el rol de la cuenta.
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionCreated'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Credenciales incorrectas o cuenta desactivada. No se crea sesión ni se entregan datos.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /auth/sessions/current:
+    delete:
+      tags:
+      - auth
+      operationId: closeCurrentSession
+      summary: Cerrar la sesión actual
+      description: Invalida únicamente la sesión usada en la petición; las demás sesiones de la cuenta siguen válidas.
+      x-acceptance-criteria:
+      - RF-01-AC-3
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      responses:
+        '204':
+          description: Sesión cerrada.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /users:
+    get:
+      tags:
+      - users
+      operationId: listUsers
+      summary: Listar cuentas
+      x-acceptance-criteria:
+      - RF-02-AC-1
+      - RF-19-AC-2
+      x-required-roles:
+      - admin
+      parameters:
+      - name: role
+        in: query
+        schema:
+          $ref: '#/components/schemas/Role'
+      - name: isActive
+        in: query
+        schema:
+          type: boolean
+      - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Página de cuentas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags:
+      - users
+      operationId: createUser
+      summary: Crear una cuenta
+      description: |
+        Crea una cuenta con un único rol. Para un Editor se pueden indicar las capas editables.
+        La contraseña inicial la genera el servidor y **solo se devuelve en esta respuesta** (RNF-01).
+      x-acceptance-criteria:
+      - RF-02-AC-1
+      x-required-roles:
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Cuenta creada.
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreated'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /users/me:
+    get:
+      tags:
+      - users
+      operationId: getCurrentUser
+      summary: Consultar la cuenta de la sesión actual
+      description: Permite al frontend recuperar rol y capas editables al abrir una sesión nueva.
+      x-acceptance-criteria:
+      - RF-01-AC-1
+      - RF-19-AC-2
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      responses:
+        '200':
+          description: Cuenta actual.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /users/{userId}:
+    parameters:
+    - $ref: '#/components/parameters/UserId'
+    get:
+      tags:
+      - users
+      operationId: getUser
+      summary: Consultar una cuenta
+      x-acceptance-criteria:
+      - RF-02-AC-1
+      - RF-19-AC-2
+      x-required-roles:
+      - admin
+      responses:
+        '200':
+          description: Cuenta.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags:
+      - users
+      operationId: updateUser
+      summary: Cambiar rol, nombre o estado de una cuenta
+      description: |
+        Actualización parcial. Cambiar `role` o poner `isActive=false` invalida todas las sesiones de la cuenta afectada.
+        No puede quedar el sistema sin un administrador activo (409).
+      x-acceptance-criteria:
+      - RF-02-AC-2
+      - RF-02-AC-3
+      - RF-02-AC-4
+      x-required-roles:
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Cuenta actualizada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/IfMatch'
+  /users/{userId}/editable-layers:
+    parameters:
+    - $ref: '#/components/parameters/UserId'
+    get:
+      tags:
+      - users
+      operationId: getEditableLayers
+      summary: Consultar las capas editables de un Editor
+      x-acceptance-criteria:
+      - RF-02-AC-1
+      - RF-19-AC-2
+      x-required-roles:
+      - admin
+      responses:
+        '200':
+          description: Capas asignadas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditableLayers'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    put:
+      tags:
+      - users
+      operationId: replaceEditableLayers
+      summary: Reemplazar el conjunto de capas editables de un Editor
+      description: Idempotente. Un Editor sin capas asignadas conserva la consulta y no puede escribir.
+      x-acceptance-criteria:
+      - RF-02-AC-1
+      - RF-06-AC-3
+      x-required-roles:
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditableLayers'
+      responses:
+        '200':
+          description: Conjunto de capas actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditableLayers'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          description: La cuenta no es Editor o alguna capa no existe.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/IfMatch'
+  /users/{userId}/password-resets:
+    parameters:
+    - $ref: '#/components/parameters/UserId'
+    post:
+      tags:
+      - users
+      operationId: createPasswordReset
+      summary: Restablecer las credenciales de una cuenta
+      description: |
+        Genera una contraseña temporal (se devuelve una sola vez), invalida las credenciales anteriores y todas las
+        sesiones de la cuenta. La bitácora registra el evento sin contraseñas (RF-18-AC-3).
+      x-acceptance-criteria:
+      - RF-02-AC-4
+      - RF-18-AC-3
+      x-required-roles:
+      - admin
+      responses:
+        '200':
+          description: Restablecimiento realizado; la contraseña temporal se entrega una sola vez.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordResetCreated'
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControlNoStore'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /layers:
+    get:
+      tags:
+      - layers
+      operationId: listLayers
+      summary: Listar capas
+      description: Incluye Negocio, Datos, Aplicaciones y Tecnología más las que cree el administrador.
+      x-acceptance-criteria:
+      - RF-03-AC-1
+      - RF-19-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      responses:
+        '200':
+          description: Todas las capas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayerList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags:
+      - layers
+      operationId: createLayer
+      summary: Crear una capa
+      description: El nombre es único globalmente, sin distinguir mayúsculas ni espacios extremos.
+      x-acceptance-criteria:
+      - RF-03-AC-1
+      - RF-03-AC-2
+      - RF-03-AC-3
+      x-required-roles:
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayerWrite'
+      responses:
+        '201':
+          description: Capa creada; disponible sin reiniciar.
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Layer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /layers/{layerId}:
+    parameters:
+    - $ref: '#/components/parameters/LayerId'
+    get:
+      tags:
+      - layers
+      operationId: getLayer
+      summary: Consultar una capa
+      x-acceptance-criteria:
+      - RF-03-AC-1
+      - RF-19-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      responses:
+        '200':
+          description: Capa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Layer'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags:
+      - layers
+      operationId: renameLayer
+      summary: Renombrar una capa
+      x-acceptance-criteria:
+      - RF-03-AC-2
+      - RF-03-AC-3
+      x-required-roles:
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayerWrite'
+      responses:
+        '200':
+          description: Capa renombrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Layer'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/IfMatch'
+  /element-types:
+    get:
+      tags:
+      - element-types
+      operationId: listElementTypes
+      summary: Listar tipos de elemento
+      x-acceptance-criteria:
+      - RF-04-AC-1
+      - RF-19-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      parameters:
+      - name: layerId
+        in: query
+        description: Limita a los tipos de una capa.
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Tipos de elemento.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ElementTypeList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags:
+      - element-types
+      operationId: createElementType
+      summary: Crear un tipo de elemento en una capa
+      x-acceptance-criteria:
+      - RF-04-AC-1
+      - RF-04-AC-3
+      x-required-roles:
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ElementTypeCreate'
+      responses:
+        '201':
+          description: Tipo creado y asociado a su capa.
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ElementType'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          description: La capa indicada no existe u otra validación falla; no se crea un tipo huérfano.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /element-types/{elementTypeId}:
+    parameters:
+    - $ref: '#/components/parameters/ElementTypeId'
+    get:
+      tags:
+      - element-types
+      operationId: getElementType
+      summary: Consultar un tipo de elemento
+      x-acceptance-criteria:
+      - RF-04-AC-1
+      - RF-19-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      responses:
+        '200':
+          description: Tipo de elemento.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ElementType'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags:
+      - element-types
+      operationId: renameElementType
+      summary: Renombrar un tipo de elemento
+      description: Conserva identificador, campos y elementos asociados.
+      x-acceptance-criteria:
+      - RF-04-AC-2
+      x-required-roles:
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ElementTypeRename'
+      responses:
+        '200':
+          description: Tipo renombrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ElementType'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/IfMatch'
+  /element-types/{elementTypeId}/fields:
+    parameters:
+    - $ref: '#/components/parameters/ElementTypeId'
+    get:
+      tags:
+      - element-types
+      operationId: listFields
+      summary: Consultar los campos de un tipo
+      description: Devuelve los campos adicionales; el campo base `Nombre` (texto, obligatorio) es implícito en todo tipo.
+      x-acceptance-criteria:
+      - RF-05-AC-1
+      - RF-19-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      responses:
+        '200':
+          description: Definición de campos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldSet'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    put:
+      tags:
+      - element-types
+      operationId: replaceFields
+      summary: Definir el conjunto de campos de un tipo sin elementos
+      description: |
+        Reemplaza la definición completa (idempotente). Si el tipo ya tiene elementos no se pueden agregar, retirar
+        ni cambiar campos, tipos de dato, obligatoriedad u opciones (409). Los nombres son únicos dentro del tipo,
+        sin distinguir mayúsculas ni espacios extremos, y no pueden repetir el campo base `Nombre`.
+      x-acceptance-criteria:
+      - RF-05-AC-1
+      - RF-05-AC-2
+      - RF-05-AC-3
+      x-required-roles:
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FieldSetWrite'
+      responses:
+        '200':
+          description: Campos guardados.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldSet'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: El tipo ya tiene elementos (`ELEMENT_TYPE_IN_USE`) o el nombre de un campo está repetido.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/IfMatch'
+  /elements:
+    get:
+      tags:
+      - elements
+      operationId: listElements
+      summary: Listar y buscar elementos
+      description: |
+        Páginas fijas de 25 elementos activos, ordenados por nombre y luego por identificador.
+        `q` hace búsqueda parcial que ignora mayúsculas y espacios extremos y conserva los acentos.
+        Un `q` presente pero vacío o solo con espacios se rechaza con 400.
+      x-acceptance-criteria:
+      - RF-08-AC-1
+      - RF-08-AC-2
+      - RF-08-AC-3
+      - RF-16-AC-2
+      - RF-19-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      parameters:
+      - name: q
+        in: query
+        description: Texto a buscar en el nombre. Debe contener al menos un carácter que no sea espacio.
+        schema:
+          type: string
+          maxLength: 200
+          minLength: 1
+          pattern: \S
+      - name: layerId
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: elementTypeId
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: includeInactive
+        in: query
+        description: Incluye elementos dados de baja (`Incluir dados de baja`).
+        schema:
+          type: boolean
+          default: false
+      - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Página de resultados; con cero coincidencias `items` es vacío.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ElementPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags:
+      - elements
+      operationId: createElement
+      summary: Registrar un elemento
+      description: |
+        Valida de forma atómica contra la definición del tipo. Un Editor solo puede escribir en sus capas asignadas.
+        El identificador lo asigna el servidor y es inmutable. Se permiten nombres repetidos.
+      x-acceptance-criteria:
+      - RF-06-AC-1
+      - RF-06-AC-3
+      - RF-07-AC-1
+      - RF-07-AC-2
+      - RF-07-AC-3
+      - RF-18-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ElementCreate'
+      responses:
+        '201':
+          description: Elemento creado.
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Element'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          description: Valores inválidos (campo obligatorio vacío, tipo incorrecto, opción inexistente) o tipo inexistente. `errors[]` identifica cada campo.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /elements/{elementId}:
+    parameters:
+    - $ref: '#/components/parameters/ElementId'
+    get:
+      tags:
+      - elements
+      operationId: getElement
+      summary: Consultar el detalle de un elemento
+      description: Incluye capa, tipo, campos, valores y autoría (creador, último modificador y fechas). Un elemento dado de baja también se puede consultar por su identificador.
+      x-acceptance-criteria:
+      - RF-01-AC-2
+      - RF-08-AC-2
+      - RF-15-AC-1
+      - RF-18-AC-1
+      - RF-19-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      responses:
+        '200':
+          description: Elemento.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Element'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags:
+      - elements
+      operationId: updateElement
+      summary: Modificar valores de un elemento
+      description: |
+        Actualización parcial: solo cambian los campos enviados; los demás se conservan. Un valor `null` borra un campo opcional.
+        La operación es atómica: si algún valor es inválido no se guarda ninguno.
+      x-acceptance-criteria:
+      - RF-06-AC-2
+      - RF-06-AC-3
+      - RF-07-AC-1
+      - RF-07-AC-2
+      - RF-07-AC-3
+      - RF-18-AC-1
+      - RF-18-AC-2
+      x-required-roles:
+      - admin
+      - editor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ElementUpdate'
+      responses:
+        '200':
+          description: Elemento actualizado con el mismo identificador.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Element'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/IfMatch'
+  /elements/{elementId}/status:
+    parameters:
+    - $ref: '#/components/parameters/ElementId'
+    put:
+      tags:
+      - elements
+      operationId: setElementStatus
+      summary: Dar de baja o reactivar un elemento (baja lógica)
+      description: |
+        Idempotente. `inactive` oculta el elemento de listado y mapa ordinarios sin borrar campos, relaciones ni bitácora;
+        `active` lo reactiva. Requiere permiso de escritura sobre la capa del elemento.
+      x-acceptance-criteria:
+      - RF-16-AC-1
+      - RF-16-AC-2
+      x-required-roles:
+      - admin
+      - editor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ElementStatusWrite'
+      responses:
+        '200':
+          description: Estado aplicado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Element'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/IfMatch'
+  /elements/{elementId}/map:
+    parameters:
+    - $ref: '#/components/parameters/ElementId'
+    get:
+      tags:
+      - elements
+      operationId: getElementMap
+      summary: Mapa de relaciones directas vigentes de un elemento
+      description: |
+        Devuelve el elemento de partida y sus vecinos directos con relaciones vigentes y extremos activos, sin inventar vínculos indirectos.
+        Máximo 100 nodos contando el origen, en orden estable por identificador; `truncated=true` indica que se recortó.
+        Los filtros se combinan por intersección y el elemento de partida permanece como contexto. Solo se incluyen aristas cuyos dos extremos son visibles.
+        Para quitar filtros se repite la consulta sin parámetros.
+      x-acceptance-criteria:
+      - RF-13-AC-1
+      - RF-13-AC-2
+      - RF-13-AC-3
+      - RF-14-AC-1
+      - RF-14-AC-2
+      - RF-14-AC-3
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      parameters:
+      - name: layerId
+        in: query
+        description: Capa de los vecinos a mostrar (cruce por capa de destino y filtro por capa son la misma restricción).
+        schema:
+          type: string
+          format: uuid
+      - name: elementTypeId
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: relationTypeId
+        in: query
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Mapa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ElementMap'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /elements/{elementId}/history:
+    parameters:
+    - $ref: '#/components/parameters/ElementId'
+    get:
+      tags:
+      - elements
+      operationId: listElementHistory
+      summary: Historial de cambios de un elemento
+      description: Entradas de bitácora de ese elemento (actor, fecha, acción, valores anterior y nuevo). Nunca incluye secretos.
+      x-acceptance-criteria:
+      - RF-18-AC-2
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Página de entradas de bitácora.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditEntryPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /relation-types:
+    get:
+      tags:
+      - relation-types
+      operationId: listRelationTypes
+      summary: Listar tipos de relación
+      x-acceptance-criteria:
+      - RF-09-AC-1
+      - RF-19-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      parameters:
+      - name: sourceElementTypeId
+        in: query
+        description: Solo los tipos de relación cuyo origen es este tipo de elemento.
+        schema:
+          type: string
+          format: uuid
+      - name: targetElementTypeId
+        in: query
+        description: Solo los tipos de relación cuyo destino es este tipo de elemento.
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: Tipos de relación (dirigidos).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationTypeList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags:
+      - relation-types
+      operationId: createRelationType
+      summary: Crear un tipo de relación dirigido
+      x-acceptance-criteria:
+      - RF-09-AC-1
+      - RF-09-AC-2
+      - RF-09-AC-3
+      x-required-roles:
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RelationTypeCreate'
+      responses:
+        '201':
+          description: Tipo de relación creado.
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationType'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          description: Algún tipo de elemento de origen o destino no existe; no se guarda una referencia inválida.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /relation-types/{relationTypeId}:
+    parameters:
+    - $ref: '#/components/parameters/RelationTypeId'
+    get:
+      tags:
+      - relation-types
+      operationId: getRelationType
+      summary: Consultar un tipo de relación
+      x-acceptance-criteria:
+      - RF-09-AC-1
+      - RF-19-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      responses:
+        '200':
+          description: Tipo de relación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationType'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags:
+      - relation-types
+      operationId: updateRelationType
+      summary: Renombrar o describir un tipo de relación
+      description: Los tipos de elemento de origen y destino no cambian después de crear el tipo de relación.
+      x-acceptance-criteria:
+      - RF-09-AC-3
+      x-required-roles:
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RelationTypeUpdate'
+      responses:
+        '200':
+          description: Tipo de relación actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationType'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '428':
+          $ref: '#/components/responses/PreconditionRequired'
+        '500':
+          $ref: '#/components/responses/InternalError'
+      parameters:
+      - $ref: '#/components/parameters/IfMatch'
+  /relationships:
+    get:
+      tags:
+      - relationships
+      operationId: listRelationships
+      summary: Listar relaciones validadas
+      description: Por defecto solo las vigentes; con `status=retired` o `status=all` se consulta el historial. Con `elementId` devuelve las relaciones donde el elemento es origen o destino.
+      x-acceptance-criteria:
+      - RF-15-AC-2
+      - RF-12-AC-3
+      - RF-19-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      parameters:
+      - name: elementId
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: relationTypeId
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - active
+          - retired
+          - all
+          default: active
+      - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Página de relaciones.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /relationships/{relationshipId}:
+    parameters:
+    - $ref: '#/components/parameters/RelationshipId'
+    get:
+      tags:
+      - relationships
+      operationId: getRelationship
+      summary: Consultar el detalle de una relación
+      description: Origen, tipo, destino, justificación, estado, autor y fechas. Los extremos se abren con `GET /elements/{elementId}`.
+      x-acceptance-criteria:
+      - RF-15-AC-2
+      - RF-12-AC-1
+      - RF-12-AC-2
+      - RF-12-AC-3
+      - RF-18-AC-1
+      - RF-19-AC-1
+      x-required-roles:
+      - admin
+      - editor
+      - viewer
+      responses:
+        '200':
+          description: Relación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relationship'
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /relationship-proposals:
+    get:
+      tags:
+      - relationship-proposals
+      operationId: listRelationshipProposals
+      summary: Listar propuestas de relación
+      description: El administrador ve todas; un Editor ve las que él registró; Consulta no tiene acceso.
+      x-acceptance-criteria:
+      - RF-10-AC-1
+      - RF-11-AC-1
+      - RF-19-AC-2
+      x-required-roles:
+      - admin
+      - editor
+      parameters:
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - pending
+          - approved
+          - rejected
+      - name: relationshipId
+        in: query
+        description: Propuestas de cambio o retiro de una relación.
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Página de propuestas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags:
+      - relationship-proposals
+      operationId: createRelationshipProposal
+      summary: Proponer el alta, el cambio o el retiro de una relación
+      description: |
+        Crea una propuesta **pendiente**; no modifica el mapa ni la relación vigente hasta la decisión.
+        - `kind=create`: alta entre dos elementos activos con un tipo de relación compatible.
+        - `kind=change`: cambia justificación, tipo o extremos de una relación vigente (conserva su identificador). Si cambia el origen, se exige permiso en la capa del origen vigente y del nuevo.
+        - `kind=retire`: solicita retirar una relación vigente.
+        La justificación (10 a 500 caracteres) es obligatoria. Un administrador también puede proponer, pero decide en una operación aparte.
+      x-acceptance-criteria:
+      - RF-10-AC-1
+      - RF-10-AC-2
+      - RF-10-AC-3
+      - RF-12-AC-1
+      - RF-12-AC-3
+      - RF-16-AC-3
+      x-required-roles:
+      - admin
+      - editor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalCreate'
+      responses:
+        '201':
+          description: Propuesta registrada en estado `pending`.
+          headers:
+            Location:
+              $ref: '#/components/headers/Location'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipProposal'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Duplicado de relación validada no retirada o de propuesta pendiente (`DUPLICATE_RELATIONSHIP`), o ya hay una propuesta pendiente sobre la misma relación (`PROPOSAL_ALREADY_PENDING`).
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '422':
+          description: Referencia inexistente en el cuerpo (extremo, tipo de relación o relación a cambiar/retirar), extremo dado de baja o de tipo incompatible, relación de un elemento consigo mismo, o justificación fuera de 10 a 500 caracteres.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /relationship-proposals/{proposalId}:
+    parameters:
+    - $ref: '#/components/parameters/ProposalId'
+    get:
+      tags:
+      - relationship-proposals
+      operationId: getRelationshipProposal
+      summary: Consultar una propuesta
+      description: Incluye estado, decisor, fecha de decisión y comentario cuando ya fue resuelta.
+      x-acceptance-criteria:
+      - RF-10-AC-1
+      - RF-11-AC-1
+      - RF-11-AC-2
+      - RF-19-AC-2
+      x-required-roles:
+      - admin
+      - editor
+      responses:
+        '200':
+          description: Propuesta.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipProposal'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags:
+      - relationship-proposals
+      operationId: decideRelationshipProposal
+      summary: Aprobar o rechazar una propuesta (transición de estado)
+      description: |
+        Cambia el estado de `pending` a `approved` o `rejected` y registra la decisión (actor y fecha). Al **aprobar** se revalidan extremos activos, compatibilidad del tipo y ausencia de duplicados;
+        si alguna regla falla responde 409, la propuesta sigue pendiente y la relación vigente no cambia.
+        Aprobar un alta crea la relación vigente; aprobar un cambio actualiza la relación conservando su identificador; aprobar un retiro la deja `retired`.
+        Rechazar conserva exactamente la versión anterior. Una propuesta ya decidida no puede decidirse otra vez (409).
+      x-acceptance-criteria:
+      - RF-11-AC-1
+      - RF-11-AC-2
+      - RF-11-AC-3
+      - RF-12-AC-2
+      - RF-12-AC-3
+      - RF-12-AC-4
+      x-required-roles:
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalDecisionWrite'
+      responses:
+        '200':
+          description: Propuesta resuelta, con decisor, fecha y comentario.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RelationshipProposal'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: La propuesta ya fue decidida (`PROPOSAL_NOT_PENDING`) o falla la revalidación al aprobar (`PROPOSAL_REVALIDATION_FAILED`).
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /audit-entries:
+    get:
+      tags:
+      - audit
+      operationId: listAuditEntries
+      summary: Consultar la bitácora
+      description: |
+        Bitácora inmutable y de solo lectura: la API no expone ninguna operación para crear, editar o borrar entradas
+        (un intento de escritura recibe 405 con `Allow: GET`). No contiene contraseñas ni secretos.
+      x-acceptance-criteria:
+      - RF-18-AC-2
+      - RF-18-AC-3
+      x-required-roles:
+      - admin
+      parameters:
+      - name: objectType
+        in: query
+        schema:
+          type: string
+          enum:
+          - user
+          - layer
+          - element-type
+          - element
+          - relation-type
+          - relationship
+          - relationship-proposal
+      - name: objectId
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - name: actorId
+        in: query
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/Page'
+      responses:
+        '200':
+          description: Página de entradas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditEntryPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /demo-datasets:
+    post:
+      tags:
+      - demo-data
+      operationId: createDemoDataset
+      summary: Cargar la muestra ficticia de demostración
+      description: 'Idempotente a nivel de servidor aunque use POST: si la muestra no existe la crea (201); si ya existía no duplica capas, elementos ni relaciones y responde 200 con `alreadyLoaded=true`. La muestra es única y no tiene identificador propio, por eso no se devuelve `Location`; su estado se conoce por `alreadyLoaded`.'
+      x-acceptance-criteria:
+      - RF-17-AC-1
+      - RF-17-AC-2
+      x-required-roles:
+      - admin
+      responses:
+        '200':
+          description: La muestra ya existía; no se duplicó nada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemoDataset'
+        '201':
+          description: Muestra cargada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DemoDataset'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT obtenido en `POST /auth/sessions`. Incluye `sub` (cuenta), `sid` (sesión) y `exp`.
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    LayerId:
+      name: layerId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ElementTypeId:
+      name: elementTypeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ElementId:
+      name: elementId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RelationTypeId:
+      name: relationTypeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RelationshipId:
+      name: relationshipId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ProposalId:
+      name: proposalId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Page:
+      name: page
+      in: query
+      description: Número de página, desde 1. El tamaño de página es fijo (25). Una página mayor que `totalPages` responde 200 con `items` vacío.
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      description: ETag de la versión que el cliente leyó (control de concurrencia optimista). Si ya no es la vigente responde 412; si falta, 428.
+      schema:
+        type: string
+  headers:
+    Location:
+      description: URI relativa a `servers.url` del recurso recién creado.
+      schema:
+        type: string
+        format: uri-reference
+      example: /elements/5d1c1c1e-0c6e-4f0a-9d1c-0e7a2f6a9b11
+    ETag:
+      description: Versión de la representación. El cliente la envía en `If-Match` al modificar el recurso.
+      schema:
+        type: string
+      example: '"7"'
+    CacheControlNoStore:
+      description: La respuesta contiene secretos y no debe almacenarse en ningún caché.
+      schema:
+        type: string
+        enum:
+        - no-store
+    RetryAfter:
+      description: Segundos que debe esperar el cliente antes de reintentar.
+      schema:
+        type: integer
+        minimum: 1
+    WWWAuthenticate:
+      description: Esquema de autenticación esperado.
+      schema:
+        type: string
+        enum:
+        - Bearer
+  responses:
+    BadRequest:
+      description: Petición mal formada (JSON inválido, parámetro con formato incorrecto, `q` vacío).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Unauthorized:
+      description: Falta la sesión o el token no es válido, expiró o fue invalidado. No se entregan datos protegidos.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+      headers:
+        WWW-Authenticate:
+          $ref: '#/components/headers/WWWAuthenticate'
+    Forbidden:
+      description: La sesión es válida pero el rol, o la capa asignada al Editor, no permite la operación. No se altera ningún dato.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    NotFound:
+      description: El recurso no existe.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Conflict:
+      description: Conflicto con el estado actual (nombre duplicado, último administrador, recurso en uso).
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    Unprocessable:
+      description: La petición está bien formada pero incumple una regla de negocio o validación; `errors[]` identifica el campo.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    InternalError:
+      description: Error interno. La operación no deja cambios parciales.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    PreconditionFailed:
+      description: 'La versión enviada en `If-Match` ya no es la vigente: otra persona modificó el recurso. Vuelva a consultarlo y reintente.'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    PreconditionRequired:
+      description: Falta el encabezado `If-Match` en una modificación.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+    TooManyRequests:
+      description: Demasiados intentos; se aplica limitación de frecuencia.
+      headers:
+        Retry-After:
+          $ref: '#/components/headers/RetryAfter'
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    Problem:
+      type: object
+      required:
+      - title
+      - status
+      - code
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          example: about:blank
+        title:
+          type: string
+          example: Validación fallida
+        status:
+          type: integer
+          example: 422
+        detail:
+          type: string
+        code:
+          type: string
+          description: Código estable de error para el cliente.
+          example: VALIDATION_FAILED
+        errors:
+          type: array
+          items:
+            type: object
+            required:
+            - field
+            - message
+            properties:
+              field:
+                type: string
+                example: values.2f6c...
+              message:
+                type: string
+    PageMeta:
+      type: object
+      required:
+      - page
+      - pageSize
+      - totalItems
+      - totalPages
+      properties:
+        page:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 25
+        totalItems:
+          type: integer
+        totalPages:
+          type: integer
+    AuditStamp:
+      type: object
+      properties:
+        createdBy:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+          format: uuid
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+      - createdBy
+      - createdAt
+      - updatedBy
+      - updatedAt
+    Role:
+      type: string
+      enum:
+      - admin
+      - editor
+      - viewer
+      description: admin = Administrador, editor = Editor, viewer = Consulta.
+    LoginRequest:
+      type: object
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    SessionCreated:
+      type: object
+      required:
+      - accessToken
+      - tokenType
+      - expiresIn
+      - user
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+          enum:
+          - Bearer
+        expiresIn:
+          type: integer
+          description: Segundos de vigencia absoluta (28800 = 8 h).
+        user:
+          $ref: '#/components/schemas/User'
+    User:
+      type: object
+      required:
+      - id
+      - email
+      - displayName
+      - role
+      - isActive
+      - editableLayerIds
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+        isActive:
+          type: boolean
+        editableLayerIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+    UserCreate:
+      type: object
+      required:
+      - email
+      - displayName
+      - role
+      properties:
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 120
+        role:
+          $ref: '#/components/schemas/Role'
+        editableLayerIds:
+          type: array
+          description: Solo aplica al rol `editor`.
+          items:
+            type: string
+            format: uuid
+    UserCreated:
+      allOf:
+      - $ref: '#/components/schemas/User'
+      - type: object
+        required:
+        - initialPassword
+        properties:
+          initialPassword:
+            type: string
+            description: Se entrega una sola vez; no se vuelve a mostrar.
+    UserUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 120
+        role:
+          $ref: '#/components/schemas/Role'
+        isActive:
+          type: boolean
+    UserPage:
+      allOf:
+      - $ref: '#/components/schemas/PageMeta'
+      - type: object
+        required:
+        - items
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+    EditableLayers:
+      type: object
+      required:
+      - layerIds
+      properties:
+        layerIds:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            format: uuid
+    PasswordResetCreated:
+      type: object
+      required:
+      - temporaryPassword
+      - createdAt
+      properties:
+        temporaryPassword:
+          type: string
+          description: Se entrega una sola vez.
+        createdAt:
+          type: string
+          format: date-time
+    Layer:
+      allOf:
+      - type: object
+        required:
+        - id
+        - name
+        properties:
+          id:
+            type: string
+            format: uuid
+          name:
+            type: string
+            example: Negocio
+      - $ref: '#/components/schemas/AuditStamp'
+    LayerWrite:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+          example: Seguridad
+    LayerList:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Layer'
+    ElementType:
+      allOf:
+      - type: object
+        required:
+        - id
+        - name
+        - layerId
+        - hasElements
+        properties:
+          id:
+            type: string
+            format: uuid
+          name:
+            type: string
+            example: Proyecto
+          layerId:
+            type: string
+            format: uuid
+          hasElements:
+            type: boolean
+            description: Si es true, la definición de campos está bloqueada.
+      - $ref: '#/components/schemas/AuditStamp'
+    ElementTypeCreate:
+      type: object
+      required:
+      - name
+      - layerId
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        layerId:
+          type: string
+          format: uuid
+    ElementTypeRename:
+      type: object
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+    ElementTypeList:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ElementType'
+    FieldDataType:
+      type: string
+      enum:
+      - text
+      - number
+      - date
+      - select
+    FieldDefinition:
+      type: object
+      required:
+      - id
+      - name
+      - dataType
+      - isRequired
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Descripción
+        dataType:
+          $ref: '#/components/schemas/FieldDataType'
+        isRequired:
+          type: boolean
+        options:
+          type: array
+          description: Obligatorio y no vacío cuando `dataType=select`.
+          items:
+            type: string
+    FieldDefinitionWrite:
+      type: object
+      required:
+      - name
+      - dataType
+      - isRequired
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Opcional; permite conservar el identificador de un campo existente al reemplazar el conjunto.
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        dataType:
+          $ref: '#/components/schemas/FieldDataType'
+        isRequired:
+          type: boolean
+        options:
+          type: array
+          items:
+            type: string
+    FieldSet:
+      type: object
+      required:
+      - fields
+      properties:
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldDefinition'
+    FieldSetWrite:
+      type: object
+      required:
+      - fields
+      properties:
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldDefinitionWrite'
+    FieldValues:
+      type: object
+      description: Mapa `fieldId` → valor. Texto como string, número como number, fecha como `YYYY-MM-DD`, selección como una de las opciones configuradas.
+      additionalProperties:
+        anyOf:
+        - type: string
+          nullable: true
+        - type: number
+          nullable: true
+    ElementStatus:
+      type: string
+      enum:
+      - active
+      - inactive
+    Element:
+      allOf:
+      - type: object
+        required:
+        - id
+        - name
+        - elementTypeId
+        - layerId
+        - status
+        - values
+        properties:
+          id:
+            type: string
+            format: uuid
+            description: Único e inmutable.
+          name:
+            type: string
+            example: Proyecto Alfa
+          elementTypeId:
+            type: string
+            format: uuid
+          layerId:
+            type: string
+            format: uuid
+          status:
+            $ref: '#/components/schemas/ElementStatus'
+          values:
+            $ref: '#/components/schemas/FieldValues'
+      - $ref: '#/components/schemas/AuditStamp'
+    ElementCreate:
+      type: object
+      required:
+      - elementTypeId
+      - name
+      properties:
+        elementTypeId:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: Campo base `Nombre`; obligatorio y no puede ser solo espacios.
+          maxLength: 200
+        values:
+          $ref: '#/components/schemas/FieldValues'
+    ElementUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        values:
+          $ref: '#/components/schemas/FieldValues'
+    ElementStatusWrite:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          $ref: '#/components/schemas/ElementStatus'
+    ElementSummary:
+      type: object
+      required:
+      - id
+      - name
+      - elementTypeId
+      - elementTypeName
+      - layerId
+      - layerName
+      - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        elementTypeId:
+          type: string
+          format: uuid
+        elementTypeName:
+          type: string
+        layerId:
+          type: string
+          format: uuid
+        layerName:
+          type: string
+        status:
+          $ref: '#/components/schemas/ElementStatus'
+    ElementPage:
+      allOf:
+      - $ref: '#/components/schemas/PageMeta'
+      - type: object
+        required:
+        - items
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/ElementSummary'
+    MapNode:
+      type: object
+      required:
+      - id
+      - name
+      - elementTypeId
+      - layerId
+      - isOrigin
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        elementTypeId:
+          type: string
+          format: uuid
+        layerId:
+          type: string
+          format: uuid
+        isOrigin:
+          type: boolean
+    MapEdge:
+      type: object
+      required:
+      - relationshipId
+      - relationTypeId
+      - sourceElementId
+      - targetElementId
+      properties:
+        relationshipId:
+          type: string
+          format: uuid
+        relationTypeId:
+          type: string
+          format: uuid
+        sourceElementId:
+          type: string
+          format: uuid
+        targetElementId:
+          type: string
+          format: uuid
+    ElementMap:
+      type: object
+      required:
+      - originId
+      - nodes
+      - edges
+      - truncated
+      - maxNodes
+      properties:
+        originId:
+          type: string
+          format: uuid
+        nodes:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/MapNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/MapEdge'
+        truncated:
+          type: boolean
+        maxNodes:
+          type: integer
+          example: 100
+    RelationType:
+      allOf:
+      - type: object
+        required:
+        - id
+        - name
+        - sourceElementTypeId
+        - targetElementTypeId
+        properties:
+          id:
+            type: string
+            format: uuid
+          name:
+            type: string
+            example: mejora
+          description:
+            type: string
+          sourceElementTypeId:
+            type: string
+            format: uuid
+          targetElementTypeId:
+            type: string
+            format: uuid
+      - $ref: '#/components/schemas/AuditStamp'
+    RelationTypeCreate:
+      type: object
+      required:
+      - name
+      - sourceElementTypeId
+      - targetElementTypeId
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        description:
+          type: string
+          maxLength: 500
+        sourceElementTypeId:
+          type: string
+          format: uuid
+        targetElementTypeId:
+          type: string
+          format: uuid
+    RelationTypeUpdate:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        description:
+          type: string
+          maxLength: 500
+    RelationTypeList:
+      type: object
+      required:
+      - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RelationType'
+    RelationshipStatus:
+      type: string
+      enum:
+      - active
+      - retired
+      description: active = vigente, retired = retirada.
+    Relationship:
+      allOf:
+      - type: object
+        required:
+        - id
+        - relationTypeId
+        - sourceElementId
+        - targetElementId
+        - justification
+        - status
+        properties:
+          id:
+            type: string
+            format: uuid
+          relationTypeId:
+            type: string
+            format: uuid
+          sourceElementId:
+            type: string
+            format: uuid
+          targetElementId:
+            type: string
+            format: uuid
+          justification:
+            type: string
+            minLength: 10
+            maxLength: 500
+          status:
+            $ref: '#/components/schemas/RelationshipStatus'
+          approvedBy:
+            type: string
+            format: uuid
+          approvedAt:
+            type: string
+            format: date-time
+      - $ref: '#/components/schemas/AuditStamp'
+    RelationshipPage:
+      allOf:
+      - $ref: '#/components/schemas/PageMeta'
+      - type: object
+        required:
+        - items
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/Relationship'
+    ProposalCreateRelationship:
+      type: object
+      required:
+      - kind
+      - relationTypeId
+      - sourceElementId
+      - targetElementId
+      - justification
+      properties:
+        kind:
+          type: string
+          enum:
+          - create
+        relationTypeId:
+          type: string
+          format: uuid
+        sourceElementId:
+          type: string
+          format: uuid
+        targetElementId:
+          type: string
+          format: uuid
+        justification:
+          type: string
+          minLength: 10
+          maxLength: 500
+    ProposalChangeRelationship:
+      type: object
+      required:
+      - kind
+      - relationshipId
+      - justification
+      description: Además de `relationshipId` y la justificación, debe enviarse al menos un valor propuesto (tipo, origen o destino).
+      properties:
+        kind:
+          type: string
+          enum:
+          - change
+        relationshipId:
+          type: string
+          format: uuid
+        relationTypeId:
+          type: string
+          format: uuid
+        sourceElementId:
+          type: string
+          format: uuid
+        targetElementId:
+          type: string
+          format: uuid
+        justification:
+          type: string
+          minLength: 10
+          maxLength: 500
+      anyOf:
+      - required:
+        - relationTypeId
+      - required:
+        - sourceElementId
+      - required:
+        - targetElementId
+    ProposalRetireRelationship:
+      type: object
+      required:
+      - kind
+      - relationshipId
+      - justification
+      properties:
+        kind:
+          type: string
+          enum:
+          - retire
+        relationshipId:
+          type: string
+          format: uuid
+        justification:
+          type: string
+          minLength: 10
+          maxLength: 500
+    ProposalCreate:
+      oneOf:
+      - $ref: '#/components/schemas/ProposalCreateRelationship'
+      - $ref: '#/components/schemas/ProposalChangeRelationship'
+      - $ref: '#/components/schemas/ProposalRetireRelationship'
+      discriminator:
+        propertyName: kind
+        mapping:
+          create: '#/components/schemas/ProposalCreateRelationship'
+          change: '#/components/schemas/ProposalChangeRelationship'
+          retire: '#/components/schemas/ProposalRetireRelationship'
+    ProposalDecisionWrite:
+      type: object
+      required:
+      - decision
+      properties:
+        decision:
+          type: string
+          enum:
+          - approved
+          - rejected
+        comment:
+          type: string
+          maxLength: 500
+    ProposalDecision:
+      type: object
+      required:
+      - decision
+      - decidedBy
+      - decidedAt
+      properties:
+        decision:
+          type: string
+          enum:
+          - approved
+          - rejected
+        decidedBy:
+          type: string
+          format: uuid
+        decidedAt:
+          type: string
+          format: date-time
+        comment:
+          type: string
+    RelationshipProposal:
+      allOf:
+      - type: object
+        required:
+        - id
+        - kind
+        - status
+        - justification
+        properties:
+          id:
+            type: string
+            format: uuid
+          kind:
+            type: string
+            enum:
+            - create
+            - change
+            - retire
+          status:
+            type: string
+            enum:
+            - pending
+            - approved
+            - rejected
+          relationshipId:
+            type: string
+            format: uuid
+            nullable: true
+            description: Relación afectada; en un alta aprobada apunta a la relación creada.
+          relationTypeId:
+            type: string
+            format: uuid
+            nullable: true
+          sourceElementId:
+            type: string
+            format: uuid
+            nullable: true
+          targetElementId:
+            type: string
+            format: uuid
+            nullable: true
+          justification:
+            type: string
+          decision:
+            $ref: '#/components/schemas/ProposalDecision'
+      - $ref: '#/components/schemas/AuditStamp'
+    ProposalPage:
+      allOf:
+      - $ref: '#/components/schemas/PageMeta'
+      - type: object
+        required:
+        - items
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/RelationshipProposal'
+    AuditChange:
+      type: object
+      required:
+      - field
+      properties:
+        field:
+          type: string
+          example: Criticidad
+        oldValue:
+          anyOf:
+          - type: string
+            nullable: true
+          - type: number
+            nullable: true
+        newValue:
+          anyOf:
+          - type: string
+            nullable: true
+          - type: number
+            nullable: true
+    AuditEntry:
+      type: object
+      required:
+      - id
+      - occurredAt
+      - actorId
+      - action
+      - objectType
+      - objectId
+      properties:
+        id:
+          type: string
+          format: uuid
+        occurredAt:
+          type: string
+          format: date-time
+        actorId:
+          type: string
+          format: uuid
+        action:
+          type: string
+          example: element.updated
+        objectType:
+          type: string
+        objectId:
+          type: string
+          format: uuid
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditChange'
+    AuditEntryPage:
+      allOf:
+      - $ref: '#/components/schemas/PageMeta'
+      - type: object
+        required:
+        - items
+        properties:
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/AuditEntry'
+    DemoDataset:
+      type: object
+      required:
+      - alreadyLoaded
+      - layers
+      - elements
+      - relationships
+      properties:
+        alreadyLoaded:
+          type: boolean
+        layers:
+          type: integer
+        elements:
+          type: integer
+        relationships:
+          type: integer

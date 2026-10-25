@@ -1,0 +1,2776 @@
+# S04-A2 — Partes 1 y 2. Contrato revisado contra principios REST.
+openapi: "3.0.3"
+info:
+  title: "API de la Plataforma de Arquitectura Empresarial"
+  version: "1.1.0"
+  description: "Contrato de diseño de S04-A2, Partes 1 y 2. Revisión REST aplicada en revision_rest.md. Línea base: S03_A1/SRS_equipo.md v1.0 (19 RF, 56 criterios canónicos), modelo revisado de S04_A1/diagrama_clases.puml y contenedores de S04_A1/diagrama_componentes.puml. Los IDs de criterios se interpretan exclusivamente en ese SRS. JSON sobre HTTPS a través de Nginx /api; backend FastAPI y PostgreSQL. No hay borrado físico de objetos del dominio. Los x-acceptance-criteria documentan trazabilidad, no resultados de pruebas ni implementación. La interfaz y la persistencia deben verificar sus partes de los escenarios."
+servers:
+  -
+    url: "https://arquitectura.example.com/api/v1"
+    description: "URL ilustrativa del despliegue propuesto; sustituir por el host real. Nginx enruta /api al backend."
+tags:
+  -
+    name: "Sesiones"
+    description: "Autenticación local, JWT y revocación por sesión."
+  -
+    name: "Usuarios"
+    description: "Cuentas, roles, credenciales y capas editables."
+  -
+    name: "Capas"
+    description: "Catálogo de capas configurables."
+  -
+    name: "Tipos de elemento"
+    description: "Definiciones asociadas a capas y campo base Nombre."
+  -
+    name: "Campos"
+    description: "Configuración de los cuatro tipos de campo y opciones."
+  -
+    name: "Elementos"
+    description: "Registro, actualización, consulta y ciclo de vida conservador."
+  -
+    name: "Tipos de relación"
+    description: "Definiciones dirigidas con extremos compatibles."
+  -
+    name: "Propuestas de relación"
+    description: "Solicitudes pendientes y decisiones humanas separadas."
+  -
+    name: "Relaciones validadas"
+    description: "Consulta de vínculos aprobados e historial."
+  -
+    name: "Mapas"
+    description: "Proyección de conexiones directas vigentes con filtros."
+  -
+    name: "Bitácora"
+    description: "Historial inmutable sin secretos."
+  -
+    name: "Demostraciones"
+    description: "Carga idempotente de datos ficticios."
+security:
+  -
+    BearerToken: []
+x-source-documents: ["../S03_A1/SRS_equipo.md", "../S04_A1/diagrama_clases.puml", "../S04_A1/diagrama_componentes.puml"]
+x-design-rules: ["Todo JWT se verifica criptográficamente y contra Sesion/Usuario: estado activo, revocación, máximo 8 horas y 30 minutos de inactividad. Leer permisos del servidor en cada solicitud; no confiar en roles antiguos del token.", "Administrador hereda consulta y edición global; Editor escribe solo en capas asignadas; Consulta solo lee. Proponer cambio de origen requiere las capas del origen vigente y del propuesto. Solo Administrador decide.", "UUID es decisión del diagrama. Escritos validados, bitácora y cambios de dominio se confirman en transacciones. Rechazos conservan datos; persistencia funciona entre sesiones.", "400 significa formato ilegible; 422 significa valores o esquema inválidos; 409 significa conflicto con estado actual; 404 significa identidad inexistente. 401 es fallo de autenticación y 403 de autorización. 500 revierte transacciones.", "Extensiones x-roles y x-rejected-methods documentan reglas de autorización e inmutabilidad; OpenAPI por sí mismo no las ejecuta.", "Naming: colecciones con sustantivos en plural, minúsculas y guiones. /sesiones/actual es un alias explícito del recurso de sesión identificado por el JWT; los parámetros entre llaves son identificadores, no nombres de recursos.", "GET es seguro respecto del estado de negocio; autenticación puede actualizar última actividad y trazas técnicas. PUT/DELETE y PATCH por asignación son idempotentes en su efecto. POST no tiene garantía de reintento. x-idempotent/x-safe documentan decisiones y no ejecutan lógica del servidor."]
+paths:
+  "/sesiones":
+    post:
+      tags: ["Sesiones"]
+      operationId: "iniciarSesion"
+      summary: "Iniciar sesión"
+      description: "Autentica credenciales locales de una cuenta activa. Crea una sesión independiente y devuelve su rol y capas actuales. Rechaza contraseñas incorrectas y cuentas desactivadas. La sesión vence a las 8 horas o tras 30 minutos de inactividad. Acceso público; no requiere una sesión previa."
+      x-acceptance-criteria: ["RF-01-AC-1", "RF-01-AC-2", "RF-02-AC-4"]
+      security: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Credenciales"
+      responses:
+        "201":
+          description: "Recurso creado y persistido."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/TokenSesion"
+          headers:
+            Location:
+              description: "URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1."
+              schema:
+                type: "string"
+                format: "uri-reference"
+              example: "/api/v1/sesiones/actual"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: false
+      x-safe: false
+  "/sesiones/actual":
+    get:
+      tags: ["Sesiones"]
+      operationId: "consultarSesionActual"
+      summary: "Consultar sesión y permisos actuales"
+      description: "Devuelve la sesión vinculada al JWT y los permisos vigentes obtenidos del servidor. Validar firma no sustituye comprobar revocación, expiración y estado de la cuenta. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-01-AC-2", "RF-01-AC-3", "RF-02-AC-1", "RF-02-AC-2", "RF-02-AC-4", "RF-19-AC-2"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Sesion"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    delete:
+      tags: ["Sesiones"]
+      operationId: "cerrarSesionActual"
+      summary: "Cerrar la sesión utilizada"
+      description: "Revoca solo el sid/jti de este Bearer. Otros JWT de la cuenta continúan autorizando solicitudes. Reutilizar este JWT devuelve 401. Confirma el cierre con un mensaje JSON. Acción disponible para toda cuenta autenticada. Repetir con el JWT ya revocado devuelve 401: la sesión sigue revocada y otras sesiones no cambian. Idempotencia significa mismo efecto, no necesariamente mismo código HTTP."
+      x-acceptance-criteria: ["RF-01-AC-3"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Mensaje"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: false
+  "/usuarios":
+    get:
+      tags: ["Usuarios"]
+      operationId: "listarUsuarios"
+      summary: "Listar cuentas"
+      description: "Lista cuentas activas e inactivas sin contraseñas ni hashes. Orden estable por identificador de acceso e ID. Solo Administrador."
+      x-acceptance-criteria: ["RF-02-AC-1", "RF-02-AC-2", "RF-02-AC-4", "RF-19-AC-2"]
+      x-roles: ["Administrador"]
+      parameters:
+        -
+          $ref: "#/components/parameters/Pagina"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Usuarios"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    post:
+      tags: ["Usuarios"]
+      operationId: "crearUsuario"
+      summary: "Crear cuenta con rol y capas"
+      description: "Crea cuenta activa con exactamente un rol; asigna capas solo a Editor. Persiste usuario, asignaciones y bitácora de forma atómica. No devuelve la contraseña enviada. Solo Administrador."
+      x-acceptance-criteria: ["RF-02-AC-1", "RF-18-AC-3", "RF-19-AC-2"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/UsuarioAlta"
+      responses:
+        "201":
+          description: "Recurso creado y persistido."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Usuario"
+          headers:
+            Location:
+              description: "URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1."
+              schema:
+                type: "string"
+                format: "uri-reference"
+              example: "/api/v1/usuarios/00000000-0000-4000-8000-000000000005"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+      x-idempotent: false
+      x-safe: false
+      x-conflict-codes: ["IDENTIFICADOR_DUPLICADO"]
+  "/usuarios/{usuarioId}":
+    parameters:
+      -
+        name: "usuarioId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    get:
+      tags: ["Usuarios"]
+      operationId: "consultarUsuario"
+      summary: "Consultar cuenta y asignaciones"
+      description: "Recupera estado, rol y capas editables de una cuenta, incluso desactivada. Solo Administrador."
+      x-acceptance-criteria: ["RF-02-AC-1", "RF-02-AC-2", "RF-02-AC-4", "RF-19-AC-2"]
+      x-roles: ["Administrador"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    patch:
+      tags: ["Usuarios"]
+      operationId: "actualizarUsuario"
+      summary: "Cambiar rol o estado de cuenta"
+      description: "Cambios atómicos. Invalida todas las sesiones al cambiar rol o desactivar. No permite dejar cero administradores activos, incluso con solicitudes concurrentes. Registra cambios de acceso sin secretos. Solo Administrador. Este PATCH usa asignaciones de valores, no incrementos ni anexos; repetir el mismo cuerpo sin cambios externos conserva el mismo estado de negocio."
+      x-acceptance-criteria: ["RF-02-AC-2", "RF-02-AC-3", "RF-02-AC-4", "RF-18-AC-3"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/UsuarioCambio"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+      x-idempotent: true
+      x-safe: false
+      x-conflict-codes: ["ULTIMO_ADMINISTRADOR"]
+  "/usuarios/{usuarioId}/restablecimientos-contrasena":
+    parameters:
+      -
+        name: "usuarioId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    post:
+      tags: ["Usuarios"]
+      operationId: "restablecerContrasena"
+      summary: "Restablecer contraseña"
+      description: "Sustituye credenciales mediante hash resistente con sal e invalida todas las sesiones. Credenciales anteriores dejan de autorizar acceso. Bitácora conserva solo metadatos y nunca secretos. Solo Administrador. Crea y devuelve el evento de restablecimiento de la bitácora en la misma transacción; la entrada pública no contiene contraseñas ni hashes. POST no es idempotente: cada solicitud aceptada constituye un nuevo restablecimiento e invalida sesiones; no se reintenta automáticamente tras un timeout."
+      x-acceptance-criteria: ["RF-02-AC-4", "RF-18-AC-3"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/RestablecimientoContrasena"
+      responses:
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "201":
+          description: "Restablecimiento realizado y evento inmutable creado, sin secretos."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/EntradaBitacora"
+          headers:
+            Location:
+              description: "URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1."
+              schema:
+                type: "string"
+                format: "uri-reference"
+              example: "/api/v1/entradas-bitacora/00000000-0000-4000-8000-000000000004"
+      x-idempotent: false
+      x-safe: false
+  "/usuarios/{usuarioId}/capas-editables":
+    parameters:
+      -
+        name: "usuarioId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    get:
+      tags: ["Usuarios"]
+      operationId: "consultarCapasEditables"
+      summary: "Consultar capas asignadas"
+      description: "Recupera el conjunto actual de asignaciones persistidas. Solo Administrador."
+      x-acceptance-criteria: ["RF-02-AC-1", "RF-19-AC-2"]
+      x-roles: ["Administrador"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/CapasEditables"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    put:
+      tags: ["Usuarios"]
+      operationId: "reemplazarCapasEditables"
+      summary: "Reemplazar el conjunto de capas editables"
+      description: "PUT sustituye el conjunto completo, de forma idempotente. Solo aplica a cuentas con rol Editor. El servidor usa el nuevo conjunto en cada petición; conserva historial de asignaciones en bitácora. Solo Administrador."
+      x-acceptance-criteria: ["RF-02-AC-1", "RF-19-AC-2"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/CapasEditables"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/CapasEditables"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: false
+  "/capas":
+    get:
+      tags: ["Capas"]
+      operationId: "listarCapas"
+      summary: "Consultar capas disponibles"
+      description: "Devuelve capas iniciales y agregadas, ordenadas por nombre e ID. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-03-AC-1", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Capas"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    post:
+      tags: ["Capas"]
+      operationId: "crearCapa"
+      summary: "Crear capa"
+      description: "Normaliza espacios extremos y rechaza duplicados sin distinguir mayúsculas. La nueva capa está disponible inmediatamente sin reinicio. Solo Administrador."
+      x-acceptance-criteria: ["RF-03-AC-1", "RF-03-AC-2", "RF-03-AC-3", "RF-19-AC-1"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/CapaEscritura"
+      responses:
+        "201":
+          description: "Recurso creado y persistido."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Capa"
+          headers:
+            Location:
+              description: "URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1."
+              schema:
+                type: "string"
+                format: "uri-reference"
+              example: "/api/v1/capas/00000000-0000-4000-8000-000000000005"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+      x-idempotent: false
+      x-safe: false
+      x-conflict-codes: ["NOMBRE_DUPLICADO"]
+  "/capas/{capaId}":
+    parameters:
+      -
+        name: "capaId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    get:
+      tags: ["Capas"]
+      operationId: "consultarCapa"
+      summary: "Consultar capa"
+      description: "Recupera identidad y nombre guardados. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-03-AC-1", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Capa"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    patch:
+      tags: ["Capas"]
+      operationId: "renombrarCapa"
+      summary: "Renombrar capa"
+      description: "Mantiene identidad y asociaciones, aplica unicidad global y registra el cambio. No elimina la capa. Solo Administrador. Este PATCH usa asignaciones de valores, no incrementos ni anexos; repetir el mismo cuerpo sin cambios externos conserva el mismo estado de negocio."
+      x-acceptance-criteria: ["RF-03-AC-2", "RF-03-AC-3"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/CapaEscritura"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Capa"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+      x-idempotent: true
+      x-safe: false
+      x-conflict-codes: ["NOMBRE_DUPLICADO"]
+  "/tipos-elemento":
+    get:
+      tags: ["Tipos de elemento"]
+      operationId: "listarTiposElemento"
+      summary: "Consultar tipos y formularios"
+      description: "Recupera tipos, capas, campos, opciones y obligatoriedad para construir formularios. Filtrar por capa no modifica datos. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-04-AC-1", "RF-05-AC-1", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      parameters:
+        -
+          name: "capaId"
+          in: "query"
+          required: false
+          description: "Restringe al catálogo de una capa existente."
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/TiposElemento"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    post:
+      tags: ["Tipos de elemento"]
+      operationId: "crearTipoElemento"
+      summary: "Crear tipo asociado a una capa"
+      description: "Crea tipo y campo base Nombre en una transacción. Rechaza capa inexistente con 404 y nombre repetido dentro de esa capa con 409. Solo Administrador."
+      x-acceptance-criteria: ["RF-04-AC-1", "RF-04-AC-3", "RF-19-AC-1"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/TipoElementoAlta"
+      responses:
+        "201":
+          description: "Recurso creado y persistido."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/TipoElemento"
+          headers:
+            Location:
+              description: "URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1."
+              schema:
+                type: "string"
+                format: "uri-reference"
+              example: "/api/v1/tipos-elemento/00000000-0000-4000-8000-000000000005"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+      x-idempotent: false
+      x-safe: false
+      x-conflict-codes: ["NOMBRE_DUPLICADO"]
+  "/tipos-elemento/{tipoId}":
+    parameters:
+      -
+        name: "tipoId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    get:
+      tags: ["Tipos de elemento"]
+      operationId: "consultarTipoElemento"
+      summary: "Consultar definición completa de tipo"
+      description: "Devuelve definición y bloqueo estructural, incluso si existen elementos de baja. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-04-AC-1", "RF-04-AC-2", "RF-05-AC-1", "RF-05-AC-2", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/TipoElemento"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    patch:
+      tags: ["Tipos de elemento"]
+      operationId: "renombrarTipoElemento"
+      summary: "Renombrar tipo de elemento"
+      description: "Cambia solo el nombre conservando ID, capa, campos y asociaciones de elementos existentes. Se permite con estructura bloqueada. Solo Administrador. Este PATCH usa asignaciones de valores, no incrementos ni anexos; repetir el mismo cuerpo sin cambios externos conserva el mismo estado de negocio."
+      x-acceptance-criteria: ["RF-04-AC-2"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/TipoElementoNombre"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/TipoElemento"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+      x-idempotent: true
+      x-safe: false
+      x-conflict-codes: ["NOMBRE_DUPLICADO"]
+  "/tipos-elemento/{tipoId}/campos":
+    parameters:
+      -
+        name: "tipoId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    get:
+      tags: ["Campos"]
+      operationId: "listarCampos"
+      summary: "Consultar campos y opciones"
+      description: "Devuelve campos del tipo, incluido Nombre, para interpretación de valores y formularios. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-05-AC-1", "RF-05-AC-2", "RF-05-AC-3", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Campos"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    post:
+      tags: ["Campos"]
+      operationId: "crearCampo"
+      summary: "Agregar campo al tipo"
+      description: "Se rechaza si hay elementos del tipo, si Nombre está reservado o si el nombre está repetido. Selección exige opciones; otros tipos no las admiten. Solo Administrador."
+      x-acceptance-criteria: ["RF-05-AC-1", "RF-05-AC-2", "RF-05-AC-3", "RF-19-AC-1"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/CampoEscritura"
+      responses:
+        "201":
+          description: "Recurso creado y persistido."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Campo"
+          headers:
+            Location:
+              description: "URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1."
+              schema:
+                type: "string"
+                format: "uri-reference"
+              example: "/api/v1/tipos-elemento/00000000-0000-4000-8000-000000000002/campos/00000000-0000-4000-8000-000000000003"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+      x-idempotent: false
+      x-safe: false
+      x-conflict-codes: ["ESTRUCTURA_BLOQUEADA", "NOMBRE_DUPLICADO"]
+  "/tipos-elemento/{tipoId}/campos/{campoId}":
+    parameters:
+      -
+        name: "tipoId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+      -
+        name: "campoId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    put:
+      tags: ["Campos"]
+      operationId: "reemplazarDefinicionCampo"
+      summary: "Reemplazar definición de campo"
+      description: "PUT reemplaza nombre, tipo, obligatoriedad y lista ordenada de opciones. Solo antes de existir elementos; Nombre base es inalterable. Mantiene el ID del campo. Conserva historial de versiones/opciones retiradas sin borrado físico; repetir la misma definición conserva IDs y no duplica opciones. Solo Administrador."
+      x-acceptance-criteria: ["RF-05-AC-1", "RF-05-AC-2", "RF-05-AC-3"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/CampoEscritura"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Campo"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+      x-idempotent: true
+      x-safe: false
+      x-conflict-codes: ["ESTRUCTURA_BLOQUEADA", "NOMBRE_DUPLICADO"]
+  "/elementos":
+    get:
+      tags: ["Elementos"]
+      operationId: "listarElementos"
+      summary: "Listar o buscar elementos"
+      description: "Tamaño fijo de 25, orden por Nombre y luego ID. Sin q se lista; con q se busca coincidencia parcial ignorando mayúsculas y espacios extremos, distinguiendo acentos. Nombres repetidos conservan registros separados. Sin coincidencias items=[] y total=0. Si q queda vacío se responde 422; la interfaz debe pedir un nombre sin enviar la búsqueda. Por defecto excluye bajas. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-08-AC-1", "RF-08-AC-2", "RF-08-AC-3", "RF-16-AC-1", "RF-16-AC-2", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      parameters:
+        -
+          $ref: "#/components/parameters/Pagina"
+        -
+          $ref: "#/components/parameters/IncluirBaja"
+        -
+          name: "q"
+          in: "query"
+          required: false
+          description: "Texto de búsqueda no vacío; omitir para listar."
+          schema:
+            type: "string"
+            minLength: 1
+            pattern: "\\S"
+        -
+          name: "capaId"
+          in: "query"
+          required: false
+          description: "Filtro por capa existente."
+          schema:
+            type: "string"
+            format: "uuid"
+        -
+          name: "tipoElementoId"
+          in: "query"
+          required: false
+          description: "Filtro por tipo existente; combinación por intersección."
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Elementos"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    post:
+      tags: ["Elementos"]
+      operationId: "crearElemento"
+      summary: "Registrar elemento"
+      description: "Crea identidad UUID inmutable, valores, autoría y bitácora. Editor debe tener capa del tipo asignada. Obligatorios válidos; opcionales omitidos quedan vacíos. No crea nada si falla cualquier validación. Administrador o Editor autorizado sobre la capa afectada; Consulta no puede escribir."
+      x-acceptance-criteria: ["RF-02-AC-1", "RF-06-AC-1", "RF-06-AC-3", "RF-07-AC-1", "RF-07-AC-2", "RF-07-AC-3", "RF-18-AC-1", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/ElementoAlta"
+      responses:
+        "201":
+          description: "Recurso creado y persistido."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Elemento"
+          headers:
+            Location:
+              description: "URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1."
+              schema:
+                type: "string"
+                format: "uri-reference"
+              example: "/api/v1/elementos/00000000-0000-4000-8000-000000000005"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: false
+      x-safe: false
+  "/elementos/{elementoId}":
+    parameters:
+      -
+        name: "elementoId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    get:
+      tags: ["Elementos"]
+      operationId: "consultarElemento"
+      summary: "Consultar detalle de elemento"
+      description: "Devuelve capa, tipo, definiciones, valores y autoría. Para elemento de baja requiere incluirBaja=true; con el valor por defecto responde 404. Todos los usuarios autenticados pueden consultar el histórico explícitamente. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-01-AC-2", "RF-06-AC-1", "RF-06-AC-2", "RF-08-AC-2", "RF-15-AC-1", "RF-15-AC-2", "RF-16-AC-2", "RF-18-AC-1", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      parameters:
+        -
+          $ref: "#/components/parameters/IncluirBaja"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Elemento"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    patch:
+      tags: ["Elementos"]
+      operationId: "modificarElemento"
+      summary: "Actualizar valores o reactivar elemento"
+      description: "Administrador o Editor autorizado en la capa. Modifica solo propiedades enviadas y conserva ID, tipo y valores omitidos. estado=activo reactiva una baja conservando campos, relaciones e historial; ya activo no produce otra transición. Se pueden enviar valores y estado juntos, con validación atómica. Editar valores de una baja requiere estado=activo en la misma petición o reactivación previa; en otro caso devuelve 409. Registra autoría y cambios. Repetir una asignación idéntica no vuelve a modificar datos, fechas ni autoría. Este PATCH usa asignaciones de valores, no incrementos ni anexos; repetir el mismo cuerpo sin cambios externos conserva el mismo estado de negocio."
+      x-acceptance-criteria: ["RF-02-AC-2", "RF-06-AC-2", "RF-06-AC-3", "RF-07-AC-1", "RF-07-AC-2", "RF-07-AC-3", "RF-18-AC-1", "RF-18-AC-2", "RF-19-AC-1", "RF-16-AC-2"]
+      x-roles: ["Administrador", "Editor"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/ElementoCambio"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Elemento"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+      x-idempotent: true
+      x-safe: false
+      x-conflict-codes: ["ELEMENTO_DE_BAJA"]
+    delete:
+      tags: ["Elementos"]
+      operationId: "darBajaElemento"
+      summary: "Dar de baja lógica al elemento"
+      description: "DELETE realiza baja lógica, nunca borrado físico. Conserva valores, relaciones y bitácora; excluye el elemento de listado/mapa ordinarios. Repetir la baja conserva estado y no genera otra transición. Devuelve el registro con estado baja. Administrador o Editor autorizado sobre la capa afectada; Consulta no puede escribir."
+      x-acceptance-criteria: ["RF-06-AC-3", "RF-16-AC-1", "RF-16-AC-2", "RF-18-AC-2"]
+      x-roles: ["Administrador", "Editor"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Elemento"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: false
+  "/tipos-relacion":
+    get:
+      tags: ["Tipos de relación"]
+      operationId: "listarTiposRelacion"
+      summary: "Consultar tipos de relación compatibles"
+      description: "Sin filtros devuelve catálogo completo. Con tipos origen/destino devuelve solo definiciones dirigidas compatibles para el formulario de propuesta. No invierte el sentido. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-09-AC-1", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      parameters:
+        -
+          name: "tipoOrigenId"
+          in: "query"
+          required: false
+          description: "Tipo del origen propuesto."
+          schema:
+            type: "string"
+            format: "uuid"
+        -
+          name: "tipoDestinoId"
+          in: "query"
+          required: false
+          description: "Tipo del destino propuesto."
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/TiposRelacion"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    post:
+      tags: ["Tipos de relación"]
+      operationId: "crearTipoRelacion"
+      summary: "Definir tipo de relación dirigido"
+      description: "Persiste nombre, descripción y tipos permitidos. Ambos tipos deben existir. No publica un vínculo al crear una definición. Solo Administrador."
+      x-acceptance-criteria: ["RF-09-AC-1", "RF-09-AC-2", "RF-09-AC-3", "RF-19-AC-1"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/TipoRelacionAlta"
+      responses:
+        "201":
+          description: "Recurso creado y persistido."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/TipoRelacion"
+          headers:
+            Location:
+              description: "URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1."
+              schema:
+                type: "string"
+                format: "uri-reference"
+              example: "/api/v1/tipos-relacion/00000000-0000-4000-8000-000000000005"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: false
+      x-safe: false
+  "/tipos-relacion/{tipoRelacionId}":
+    parameters:
+      -
+        name: "tipoRelacionId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    get:
+      tags: ["Tipos de relación"]
+      operationId: "consultarTipoRelacion"
+      summary: "Consultar definición de relación"
+      description: "Recupera los tipos de origen/destino permitidos y descripción. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-09-AC-1", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/TipoRelacion"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    patch:
+      tags: ["Tipos de relación"]
+      operationId: "modificarTipoRelacion"
+      summary: "Renombrar o describir tipo de relación"
+      description: "Modifica nombre o descripción conservando identidad y tipos permitidos. Solo Administrador. Este PATCH usa asignaciones de valores, no incrementos ni anexos; repetir el mismo cuerpo sin cambios externos conserva el mismo estado de negocio."
+      x-acceptance-criteria: ["RF-09-AC-3"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/TipoRelacionCambio"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/TipoRelacion"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: false
+  "/propuestas-relacion":
+    get:
+      tags: ["Propuestas de relación"]
+      operationId: "listarPropuestas"
+      summary: "Consultar propuestas e historial"
+      description: "Devuelve propuestas con estado, autor, decisor y fecha. No las trata como relaciones validadas. Orden por creación e ID. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-10-AC-1", "RF-11-AC-1", "RF-11-AC-2", "RF-12-AC-1", "RF-12-AC-2", "RF-12-AC-3", "RF-12-AC-4", "RF-19-AC-2"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      parameters:
+        -
+          $ref: "#/components/parameters/Pagina"
+        -
+          name: "estado"
+          in: "query"
+          required: false
+          description: "Filtra por estado; omitido incluye todos."
+          schema:
+            type: "string"
+            enum: ["pendiente", "aprobada", "rechazada"]
+        -
+          name: "relacionId"
+          in: "query"
+          required: false
+          description: "Historial de propuestas para una relación existente."
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Propuestas"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    post:
+      tags: ["Propuestas de relación"]
+      operationId: "crearPropuesta"
+      summary: "Proponer alta, cambio o retiro de relación"
+      description: "Persiste una propuesta pendiente, sin modificar ni publicar relaciones. Extremos activos, existentes, distintos y compatibles con tipo dirigido. Rechaza duplicados entre relaciones no retiradas y propuestas pendientes (excluye la propia relación objetivo al cambiarla). Máximo una pendiente por relación objetivo. Editor requiere capa de origen y, si cambia origen, tanto capa vigente como nueva. Justificación de 10 a 500 caracteres. Retiro solo de relación vigente. versionBase debe coincidir con la versión actual; todas las reglas se revisan de forma atómica. Administrador o Editor autorizado sobre la capa afectada; Consulta no puede escribir."
+      x-acceptance-criteria: ["RF-10-AC-1", "RF-10-AC-2", "RF-10-AC-3", "RF-12-AC-1", "RF-12-AC-3", "RF-16-AC-3", "RF-18-AC-2"]
+      x-roles: ["Administrador", "Editor"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/PropuestaEscritura"
+      responses:
+        "201":
+          description: "Recurso creado y persistido."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Propuesta"
+          headers:
+            Location:
+              description: "URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1."
+              schema:
+                type: "string"
+                format: "uri-reference"
+              example: "/api/v1/propuestas-relacion/00000000-0000-4000-8000-000000000005"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+      x-idempotent: false
+      x-safe: false
+      x-conflict-codes: ["RELACION_DUPLICADA", "PROPUESTA_PENDIENTE_EXISTENTE", "VERSION_OBSOLETA"]
+  "/propuestas-relacion/{propuestaId}":
+    parameters:
+      -
+        name: "propuestaId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    get:
+      tags: ["Propuestas de relación"]
+      operationId: "consultarPropuesta"
+      summary: "Consultar propuesta y su decisión"
+      description: "Conserva y recupera valores propuestos, autoría y decisión entre sesiones. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-10-AC-1", "RF-11-AC-1", "RF-11-AC-2", "RF-12-AC-1", "RF-12-AC-2", "RF-12-AC-4", "RF-19-AC-2"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Propuesta"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    patch:
+      tags: ["Propuestas de relación"]
+      operationId: "corregirPropuestaPendiente"
+      summary: "Corregir una propuesta pendiente"
+      description: "Permite corregir una propuesta cuya aprobación falló; sigue pendiente y conserva la versión vigente de la relación. Revalida referencias, duplicados y permisos. No modifica propuestas aprobadas/rechazadas ni publica relaciones. Administrador o Editor autorizado sobre la capa afectada; Consulta no puede escribir. Este PATCH usa asignaciones de valores, no incrementos ni anexos; repetir el mismo cuerpo sin cambios externos conserva el mismo estado de negocio."
+      x-acceptance-criteria: ["RF-10-AC-2", "RF-10-AC-3", "RF-12-AC-1", "RF-12-AC-4", "RF-16-AC-3", "RF-18-AC-2"]
+      x-roles: ["Administrador", "Editor"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/PropuestaCorreccion"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Propuesta"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+      x-idempotent: true
+      x-safe: false
+      x-conflict-codes: ["RELACION_DUPLICADA", "PROPUESTA_YA_RESUELTA", "VERSION_OBSOLETA"]
+  "/propuestas-relacion/{propuestaId}/decisiones":
+    parameters:
+      -
+        name: "propuestaId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    post:
+      tags: ["Propuestas de relación"]
+      operationId: "decidirPropuesta"
+      summary: "Aprobar o rechazar propuesta"
+      description: "Acción separada incluso si el proponente es Administrador. Solo resuelve pendientes. Aprobar revalida extremos activos, compatibilidad, duplicados y versionBase. Alta crea relación; cambio/retiro mantiene identidad y actualiza versión. Retiro cambia estado a retirada. Un conflicto de duplicado o versión devuelve 409; extremos inactivos/incompatibles devuelven 422. En ambos casos no hay decisión ni cambios y la propuesta sigue pendiente. Rechazar conserva relación previa y no crea vínculo. Actor, fecha, resolución, relación y bitácora se confirman en una sola transacción. Solo Administrador. Devuelve 201 al crear el evento de decisión, referenciado por entradaBitacoraId. Cada propuesta tiene una sola decisión definitiva; repetir un POST sobre una propuesta resuelta devuelve 409 y no duplica la relación ni el evento. Ante timeout consultar la propuesta antes de repetir."
+      x-acceptance-criteria: ["RF-11-AC-1", "RF-11-AC-2", "RF-11-AC-3", "RF-12-AC-2", "RF-12-AC-3", "RF-12-AC-4", "RF-18-AC-2", "RF-19-AC-2"]
+      x-roles: ["Administrador"]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/DecisionPropuesta"
+      responses:
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+        "409":
+          $ref: "#/components/responses/409"
+        "201":
+          description: "Decisión y evento de bitácora creados, con resultado aplicado atómicamente."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/DecisionResultado"
+          headers:
+            Location:
+              description: "URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1."
+              schema:
+                type: "string"
+                format: "uri-reference"
+              example: "/api/v1/entradas-bitacora/00000000-0000-4000-8000-000000000004"
+      x-idempotent: false
+      x-safe: false
+      x-conflict-codes: ["RELACION_DUPLICADA", "PROPUESTA_YA_RESUELTA", "VERSION_OBSOLETA"]
+  "/relaciones":
+    get:
+      tags: ["Relaciones validadas"]
+      operationId: "listarRelaciones"
+      summary: "Consultar vínculos e historial"
+      description: "Por defecto solo relaciones vigentes con extremos activos. incluirHistoricas=true incluye retiradas o con extremos de baja y muestra su estado. No incluye propuestas. Orden estable por ID. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-12-AC-1", "RF-12-AC-2", "RF-12-AC-3", "RF-15-AC-2", "RF-16-AC-1", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      parameters:
+        -
+          $ref: "#/components/parameters/Pagina"
+        -
+          name: "elementoId"
+          in: "query"
+          required: false
+          description: "Filtra las relaciones incidentes a un elemento existente."
+          schema:
+            type: "string"
+            format: "uuid"
+        -
+          name: "incluirHistoricas"
+          in: "query"
+          required: false
+          description: "Incluye vínculos retirados y relaciones con extremos de baja."
+          schema:
+            type: "boolean"
+            default: false
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Relaciones"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+  "/relaciones/{relacionId}":
+    parameters:
+      -
+        name: "relacionId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    get:
+      tags: ["Relaciones validadas"]
+      operationId: "consultarRelacion"
+      summary: "Consultar detalle de vínculo validado"
+      description: "Recupera también vínculos retirados para historial. Incluye origen, tipo, destino, justificación, estado, versión y autoría. IDs de extremos permiten abrir su detalle con incluirBaja=true si corresponde. No permite editar directamente: cambios y retiros requieren propuestas aprobadas. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-12-AC-1", "RF-12-AC-2", "RF-12-AC-3", "RF-15-AC-2", "RF-16-AC-1", "RF-18-AC-1", "RF-19-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Relacion"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+  "/mapas/{elementoId}":
+    parameters:
+      -
+        name: "elementoId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    get:
+      tags: ["Mapas"]
+      operationId: "consultarMapa"
+      summary: "Explorar conexiones directas y aplicar filtros"
+      description: "Requiere partida activa. Devuelve partida y vecinos de relaciones directas vigentes, entrantes o salientes, preservando dirección real. Los filtros de capa, tipo de vecino y tipo de relación se intersectan; partida permanece como contexto. Solo aristas incidentes a la partida con ambos extremos visibles. Sin vecinos devuelve solo partida y aristas=[]. Máximo 100 nodos contando partida, vecinos en orden estable por UUID; indica truncamiento. Para recorrer se solicita este endpoint con otro ID; no inventa vínculos transitivos. Omitir filtros recupera vista ordinaria sin alterar datos. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-10-AC-1", "RF-11-AC-1", "RF-12-AC-1", "RF-12-AC-3", "RF-13-AC-1", "RF-13-AC-2", "RF-13-AC-3", "RF-14-AC-1", "RF-14-AC-2", "RF-14-AC-3", "RF-16-AC-1"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      parameters:
+        -
+          name: "capaDestinoId"
+          in: "query"
+          required: false
+          description: "Capa de los vecinos que se desean mostrar; se aplica también a vecinos de vínculos entrantes."
+          schema:
+            type: "string"
+            format: "uuid"
+        -
+          name: "tipoElementoId"
+          in: "query"
+          required: false
+          description: "Tipo de elemento de los vecinos."
+          schema:
+            type: "string"
+            format: "uuid"
+        -
+          name: "tipoRelacionId"
+          in: "query"
+          required: false
+          description: "Tipo de las relaciones directas."
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Mapa"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+  "/entradas-bitacora":
+    get:
+      tags: ["Bitácora"]
+      operationId: "listarBitacora"
+      summary: "Consultar operaciones auditadas"
+      description: "Consulta inmutable para cualquier cuenta autenticada, según la visibilidad general del SRS. Registra altas, modificaciones, bajas, reactivaciones, propuestas, decisiones y cambios de acceso. Orden fecha descendente y luego ID. Instantáneas excluyen contraseñas, hashes, JWT y secretos. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-18-AC-2", "RF-18-AC-3", "RF-19-AC-2"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      parameters:
+        -
+          $ref: "#/components/parameters/Pagina"
+        -
+          name: "objetoId"
+          in: "query"
+          required: false
+          description: "Filtra por objeto auditado existente, incluyendo bajas/retiradas."
+          schema:
+            type: "string"
+            format: "uuid"
+        -
+          name: "tipoObjeto"
+          in: "query"
+          required: false
+          description: "Filtra la clase de objeto."
+          schema:
+            type: "string"
+            minLength: 1
+        -
+          name: "actorId"
+          in: "query"
+          required: false
+          description: "Filtra por cuenta existente."
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Bitacora"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+  "/entradas-bitacora/{entradaId}":
+    parameters:
+      -
+        name: "entradaId"
+        in: "path"
+        required: true
+        description: "Identificador UUID del recurso."
+        schema:
+          type: "string"
+          format: "uuid"
+    get:
+      tags: ["Bitácora"]
+      operationId: "consultarEntradaBitacora"
+      summary: "Consultar entrada inmutable"
+      description: "Permite inspeccionar actor, fecha, objeto, acción y valores públicos antes/después. No existe una operación de escritura sobre la bitácora. PUT, PATCH y DELETE sobre esta URI deben responder 405 con Error y conservar la entrada. Lectura disponible para toda cuenta autenticada."
+      x-acceptance-criteria: ["RF-18-AC-2", "RF-18-AC-3"]
+      x-roles: ["Administrador", "Editor", "Consulta"]
+      responses:
+        "200":
+          description: "Operación completada."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/EntradaBitacora"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "404":
+          $ref: "#/components/responses/404"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      x-idempotent: true
+      x-safe: true
+    x-rejected-methods:
+      methods: ["PUT", "PATCH", "DELETE"]
+      response:
+        $ref: "#/components/responses/405"
+      x-acceptance-criteria: ["RF-18-AC-3"]
+  "/demostraciones/arquitectura-ficticia-v1":
+    put:
+      tags: ["Demostraciones"]
+      operationId: "cargarDemostracion"
+      summary: "Cargar muestra ficticia sin duplicados"
+      description: "Solo Administrador. PUT asegura el registro de carga de la muestra fija identificada por la URI. Si no existe, crea el registro y carga en una transacción la plantilla ficticia completa, capa adicional y relaciones aprobadas entre capas: 201. Si existe el mismo registro, devuelve 200 y mismos IDs sin duplicar, sobrescribir modificaciones posteriores ni ejecutar de nuevo propuestas/decisiones. El recurso representa el registro de carga, no una orden para restaurar datos. Cuerpo completo y URI deben identificar la misma versión. Control transaccional impide duplicados concurrentes."
+      x-acceptance-criteria: ["RF-17-AC-1", "RF-17-AC-2", "RF-18-AC-2"]
+      x-roles: ["Administrador"]
+      responses:
+        "201":
+          description: "Recurso creado y persistido."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/DemostracionResultado"
+          headers:
+            Location:
+              description: "URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1."
+              schema:
+                type: "string"
+                format: "uri-reference"
+              example: "/api/v1/demostraciones/arquitectura-ficticia-v1"
+        "200":
+          description: "La muestra ya existe; no se duplicó ningún registro."
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/DemostracionResultado"
+        "400":
+          $ref: "#/components/responses/400"
+        "401":
+          $ref: "#/components/responses/401"
+        "403":
+          $ref: "#/components/responses/403"
+        "422":
+          $ref: "#/components/responses/422"
+        "500":
+          $ref: "#/components/responses/500"
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/DemostracionConfiguracion"
+      x-idempotent: true
+      x-safe: false
+components:
+  securitySchemes:
+    BearerToken:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"
+      description: "Authorization: Bearer <JWT>. Sesiones independientes con revocación comprobada en servidor; firma válida por sí sola no garantiza acceso."
+  parameters:
+    Pagina:
+      name: "pagina"
+      in: "query"
+      description: "Página desde 1; tamaño fijo de 25."
+      schema:
+        type: "integer"
+        minimum: 1
+        default: 1
+    IncluirBaja:
+      name: "incluirBaja"
+      in: "query"
+      description: "Permite consultar elementos dados de baja con su etiqueta. No cambia el mapa ordinario."
+      schema:
+        type: "boolean"
+        default: false
+  responses:
+    "400":
+      description: "Solicitud mal formada (por ejemplo JSON ilegible). No se aplican cambios."
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/Error"
+    "401":
+      description: "Credenciales incorrectas, cuenta inactiva o JWT ausente, inválido, expirado o sesión revocada/inactiva. No se entregan datos privados."
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/Error"
+      headers:
+        WWW-Authenticate:
+          description: "Obligatorio en toda respuesta 401. Challenge Bearer; un JWT presentado pero inválido puede añadir error=\"invalid_token\"."
+          schema:
+            type: "string"
+          example: "Bearer realm=\"arquitectura\""
+    "403":
+      description: "Sesión válida sin rol o capa de edición requeridos. No se aplican cambios."
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/Error"
+    "404":
+      description: "Recurso o referencia solicitada inexistente."
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/Error"
+    "422":
+      description: "Contenido legible que incumple esquema o reglas de los valores: obligatorio vacío, tipo/fecha/opción inválidos, extremos incompatibles o inactivos, autorrelación o justificación fuera de rango. detalles identifica los datos inválidos. No hay cambios parciales. Los conflictos con el estado actual se devuelven como 409."
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/Error"
+    "500":
+      description: "Fallo interno. Mensaje genérico sin secretos. Las escrituras fallidas se revierten."
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/Error"
+    "405":
+      description: "Método no permitido: la bitácora es inmutable."
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/Error"
+      headers:
+        Allow:
+          description: "Obligatorio en respuesta 405: métodos que sí admite esta URI de entrada inmutable."
+          schema:
+            type: "string"
+            enum: ["GET"]
+          example: "GET"
+    "409":
+      description: "Conflicto con el estado actual: duplicado, estructura bloqueada, versión obsoleta, propuesta ya resuelta o pendiente simultánea, último administrador. No se altera ningún recurso. El cliente debe revisar el estado antes de intentar otra operación."
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Rol:
+      type: "string"
+      enum: ["Administrador", "Editor", "Consulta"]
+    NombreCatalogo:
+      type: "string"
+      minLength: 1
+      pattern: "\\S"
+      description: "Se recortan espacios extremos; se rechaza texto vacío. Unicidad de capas global, de tipos por capa y de campos por tipo, sin distinguir mayúsculas."
+    Mensaje:
+      type: "object"
+      additionalProperties: false
+      properties:
+        mensaje:
+          type: "string"
+      required: ["mensaje"]
+    Error:
+      type: "object"
+      additionalProperties: false
+      properties:
+        codigo:
+          type: "string"
+          description: "Código estable de la causa, por ejemplo NOMBRE_DUPLICADO, SIN_PERMISO o CAMPO_INVALIDO."
+        mensaje:
+          type: "string"
+          description: "Explicación en español sin trazas internas ni secretos."
+        detalles:
+          type: "array"
+          items:
+            type: "object"
+            additionalProperties: false
+            properties:
+              campo:
+                type: "string"
+                description: "Ruta del dato inválido, por ejemplo valores[0].numero."
+              motivo:
+                type: "string"
+            required: ["campo", "motivo"]
+      required: ["codigo", "mensaje", "detalles"]
+    Credenciales:
+      type: "object"
+      additionalProperties: false
+      properties:
+        identificadorAcceso:
+          type: "string"
+          minLength: 1
+        contrasena:
+          type: "string"
+          minLength: 1
+          writeOnly: true
+          format: "password"
+      required: ["identificadorAcceso", "contrasena"]
+    Usuario:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        identificadorAcceso:
+          type: "string"
+        rol:
+          $ref: "#/components/schemas/Rol"
+        activo:
+          type: "boolean"
+        capasEditables:
+          type: "array"
+          items:
+            type: "string"
+            format: "uuid"
+          uniqueItems: true
+      required: ["id", "identificadorAcceso", "rol", "activo", "capasEditables"]
+    UsuarioAlta:
+      type: "object"
+      additionalProperties: false
+      properties:
+        identificadorAcceso:
+          type: "string"
+          minLength: 1
+          pattern: "\\S"
+        contrasenaInicial:
+          type: "string"
+          minLength: 1
+          writeOnly: true
+          format: "password"
+        rol:
+          $ref: "#/components/schemas/Rol"
+        capasEditables:
+          type: "array"
+          items:
+            type: "string"
+            format: "uuid"
+          uniqueItems: true
+          default: []
+      required: ["identificadorAcceso", "contrasenaInicial", "rol"]
+      description: "Identificador de acceso único. Capas editables solo para Editor; para otros roles debe ser una lista vacía. Todas las capas deben existir. Política de complejidad de contraseña pendiente de definición fuera del SRS."
+    UsuarioCambio:
+      type: "object"
+      additionalProperties: false
+      properties:
+        rol:
+          $ref: "#/components/schemas/Rol"
+        activo:
+          type: "boolean"
+      minProperties: 1
+      description: "Cambio parcial y atómico. Cambiar rol o desactivar invalida todas las sesiones. Cambiar a un rol distinto de Editor vacía las asignaciones actuales conservando su historial. Se protege al último administrador activo."
+    RestablecimientoContrasena:
+      type: "object"
+      additionalProperties: false
+      properties:
+        nuevaContrasena:
+          type: "string"
+          minLength: 1
+          writeOnly: true
+          format: "password"
+      required: ["nuevaContrasena"]
+    CapasEditables:
+      type: "object"
+      additionalProperties: false
+      properties:
+        capaIds:
+          type: "array"
+          items:
+            type: "string"
+            format: "uuid"
+          uniqueItems: true
+      required: ["capaIds"]
+      description: "Conjunto completo de capas asignadas a un Editor. Lista vacía significa solo lectura. No se duplican asignaciones; las retiradas se conservan en bitácora."
+    TokenSesion:
+      type: "object"
+      additionalProperties: false
+      properties:
+        accessToken:
+          type: "string"
+          description: "JWT firmado; incluye sub (usuario), sid (sesión), jti, iat y exp. Nunca se almacena en bitácora."
+        tokenType:
+          type: "string"
+          enum: ["Bearer"]
+        expiresIn:
+          type: "integer"
+          minimum: 1
+          maximum: 28800
+        expiraEn:
+          type: "string"
+          format: "date-time"
+        usuario:
+          $ref: "#/components/schemas/Usuario"
+        sesionId:
+          type: "string"
+          format: "uuid"
+          description: "ID de la sesión creada y representada por /sesiones/actual al presentar este JWT."
+      required: ["accessToken", "tokenType", "expiresIn", "expiraEn", "usuario", "sesionId"]
+    Sesion:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        usuario:
+          $ref: "#/components/schemas/Usuario"
+        creadaEn:
+          type: "string"
+          format: "date-time"
+        ultimaActividadEn:
+          type: "string"
+          format: "date-time"
+        expiraEn:
+          type: "string"
+          format: "date-time"
+      required: ["id", "usuario", "creadaEn", "ultimaActividadEn", "expiraEn"]
+    CapaEscritura:
+      type: "object"
+      additionalProperties: false
+      properties:
+        nombre:
+          $ref: "#/components/schemas/NombreCatalogo"
+      required: ["nombre"]
+    Capa:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        nombre:
+          type: "string"
+      required: ["id", "nombre"]
+    TipoElementoAlta:
+      type: "object"
+      additionalProperties: false
+      properties:
+        nombre:
+          $ref: "#/components/schemas/NombreCatalogo"
+        capaId:
+          type: "string"
+          format: "uuid"
+      required: ["nombre", "capaId"]
+    TipoElementoNombre:
+      type: "object"
+      additionalProperties: false
+      properties:
+        nombre:
+          $ref: "#/components/schemas/NombreCatalogo"
+      required: ["nombre"]
+    OpcionCampoEscritura:
+      type: "object"
+      additionalProperties: false
+      properties:
+        etiqueta:
+          type: "string"
+          minLength: 1
+          pattern: "\\S"
+        orden:
+          type: "integer"
+          minimum: 0
+      required: ["etiqueta", "orden"]
+    OpcionCampo:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        etiqueta:
+          type: "string"
+        orden:
+          type: "integer"
+          minimum: 0
+      required: ["id", "etiqueta", "orden"]
+    CampoEscritura:
+      type: "object"
+      additionalProperties: false
+      properties:
+        nombre:
+          $ref: "#/components/schemas/NombreCatalogo"
+        tipoDato:
+          type: "string"
+          enum: ["texto", "numero", "fecha", "seleccion"]
+        obligatorio:
+          type: "boolean"
+        opciones:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/OpcionCampoEscritura"
+      required: ["nombre", "tipoDato", "obligatorio", "opciones"]
+      description: "Selección requiere al menos una opción; otros tipos requieren opciones vacías. Se rechaza Nombre reservado o cualquier nombre duplicado. Solo se configura si el tipo nunca ha tenido elementos. Nombre base no se modifica."
+    Campo:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        tipoElementoId:
+          type: "string"
+          format: "uuid"
+        nombre:
+          type: "string"
+        tipoDato:
+          type: "string"
+          enum: ["texto", "numero", "fecha", "seleccion"]
+        obligatorio:
+          type: "boolean"
+        esBaseNombre:
+          type: "boolean"
+        opciones:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/OpcionCampo"
+      required: ["id", "tipoElementoId", "nombre", "tipoDato", "obligatorio", "esBaseNombre", "opciones"]
+    TipoElemento:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        nombre:
+          type: "string"
+        capaId:
+          type: "string"
+          format: "uuid"
+        estructuraBloqueada:
+          type: "boolean"
+          readOnly: true
+        campos:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Campo"
+          minItems: 1
+      required: ["id", "nombre", "capaId", "estructuraBloqueada", "campos"]
+      description: "Incluye exactamente un campo base Nombre de texto, obligatorio e inalterable. La estructura queda bloqueada si existe cualquier elemento del tipo, incluso de baja. Renombrar el tipo sigue permitido."
+    ValorCampo:
+      oneOf:
+        -
+          type: "object"
+          additionalProperties: false
+          properties:
+            campoId:
+              type: "string"
+              format: "uuid"
+            texto:
+              type: "string"
+          required: ["campoId", "texto"]
+        -
+          type: "object"
+          additionalProperties: false
+          properties:
+            campoId:
+              type: "string"
+              format: "uuid"
+            numero:
+              type: "number"
+              format: "double"
+          required: ["campoId", "numero"]
+        -
+          type: "object"
+          additionalProperties: false
+          properties:
+            campoId:
+              type: "string"
+              format: "uuid"
+            fecha:
+              type: "string"
+              format: "date"
+          required: ["campoId", "fecha"]
+        -
+          type: "object"
+          additionalProperties: false
+          properties:
+            campoId:
+              type: "string"
+              format: "uuid"
+            opcionId:
+              type: "string"
+              format: "uuid"
+          required: ["campoId", "opcionId"]
+      description: "Exactamente una representación por campo, compatible con su definición. Número finito, fecha real de calendario u opción de la lista del campo. No se admite un campo ajeno al tipo ni IDs repetidos. Nombre y textos obligatorios se rechazan vacíos o con solo espacios."
+    ValorCampoVacio:
+      type: "object"
+      additionalProperties: false
+      properties:
+        campoId:
+          type: "string"
+          format: "uuid"
+        vaciar:
+          type: "boolean"
+          enum: [true]
+      required: ["campoId", "vaciar"]
+      description: "Permite vaciar un campo opcional; elimina su valor presente conservando bitácora. Se rechaza en Nombre y otros campos obligatorios."
+    ElementoAlta:
+      type: "object"
+      additionalProperties: false
+      properties:
+        tipoElementoId:
+          type: "string"
+          format: "uuid"
+        valores:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ValorCampo"
+          minItems: 1
+      required: ["tipoElementoId", "valores"]
+      description: "Debe incluir Nombre y todos los campos obligatorios. Campos opcionales omitidos quedan vacíos. Toda la escritura se valida y confirma en una transacción."
+    ElementoCambio:
+      type: "object"
+      additionalProperties: false
+      properties:
+        valores:
+          type: "array"
+          items:
+            oneOf:
+              -
+                $ref: "#/components/schemas/ValorCampo"
+              -
+                $ref: "#/components/schemas/ValorCampoVacio"
+          minItems: 1
+        estado:
+          type: "string"
+          enum: ["activo"]
+          description: "Reactivación explícita. La baja lógica se realiza mediante DELETE del elemento."
+      description: "Objeto parcial con valores, estado=activo o ambos. No admite objeto vacío. Campos omitidos se conservan. Si un campo falla no se guardan valores ni transición de estado. Una asignación idéntica conserva fechas y autoría."
+      minProperties: 1
+    Autoria:
+      type: "object"
+      additionalProperties: false
+      properties:
+        creadorId:
+          type: "string"
+          format: "uuid"
+        creadoEn:
+          type: "string"
+          format: "date-time"
+        ultimoModificadorId:
+          type: "string"
+          format: "uuid"
+        modificadoEn:
+          type: "string"
+          format: "date-time"
+      required: ["creadorId", "creadoEn", "ultimoModificadorId", "modificadoEn"]
+    ElementoResumen:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        nombre:
+          type: "string"
+        tipoElemento:
+          $ref: "#/components/schemas/TipoReferencia"
+        capa:
+          $ref: "#/components/schemas/Capa"
+        estado:
+          type: "string"
+          enum: ["activo", "baja"]
+      required: ["id", "nombre", "tipoElemento", "capa", "estado"]
+    TipoReferencia:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        nombre:
+          type: "string"
+      required: ["id", "nombre"]
+    Elemento:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        nombre:
+          type: "string"
+        tipoElemento:
+          $ref: "#/components/schemas/TipoReferencia"
+        capa:
+          $ref: "#/components/schemas/Capa"
+        estado:
+          type: "string"
+          enum: ["activo", "baja"]
+        campos:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Campo"
+          minItems: 1
+        valores:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ValorCampo"
+          minItems: 1
+        autoria:
+          $ref: "#/components/schemas/Autoria"
+      required: ["id", "nombre", "tipoElemento", "capa", "estado", "campos", "valores", "autoria"]
+      description: "Nombre se deriva del valor del campo base. Los campos opcionales vacíos no tienen entrada en valores. Los IDs de campos y sus opciones permiten interpretar cada valor. No incluye secretos."
+    TipoRelacionAlta:
+      type: "object"
+      additionalProperties: false
+      properties:
+        nombre:
+          type: "string"
+          minLength: 1
+          pattern: "\\S"
+        descripcion:
+          type: "string"
+          minLength: 1
+          pattern: "\\S"
+        tipoOrigenId:
+          type: "string"
+          format: "uuid"
+        tipoDestinoId:
+          type: "string"
+          format: "uuid"
+      required: ["nombre", "descripcion", "tipoOrigenId", "tipoDestinoId"]
+    TipoRelacionCambio:
+      type: "object"
+      additionalProperties: false
+      properties:
+        nombre:
+          type: "string"
+          minLength: 1
+          pattern: "\\S"
+        descripcion:
+          type: "string"
+          minLength: 1
+          pattern: "\\S"
+      minProperties: 1
+      description: "Se puede renombrar y actualizar la descripción. Los tipos permitidos no cambian para conservar la compatibilidad de vínculos históricos; crear otra definición si se necesitan otros extremos."
+    TipoRelacion:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        nombre:
+          type: "string"
+          minLength: 1
+          pattern: "\\S"
+        descripcion:
+          type: "string"
+          minLength: 1
+          pattern: "\\S"
+        tipoOrigenId:
+          type: "string"
+          format: "uuid"
+        tipoDestinoId:
+          type: "string"
+          format: "uuid"
+      required: ["id", "nombre", "descripcion", "tipoOrigenId", "tipoDestinoId"]
+    PropuestaAlta:
+      type: "object"
+      additionalProperties: false
+      properties:
+        operacion:
+          type: "string"
+          enum: ["alta"]
+        origenId:
+          type: "string"
+          format: "uuid"
+        tipoRelacionId:
+          type: "string"
+          format: "uuid"
+        destinoId:
+          type: "string"
+          format: "uuid"
+        justificacion:
+          type: "string"
+          minLength: 10
+          maxLength: 500
+          description: "Se recortan espacios extremos antes de medir; debe justificar la propuesta para la revisión humana."
+      required: ["operacion", "origenId", "tipoRelacionId", "destinoId", "justificacion"]
+    PropuestaCambio:
+      type: "object"
+      additionalProperties: false
+      properties:
+        operacion:
+          type: "string"
+          enum: ["cambio"]
+        relacionId:
+          type: "string"
+          format: "uuid"
+        versionBase:
+          type: "integer"
+          minimum: 1
+        origenId:
+          type: "string"
+          format: "uuid"
+        tipoRelacionId:
+          type: "string"
+          format: "uuid"
+        destinoId:
+          type: "string"
+          format: "uuid"
+        justificacion:
+          type: "string"
+          minLength: 10
+          maxLength: 500
+          description: "Se recortan espacios extremos antes de medir; debe justificar la propuesta para la revisión humana."
+      required: ["operacion", "relacionId", "versionBase", "origenId", "tipoRelacionId", "destinoId", "justificacion"]
+      description: "Valores completos solicitados para la relación objetivo. Al aprobar mantiene identidad y queda vigente. Editor requiere permiso en el origen vigente y en el propuesto."
+    PropuestaRetiro:
+      type: "object"
+      additionalProperties: false
+      properties:
+        operacion:
+          type: "string"
+          enum: ["retiro"]
+        relacionId:
+          type: "string"
+          format: "uuid"
+        versionBase:
+          type: "integer"
+          minimum: 1
+        justificacion:
+          type: "string"
+          minLength: 10
+          maxLength: 500
+          description: "Se recortan espacios extremos antes de medir; debe justificar la propuesta para la revisión humana."
+      required: ["operacion", "relacionId", "versionBase", "justificacion"]
+      description: "Extremos y tipo se copian de la relación objetivo vigente. Solicita estado retirada sin alterar todavía el vínculo."
+    PropuestaEscritura:
+      oneOf:
+        -
+          $ref: "#/components/schemas/PropuestaAlta"
+        -
+          $ref: "#/components/schemas/PropuestaCambio"
+        -
+          $ref: "#/components/schemas/PropuestaRetiro"
+      discriminator:
+        propertyName: "operacion"
+        mapping:
+          alta: "#/components/schemas/PropuestaAlta"
+          cambio: "#/components/schemas/PropuestaCambio"
+          retiro: "#/components/schemas/PropuestaRetiro"
+    PropuestaCorreccion:
+      type: "object"
+      additionalProperties: false
+      properties:
+        origenId:
+          type: "string"
+          format: "uuid"
+        tipoRelacionId:
+          type: "string"
+          format: "uuid"
+        destinoId:
+          type: "string"
+          format: "uuid"
+        justificacion:
+          type: "string"
+          minLength: 10
+          maxLength: 500
+          description: "Se recortan espacios extremos antes de medir; debe justificar la propuesta para la revisión humana."
+        versionBase:
+          type: "integer"
+          minimum: 1
+      minProperties: 1
+      description: "Corrección parcial solo mientras la propuesta esté pendiente. No cambia operación ni relación objetivo. Para retiro solo justificación/versionBase; los extremos siguen siendo los vigentes. Se vuelven a validar permisos, actividad de extremos, compatibilidad y duplicados."
+    Propuesta:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        operacion:
+          type: "string"
+          enum: ["alta", "cambio", "retiro"]
+        estado:
+          type: "string"
+          enum: ["pendiente", "aprobada", "rechazada"]
+        origenId:
+          type: "string"
+          format: "uuid"
+        tipoRelacionId:
+          type: "string"
+          format: "uuid"
+        destinoId:
+          type: "string"
+          format: "uuid"
+        justificacion:
+          type: "string"
+          minLength: 10
+          maxLength: 500
+          description: "Se recortan espacios extremos antes de medir; debe justificar la propuesta para la revisión humana."
+        estadoSolicitado:
+          type: "string"
+          enum: ["vigente", "retirada"]
+        relacionId:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        relacionResultadoId:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        versionBase:
+          type: "integer"
+          minimum: 1
+          nullable: true
+        autorId:
+          type: "string"
+          format: "uuid"
+        creadaEn:
+          type: "string"
+          format: "date-time"
+        decisorId:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        decididaEn:
+          type: "string"
+          format: "date-time"
+          nullable: true
+      required: ["id", "operacion", "estado", "origenId", "tipoRelacionId", "destinoId", "justificacion", "estadoSolicitado", "relacionId", "relacionResultadoId", "versionBase", "autorId", "creadaEn", "decisorId", "decididaEn"]
+      description: "Alta: relacionId y versionBase nulos; relacionResultadoId solo existe después de aprobar. Cambio/retiro: relacionId y versionBase obligatorios. Decisor y fecha nulos hasta resolver. Solo una propuesta pendiente por relación objetivo."
+    DecisionPropuesta:
+      type: "object"
+      additionalProperties: false
+      properties:
+        decision:
+          type: "string"
+          enum: ["aprobar", "rechazar"]
+      required: ["decision"]
+    Relacion:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        origen:
+          $ref: "#/components/schemas/ElementoResumen"
+        tipoRelacion:
+          $ref: "#/components/schemas/TipoRelacion"
+        destino:
+          $ref: "#/components/schemas/ElementoResumen"
+        justificacion:
+          type: "string"
+        estado:
+          type: "string"
+          enum: ["vigente", "retirada"]
+        version:
+          type: "integer"
+          minimum: 1
+        autoria:
+          $ref: "#/components/schemas/Autoria"
+      required: ["id", "origen", "tipoRelacion", "destino", "justificacion", "estado", "version", "autoria"]
+    DecisionResultado:
+      type: "object"
+      additionalProperties: false
+      properties:
+        propuesta:
+          $ref: "#/components/schemas/Propuesta"
+        relacion:
+          allOf:
+            -
+              $ref: "#/components/schemas/Relacion"
+          description: "Propiedad ausente al rechazar un alta, porque no se creó relación. Para cambio/retiro rechazado devuelve la relación conservada; al aprobar devuelve el estado aplicado."
+        entradaBitacoraId:
+          type: "string"
+          format: "uuid"
+          description: "Identidad del evento inmutable de esta decisión; permite recuperarlo mediante GET /entradas-bitacora/{entradaId}."
+      required: ["propuesta", "entradaBitacoraId"]
+    AristaMapa:
+      type: "object"
+      additionalProperties: false
+      properties:
+        relacionId:
+          type: "string"
+          format: "uuid"
+        origenId:
+          type: "string"
+          format: "uuid"
+        destinoId:
+          type: "string"
+          format: "uuid"
+        tipoRelacionId:
+          type: "string"
+          format: "uuid"
+        tipoRelacionNombre:
+          type: "string"
+      required: ["relacionId", "origenId", "destinoId", "tipoRelacionId", "tipoRelacionNombre"]
+    Mapa:
+      type: "object"
+      additionalProperties: false
+      properties:
+        elementoPartidaId:
+          type: "string"
+          format: "uuid"
+        nodos:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ElementoResumen"
+          minItems: 1
+          maxItems: 100
+        aristas:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/AristaMapa"
+        truncado:
+          type: "boolean"
+        totalNodosElegibles:
+          type: "integer"
+          minimum: 1
+      required: ["elementoPartidaId", "nodos", "aristas", "truncado", "totalNodosElegibles"]
+      description: "Partida primero, vecinos ordenados por identificador. Solo relaciones directas vigentes con ambos extremos activos y visibles. No se infieren aristas ni se incluyen propuestas. Total incluye partida y vecinos únicos que cumplen filtros antes del límite de 100. truncado indica totalNodosElegibles > 100."
+    EntradaBitacora:
+      type: "object"
+      additionalProperties: false
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          readOnly: true
+        actorId:
+          type: "string"
+          format: "uuid"
+        fecha:
+          type: "string"
+          format: "date-time"
+        tipoObjeto:
+          type: "string"
+        objetoId:
+          type: "string"
+          format: "uuid"
+        accion:
+          type: "string"
+        valoresAntes:
+          type: "object"
+          additionalProperties: true
+          nullable: true
+          description: "Instantánea de los campos públicos cambiados; excluye contraseñas, hashes, JWT, tokens y demás secretos."
+        valoresDespues:
+          type: "object"
+          additionalProperties: true
+          nullable: true
+          description: "Instantánea pública nueva. En restablecimiento solo metadatos de la operación."
+      required: ["id", "actorId", "fecha", "tipoObjeto", "objetoId", "accion", "valoresAntes", "valoresDespues"]
+    DemostracionResultado:
+      type: "object"
+      additionalProperties: false
+      properties:
+        muestraId:
+          type: "string"
+          enum: ["arquitectura-ficticia-v1"]
+        ficticia:
+          type: "boolean"
+          enum: [true]
+        creada:
+          type: "boolean"
+        mensaje:
+          type: "string"
+        capaIds:
+          type: "array"
+          items:
+            type: "string"
+            format: "uuid"
+        elementoIds:
+          type: "array"
+          items:
+            type: "string"
+            format: "uuid"
+        relacionIds:
+          type: "array"
+          items:
+            type: "string"
+            format: "uuid"
+      required: ["muestraId", "ficticia", "creada", "mensaje", "capaIds", "elementoIds", "relacionIds"]
+      description: "IDs estables de la muestra. Carga repetida informa creada=false y devuelve los mismos IDs; no duplica datos. Las relaciones se crean mediante propuestas y aprobación separadas dentro del proceso de carga, con decisiones y bitácora."
+    Usuarios:
+      type: "object"
+      additionalProperties: false
+      properties:
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Usuario"
+        total:
+          type: "integer"
+          minimum: 0
+        pagina:
+          type: "integer"
+          minimum: 1
+        tamanoPagina:
+          type: "integer"
+          enum: [25]
+      required: ["items", "total", "pagina", "tamanoPagina"]
+    Capas:
+      type: "object"
+      additionalProperties: false
+      properties:
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Capa"
+        total:
+          type: "integer"
+          minimum: 0
+      required: ["items", "total"]
+    TiposElemento:
+      type: "object"
+      additionalProperties: false
+      properties:
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TipoElemento"
+        total:
+          type: "integer"
+          minimum: 0
+      required: ["items", "total"]
+    Campos:
+      type: "object"
+      additionalProperties: false
+      properties:
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Campo"
+        total:
+          type: "integer"
+          minimum: 0
+      required: ["items", "total"]
+    Elementos:
+      type: "object"
+      additionalProperties: false
+      properties:
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/ElementoResumen"
+        total:
+          type: "integer"
+          minimum: 0
+        pagina:
+          type: "integer"
+          minimum: 1
+        tamanoPagina:
+          type: "integer"
+          enum: [25]
+      required: ["items", "total", "pagina", "tamanoPagina"]
+    TiposRelacion:
+      type: "object"
+      additionalProperties: false
+      properties:
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/TipoRelacion"
+        total:
+          type: "integer"
+          minimum: 0
+      required: ["items", "total"]
+    Propuestas:
+      type: "object"
+      additionalProperties: false
+      properties:
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Propuesta"
+        total:
+          type: "integer"
+          minimum: 0
+        pagina:
+          type: "integer"
+          minimum: 1
+        tamanoPagina:
+          type: "integer"
+          enum: [25]
+      required: ["items", "total", "pagina", "tamanoPagina"]
+    Relaciones:
+      type: "object"
+      additionalProperties: false
+      properties:
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Relacion"
+        total:
+          type: "integer"
+          minimum: 0
+        pagina:
+          type: "integer"
+          minimum: 1
+        tamanoPagina:
+          type: "integer"
+          enum: [25]
+      required: ["items", "total", "pagina", "tamanoPagina"]
+    Bitacora:
+      type: "object"
+      additionalProperties: false
+      properties:
+        items:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/EntradaBitacora"
+        total:
+          type: "integer"
+          minimum: 0
+        pagina:
+          type: "integer"
+          minimum: 1
+        tamanoPagina:
+          type: "integer"
+          enum: [25]
+      required: ["items", "total", "pagina", "tamanoPagina"]
+    DemostracionConfiguracion:
+      type: "object"
+      additionalProperties: false
+      properties:
+        muestraId:
+          type: "string"
+          enum: ["arquitectura-ficticia-v1"]
+        ficticia:
+          type: "boolean"
+          enum: [true]
+      required: ["muestraId", "ficticia"]
+      description: "Representación completa del registro de carga de esta versión fija. Los datos de la plantilla se derivan en el servidor."

@@ -1,0 +1,645 @@
+[
+  {
+    "integrante": "gregorio",
+    "version": "1.1.0",
+    "operaciones": [
+      {
+        "metodo": "POST",
+        "ruta": "/sesiones",
+        "operationId": "iniciarSesion"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/sesiones/actual",
+        "operationId": "consultarSesionActual"
+      },
+      {
+        "metodo": "DELETE",
+        "ruta": "/sesiones/actual",
+        "operationId": "cerrarSesionActual"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/usuarios",
+        "operationId": "listarUsuarios"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/usuarios",
+        "operationId": "crearUsuario"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/usuarios/{usuarioId}",
+        "operationId": "consultarUsuario"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/usuarios/{usuarioId}",
+        "operationId": "actualizarUsuario"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/usuarios/{usuarioId}/restablecimientos-contrasena",
+        "operationId": "restablecerContrasena"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/usuarios/{usuarioId}/capas-editables",
+        "operationId": "consultarCapasEditables"
+      },
+      {
+        "metodo": "PUT",
+        "ruta": "/usuarios/{usuarioId}/capas-editables",
+        "operationId": "reemplazarCapasEditables"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/capas",
+        "operationId": "listarCapas"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/capas",
+        "operationId": "crearCapa"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/capas/{capaId}",
+        "operationId": "consultarCapa"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/capas/{capaId}",
+        "operationId": "renombrarCapa"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/tipos-elemento",
+        "operationId": "listarTiposElemento"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/tipos-elemento",
+        "operationId": "crearTipoElemento"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/tipos-elemento/{tipoId}",
+        "operationId": "consultarTipoElemento"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/tipos-elemento/{tipoId}",
+        "operationId": "renombrarTipoElemento"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/tipos-elemento/{tipoId}/campos",
+        "operationId": "listarCampos"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/tipos-elemento/{tipoId}/campos",
+        "operationId": "crearCampo"
+      },
+      {
+        "metodo": "PUT",
+        "ruta": "/tipos-elemento/{tipoId}/campos/{campoId}",
+        "operationId": "reemplazarDefinicionCampo"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/elementos",
+        "operationId": "listarElementos"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/elementos",
+        "operationId": "crearElemento"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/elementos/{elementoId}",
+        "operationId": "consultarElemento"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/elementos/{elementoId}",
+        "operationId": "modificarElemento"
+      },
+      {
+        "metodo": "DELETE",
+        "ruta": "/elementos/{elementoId}",
+        "operationId": "darBajaElemento"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/tipos-relacion",
+        "operationId": "listarTiposRelacion"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/tipos-relacion",
+        "operationId": "crearTipoRelacion"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/tipos-relacion/{tipoRelacionId}",
+        "operationId": "consultarTipoRelacion"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/tipos-relacion/{tipoRelacionId}",
+        "operationId": "modificarTipoRelacion"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/propuestas-relacion",
+        "operationId": "listarPropuestas"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/propuestas-relacion",
+        "operationId": "crearPropuesta"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/propuestas-relacion/{propuestaId}",
+        "operationId": "consultarPropuesta"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/propuestas-relacion/{propuestaId}",
+        "operationId": "corregirPropuestaPendiente"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/propuestas-relacion/{propuestaId}/decisiones",
+        "operationId": "decidirPropuesta"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/relaciones",
+        "operationId": "listarRelaciones"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/relaciones/{relacionId}",
+        "operationId": "consultarRelacion"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/mapas/{elementoId}",
+        "operationId": "consultarMapa"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/entradas-bitacora",
+        "operationId": "listarBitacora"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/entradas-bitacora/{entradaId}",
+        "operationId": "consultarEntradaBitacora"
+      },
+      {
+        "metodo": "PUT",
+        "ruta": "/demostraciones/arquitectura-ficticia-v1",
+        "operationId": "cargarDemostracion"
+      }
+    ]
+  },
+  {
+    "integrante": "jean_paul",
+    "version": "1.1.0",
+    "operaciones": [
+      {
+        "metodo": "POST",
+        "ruta": "/sesiones",
+        "operationId": "crearSesion"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/sesiones/actual",
+        "operationId": "consultarSesionActual"
+      },
+      {
+        "metodo": "DELETE",
+        "ruta": "/sesiones/actual",
+        "operationId": "cerrarSesionActual"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/cuentas",
+        "operationId": "listarCuentas"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/cuentas",
+        "operationId": "crearCuenta"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/cuentas/{cuentaId}",
+        "operationId": "consultarCuenta"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/cuentas/{cuentaId}",
+        "operationId": "actualizarCuenta"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/cuentas/{cuentaId}/capas-editables",
+        "operationId": "consultarCapasEditables"
+      },
+      {
+        "metodo": "PUT",
+        "ruta": "/cuentas/{cuentaId}/capas-editables",
+        "operationId": "sustituirCapasEditables"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/cuentas/{cuentaId}/credenciales",
+        "operationId": "restablecerCredenciales"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/capas",
+        "operationId": "listarCapas"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/capas",
+        "operationId": "crearCapa"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/capas/{capaId}",
+        "operationId": "consultarCapa"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/capas/{capaId}",
+        "operationId": "actualizarCapa"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/tipos-elemento",
+        "operationId": "listarTiposElemento"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/tipos-elemento",
+        "operationId": "crearTipoElemento"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/tipos-elemento/{tipoElementoId}",
+        "operationId": "consultarTipoElemento"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/tipos-elemento/{tipoElementoId}",
+        "operationId": "actualizarTipoElemento"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/tipos-elemento/{tipoElementoId}/campos",
+        "operationId": "listarCampos"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/tipos-elemento/{tipoElementoId}/campos",
+        "operationId": "crearCampo"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/tipos-elemento/{tipoElementoId}/campos/{campoId}",
+        "operationId": "consultarCampo"
+      },
+      {
+        "metodo": "PUT",
+        "ruta": "/tipos-elemento/{tipoElementoId}/campos/{campoId}",
+        "operationId": "sustituirCampo"
+      },
+      {
+        "metodo": "DELETE",
+        "ruta": "/tipos-elemento/{tipoElementoId}/campos/{campoId}",
+        "operationId": "retirarCampo"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/elementos",
+        "operationId": "listarElementos"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/elementos",
+        "operationId": "crearElemento"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/elementos/{elementoId}",
+        "operationId": "consultarElemento"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/elementos/{elementoId}",
+        "operationId": "actualizarElemento"
+      },
+      {
+        "metodo": "PUT",
+        "ruta": "/elementos/{elementoId}/estado",
+        "operationId": "establecerEstadoElemento"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/tipos-relacion",
+        "operationId": "listarTiposRelacion"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/tipos-relacion",
+        "operationId": "crearTipoRelacion"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/tipos-relacion/{tipoRelacionId}",
+        "operationId": "consultarTipoRelacion"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/tipos-relacion/{tipoRelacionId}",
+        "operationId": "actualizarTipoRelacion"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/propuestas",
+        "operationId": "listarPropuestas"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/propuestas",
+        "operationId": "crearPropuesta"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/propuestas/{propuestaId}",
+        "operationId": "consultarPropuesta"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/propuestas/{propuestaId}",
+        "operationId": "corregirPropuesta"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/propuestas/{propuestaId}/decisiones",
+        "operationId": "decidirPropuesta"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/propuestas/{propuestaId}/decisiones",
+        "operationId": "consultarDecisiones"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/relaciones",
+        "operationId": "listarRelaciones"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/relaciones/{relacionId}",
+        "operationId": "consultarRelacion"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/elementos/{elementoId}/mapas",
+        "operationId": "consultarMapa"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/bitacora",
+        "operationId": "listarBitacora"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/bitacora/{entradaId}",
+        "operationId": "consultarEntradaBitacora"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/cargas-demostracion/muestra-v1",
+        "operationId": "consultarDemostracion"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/cargas-demostracion",
+        "operationId": "prepararDemostracion"
+      }
+    ]
+  },
+  {
+    "integrante": "liciel",
+    "version": "1.0.0",
+    "operaciones": [
+      {
+        "metodo": "POST",
+        "ruta": "/auth/sessions",
+        "operationId": "createSession"
+      },
+      {
+        "metodo": "DELETE",
+        "ruta": "/auth/sessions/current",
+        "operationId": "closeCurrentSession"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/users",
+        "operationId": "listUsers"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/users",
+        "operationId": "createUser"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/users/me",
+        "operationId": "getCurrentUser"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/users/{userId}",
+        "operationId": "getUser"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/users/{userId}",
+        "operationId": "updateUser"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/users/{userId}/editable-layers",
+        "operationId": "getEditableLayers"
+      },
+      {
+        "metodo": "PUT",
+        "ruta": "/users/{userId}/editable-layers",
+        "operationId": "replaceEditableLayers"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/users/{userId}/password-resets",
+        "operationId": "createPasswordReset"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/layers",
+        "operationId": "listLayers"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/layers",
+        "operationId": "createLayer"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/layers/{layerId}",
+        "operationId": "getLayer"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/layers/{layerId}",
+        "operationId": "renameLayer"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/element-types",
+        "operationId": "listElementTypes"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/element-types",
+        "operationId": "createElementType"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/element-types/{elementTypeId}",
+        "operationId": "getElementType"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/element-types/{elementTypeId}",
+        "operationId": "renameElementType"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/element-types/{elementTypeId}/fields",
+        "operationId": "listFields"
+      },
+      {
+        "metodo": "PUT",
+        "ruta": "/element-types/{elementTypeId}/fields",
+        "operationId": "replaceFields"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/elements",
+        "operationId": "listElements"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/elements",
+        "operationId": "createElement"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/elements/{elementId}",
+        "operationId": "getElement"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/elements/{elementId}",
+        "operationId": "updateElement"
+      },
+      {
+        "metodo": "PUT",
+        "ruta": "/elements/{elementId}/status",
+        "operationId": "setElementStatus"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/elements/{elementId}/map",
+        "operationId": "getElementMap"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/elements/{elementId}/history",
+        "operationId": "listElementHistory"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/relation-types",
+        "operationId": "listRelationTypes"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/relation-types",
+        "operationId": "createRelationType"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/relation-types/{relationTypeId}",
+        "operationId": "getRelationType"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/relation-types/{relationTypeId}",
+        "operationId": "updateRelationType"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/relationships",
+        "operationId": "listRelationships"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/relationships/{relationshipId}",
+        "operationId": "getRelationship"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/relationship-proposals",
+        "operationId": "listRelationshipProposals"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/relationship-proposals",
+        "operationId": "createRelationshipProposal"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/relationship-proposals/{proposalId}",
+        "operationId": "getRelationshipProposal"
+      },
+      {
+        "metodo": "PATCH",
+        "ruta": "/relationship-proposals/{proposalId}",
+        "operationId": "decideRelationshipProposal"
+      },
+      {
+        "metodo": "GET",
+        "ruta": "/audit-entries",
+        "operationId": "listAuditEntries"
+      },
+      {
+        "metodo": "POST",
+        "ruta": "/demo-datasets",
+        "operationId": "createDemoDataset"
+      }
+    ]
+  }
+]
