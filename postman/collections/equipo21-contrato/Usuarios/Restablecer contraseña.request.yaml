@@ -1,0 +1,25 @@
+$kind: http-request
+description: "Sustituye credenciales mediante hash resistente con sal e invalida todas las sesiones. Credenciales anteriores dejan de autorizar acceso. Bitácora conserva solo metadatos y nunca secretos. Solo Administrador. Crea y devuelve el evento de restablecimiento de la bitácora en la misma transacción; la entrada pública no contiene contraseñas ni hashes. POST no es idempotente: cada solicitud aceptada constituye un nuevo restablecimiento e invalida sesiones; no se reintenta automáticamente tras un timeout."
+url: "{{baseUrl}}/v1/usuarios/:usuarioId/restablecimientos-contrasena"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: usuarioId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+body:
+  type: json
+  content: |-
+    {
+      "nuevaContrasena": "stringstring"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Restablecer contraseña.resources/examples
+order: 5000

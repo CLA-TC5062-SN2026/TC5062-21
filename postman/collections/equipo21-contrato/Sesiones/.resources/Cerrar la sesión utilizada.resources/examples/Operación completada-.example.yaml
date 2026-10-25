@@ -1,0 +1,26 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/sesiones/actual"
+  method: DELETE
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "mensaje": "string"
+      }
+order: 1000

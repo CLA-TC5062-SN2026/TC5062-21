@@ -1,0 +1,44 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/auth/login"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "correo": "F-3hUqynn@MivYMDysXvTLawLZmWNVGCtho.odql",
+        "contrasena": "string"
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "accessToken": "string",
+        "tokenType": "Bearer",
+        "expiresIn": 22576,
+        "expiraEn": "2021-03-15T22:24:58.551Z",
+        "usuario": {
+          "id": "b828fc23-5057-afc0-bc32-d70b555599f8",
+          "correo": "5MVWEubStviMcn@YLuYTUMYRe.tas",
+          "nombre": "string",
+          "rol": "Administrador",
+          "activo": true,
+          "capasEditables": [
+            "001bebb2-ae3b-1c2d-7620-9ae2df6f7651",
+            "9a26c79a-1200-69ca-ae1d-c25c585bece7"
+          ]
+        },
+        "sesionId": "19c786a7-8c43-7b61-5794-c5ceb5f07d2d"
+      }
+order: 1000

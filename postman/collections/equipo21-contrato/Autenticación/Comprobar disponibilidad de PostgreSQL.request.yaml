@@ -1,0 +1,9 @@
+$kind: http-request
+description: No expone configuración ni secretos.
+url: "{{baseUrl}}/salud"
+method: GET
+headers:
+  Accept: application/json
+settings: {}
+examples: ./.resources/Comprobar disponibilidad de PostgreSQL.resources/examples
+order: 5000

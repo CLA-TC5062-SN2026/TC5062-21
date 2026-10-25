@@ -1,0 +1,26 @@
+$kind: http-request
+description: Devuelve propuestas con estado, autor, decisor y fecha. No las trata como relaciones validadas. Orden por creación e ID. Lectura disponible para toda cuenta autenticada.
+url: "{{baseUrl}}/v1/propuestas-relacion?pagina=1&estado=aprobada&relacionId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: pagina
+    value: "1"
+    disabled: false
+    description: Página desde 1; tamaño fijo de 25.
+  - key: estado
+    value: aprobada
+    disabled: false
+    description: Filtra por estado; omitido incluye todos.
+  - key: relacionId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Historial de propuestas para una relación existente.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar propuestas e historial.resources/examples
+order: 1000

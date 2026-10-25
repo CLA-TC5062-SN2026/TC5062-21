@@ -1,0 +1,22 @@
+$kind: http-request
+description: Sin filtros devuelve catálogo completo. Con tipos origen/destino devuelve solo definiciones dirigidas compatibles para el formulario de propuesta. No invierte el sentido. Lectura disponible para toda cuenta autenticada.
+url: "{{baseUrl}}/v1/tipos-relacion?tipoOrigenId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&tipoDestinoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: tipoOrigenId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Tipo del origen propuesto.
+  - key: tipoDestinoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Tipo del destino propuesto.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar tipos de relación compatibles.resources/examples
+order: 1000

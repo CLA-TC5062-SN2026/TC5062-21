@@ -1,0 +1,35 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/tipos-relacion/:tipoRelacionId"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: tipoRelacionId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "8b0c32d5-4037-3bed-77f7-65716dbe5106",
+        "nombre": "7",
+        "descripcion": "9",
+        "tipoOrigenId": "5ca1ad15-534c-fa7a-83c3-d757a9886f3f",
+        "tipoDestinoId": "186e6cf5-4aea-f1eb-e37b-c4ae12e37d0f"
+      }
+order: 1000

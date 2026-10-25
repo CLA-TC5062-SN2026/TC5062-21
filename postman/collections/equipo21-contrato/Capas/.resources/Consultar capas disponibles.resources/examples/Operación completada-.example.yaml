@@ -1,0 +1,36 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/capas"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "items": [
+          {
+            "id": "7af612da-d913-66b3-d695-0d45ec2c785b",
+            "nombre": "string"
+          },
+          {
+            "id": "997eaee3-3eda-b629-e89c-94282d30e785",
+            "nombre": "string"
+          }
+        ],
+        "total": 9122
+      }
+order: 1000

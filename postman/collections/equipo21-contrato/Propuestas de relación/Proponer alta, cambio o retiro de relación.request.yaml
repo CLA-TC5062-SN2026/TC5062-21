@@ -1,0 +1,24 @@
+$kind: http-request
+description: Persiste una propuesta pendiente, sin modificar ni publicar relaciones. Extremos activos, existentes, distintos y compatibles con tipo dirigido. Rechaza duplicados entre relaciones no retiradas y propuestas pendientes (excluye la propia relación objetivo al cambiarla). Máximo una pendiente por relación objetivo. Editor requiere capa de origen y, si cambia origen, tanto capa vigente como nueva. Justificación de 10 a 500 caracteres. Retiro solo de relación vigente. versionBase debe coincidir con la versión actual; todas las reglas se revisan de forma atómica. Administrador o Editor autorizado sobre la capa afectada; Consulta no puede escribir.
+url: "{{baseUrl}}/v1/propuestas-relacion"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "operacion": "alta",
+      "origenId": "84e06b1a-e1b4-05c2-408a-77e7cd4c0f7a",
+      "tipoRelacionId": "678eae1b-f2df-3e5d-2191-ee8e0fde6229",
+      "destinoId": "d649949a-e20e-54fe-905e-a8db21a5a3fd",
+      "justificacion": "stringstring"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Proponer alta, cambio o retiro de relación.resources/examples
+order: 2000

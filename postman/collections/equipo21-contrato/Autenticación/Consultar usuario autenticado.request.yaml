@@ -1,0 +1,13 @@
+$kind: http-request
+description: Consultar usuario autenticado. JSON; errores sin credenciales ni trazas internas.
+url: "{{baseUrl}}/auth/me"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar usuario autenticado.resources/examples
+order: 4000

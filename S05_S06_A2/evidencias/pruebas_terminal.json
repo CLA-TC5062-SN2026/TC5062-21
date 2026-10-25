@@ -1,0 +1,49 @@
+[
+  {
+    "caso": "sin_token",
+    "metodo": "POST",
+    "ruta": "/api/v1/capas",
+    "esperado": 401,
+    "observado": 401,
+    "respuesta": {
+      "codigo": "NO_AUTENTICADO",
+      "mensaje": "Credenciales o sesión inválidas.",
+      "detalles": []
+    }
+  },
+  {
+    "caso": "firma_alterada",
+    "metodo": "POST",
+    "ruta": "/api/v1/capas",
+    "esperado": 401,
+    "observado": 401,
+    "respuesta": {
+      "codigo": "NO_AUTENTICADO",
+      "mensaje": "Credenciales o sesión inválidas.",
+      "detalles": []
+    }
+  },
+  {
+    "caso": "rol_Consulta",
+    "metodo": "POST",
+    "ruta": "/api/v1/capas",
+    "esperado": 403,
+    "observado": 403,
+    "respuesta": {
+      "codigo": "SIN_PERMISO",
+      "mensaje": "El rol no tiene permiso para esta operación.",
+      "detalles": []
+    }
+  },
+  {
+    "caso": "rol_Administrador",
+    "metodo": "POST",
+    "ruta": "/api/v1/capas",
+    "esperado": 201,
+    "observado": 201,
+    "respuesta": {
+      "id": "924443b3-8d6b-442b-a15d-8f4824398580",
+      "nombre": "Terminal 88eaf2e074"
+    }
+  }
+]

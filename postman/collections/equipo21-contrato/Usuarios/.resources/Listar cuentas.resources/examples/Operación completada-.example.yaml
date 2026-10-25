@@ -1,0 +1,54 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/usuarios?pagina=1"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  queryParams:
+    pagina: "1"
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "items": [
+          {
+            "id": "5d61b787-acc5-7dc4-e1c9-9982e92332b9",
+            "correo": "TB4m@xGaJfzkgFQXBP.krk",
+            "nombre": "string",
+            "rol": "Administrador",
+            "activo": true,
+            "capasEditables": [
+              "6c9b8367-1fb0-8c9d-64a2-5b107c76babc",
+              "af3f83a1-0e24-96d1-1843-494ec26907fc"
+            ]
+          },
+          {
+            "id": "f0a1c9e3-5d95-9d93-9789-69b5fd7ee40e",
+            "correo": "20l9fQANFmn@ZFuHYAJmofriojjQHWjrCcpmAEW.vk",
+            "nombre": "string",
+            "rol": "Consulta",
+            "activo": false,
+            "capasEditables": [
+              "23788689-f960-59fc-e91a-e5555e5a294d",
+              "b573df23-1b32-d666-2e4d-3f5ee9e65f1e"
+            ]
+          }
+        ],
+        "total": 5834,
+        "pagina": 3354,
+        "tamanoPagina": 25
+      }
+order: 1000

@@ -1,0 +1,26 @@
+$kind: http-request
+description: Por defecto solo relaciones vigentes con extremos activos. incluirHistoricas=true incluye retiradas o con extremos de baja y muestra su estado. No incluye propuestas. Orden estable por ID. Lectura disponible para toda cuenta autenticada.
+url: "{{baseUrl}}/v1/relaciones?pagina=1&elementoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&incluirHistoricas=false"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: pagina
+    value: "1"
+    disabled: false
+    description: Página desde 1; tamaño fijo de 25.
+  - key: elementoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Filtra las relaciones incidentes a un elemento existente.
+  - key: incluirHistoricas
+    value: "false"
+    disabled: false
+    description: Incluye vínculos retirados y relaciones con extremos de baja.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar vínculos e historial.resources/examples
+order: 1000

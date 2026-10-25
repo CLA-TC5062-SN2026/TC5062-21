@@ -1,0 +1,60 @@
+$kind: http-example
+name: Recurso creado y persistido.
+request:
+  url: "{{baseUrl}}/v1/tipos-elemento"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "nombre": "@",
+        "capaId": "5223032c-af33-c3cc-96f1-804d9522b711"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    - key: Location
+      value: /api/v1/tipos-elemento/00000000-0000-4000-8000-000000000005
+      disabled: false
+      description: URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1.
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "86d3252c-635b-6704-f37c-d629871d87ae",
+        "nombre": "string",
+        "capaId": "c65ce25f-a5d8-0a25-d46e-9cacc949990a",
+        "estructuraBloqueada": true,
+        "campos": [
+          {
+            "id": "2658f90e-1e40-3a62-f404-bbaf298cefb2",
+            "tipoElementoId": "dc484e1b-83aa-a883-b214-362a0b0ccc4d",
+            "nombre": "string",
+            "tipoDato": "numero",
+            "obligatorio": false,
+            "esBaseNombre": false,
+            "opciones": [
+              {
+                "id": "b6ed0611-2ec4-4fb0-2e2e-58e12d2f9a65",
+                "etiqueta": "string",
+                "orden": 3260
+              },
+              {
+                "id": "1089f252-4725-7b23-dcd9-23a87e2714a9",
+                "etiqueta": "string",
+                "orden": 3374
+              }
+            ]
+          }
+        ]
+      }
+order: 1000

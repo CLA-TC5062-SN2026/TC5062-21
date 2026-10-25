@@ -1,0 +1,73 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/relaciones/:relacionId"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: relacionId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "0eda638a-386a-0acf-e963-daf3128253e6",
+        "origen": {
+          "id": "a4633fc1-b7f9-d245-2594-c8935bf8c66a",
+          "nombre": "string",
+          "tipoElemento": {
+            "id": "b579b2f0-a905-d2dc-ca36-caeac9758bef",
+            "nombre": "string"
+          },
+          "capa": {
+            "id": "ecc39de9-1584-793f-2078-d910ddfd964c",
+            "nombre": "string"
+          },
+          "estado": "baja"
+        },
+        "tipoRelacion": {
+          "id": "d32d4a03-b123-f675-fa1a-98a82e485710",
+          "nombre": "o",
+          "descripcion": "}",
+          "tipoOrigenId": "9d6c2dae-e02e-f308-ba4c-6fa77d0a2c7d",
+          "tipoDestinoId": "d0c04d49-2a8e-d921-fd01-2cc0267dcdc7"
+        },
+        "destino": {
+          "id": "3bb99934-2090-4a48-fd5d-86b885879c39",
+          "nombre": "string",
+          "tipoElemento": {
+            "id": "eb4509cf-4a42-e372-9db4-16f848a9b3e3",
+            "nombre": "string"
+          },
+          "capa": {
+            "id": "f13d4a3e-1f66-d210-65d8-c20c1d375713",
+            "nombre": "string"
+          },
+          "estado": "activo"
+        },
+        "justificacion": "string",
+        "estado": "retirada",
+        "version": 3807,
+        "autoria": {
+          "creadorId": "06bf83af-db78-8818-6f38-706f6e02fe3a",
+          "creadoEn": "2022-10-09T03:29:16.943Z",
+          "ultimoModificadorId": "b9ad384e-bf7f-7ae6-21ed-b3a2bffce0da",
+          "modificadoEn": "1994-03-13T14:13:19.565Z"
+        }
+      }
+order: 1000

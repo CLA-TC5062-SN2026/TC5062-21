@@ -1,0 +1,50 @@
+$kind: http-example
+name: Recurso creado y persistido.
+request:
+  url: "{{baseUrl}}/v1/demostraciones/arquitectura-ficticia-v1"
+  method: PUT
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "muestraId": "arquitectura-ficticia-v1",
+        "ficticia": true
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    - key: Location
+      value: /api/v1/demostraciones/arquitectura-ficticia-v1
+      disabled: false
+      description: URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1.
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "muestraId": "arquitectura-ficticia-v1",
+        "ficticia": true,
+        "creada": true,
+        "mensaje": "string",
+        "capaIds": [
+          "81358781-8d8f-688d-5504-633ada624ed9",
+          "faa76883-38b6-27c5-17c4-9e0da35dbdac"
+        ],
+        "elementoIds": [
+          "6fa0711b-6066-5780-d708-361e3789ef2a",
+          "40bddfdc-31f9-0862-4c8c-f6891de5f75e"
+        ],
+        "relacionIds": [
+          "464b3820-8b2f-6b6d-ce23-5cc5874f9f42",
+          "291993b0-ee37-c8ba-bd6b-5f98fb6fe290"
+        ]
+      }
+order: 2000

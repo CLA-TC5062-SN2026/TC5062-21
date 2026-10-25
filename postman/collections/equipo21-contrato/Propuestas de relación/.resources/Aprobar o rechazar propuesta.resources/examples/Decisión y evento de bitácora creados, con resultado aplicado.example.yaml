@@ -1,0 +1,101 @@
+$kind: http-example
+name: Decisión y evento de bitácora creados, con resultado aplicado atómicamente.
+request:
+  url: "{{baseUrl}}/v1/propuestas-relacion/:propuestaId/decisiones"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: propuestaId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: json
+    content: |-
+      {
+        "decision": "rechazar"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    - key: Location
+      value: /api/v1/entradas-bitacora/00000000-0000-4000-8000-000000000004
+      disabled: false
+      description: URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1.
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "propuesta": {
+          "id": "38261e36-e7aa-101b-9006-4a19b4e68483",
+          "operacion": "alta",
+          "estado": "pendiente",
+          "origenId": "cb0bc875-bb7e-a920-8ed6-4b5b11831b91",
+          "tipoRelacionId": "65300a9a-e1eb-569d-4998-ae9e5cb2f9a0",
+          "destinoId": "45689d10-228c-cab4-2544-453e98fc07ac",
+          "justificacion": "stringstring",
+          "estadoSolicitado": "retirada",
+          "relacionId": "5f2e85c8-56cf-ef51-12fe-52477392e21b",
+          "relacionResultadoId": "4655bbdd-3848-737a-1823-61e8c472aa8a",
+          "versionBase": 8711,
+          "autorId": "588f55a5-bf26-b3dd-aa7c-1a48ddb87bab",
+          "creadaEn": "1967-04-11T09:38:31.916Z",
+          "decisorId": "3538c449-e970-abd6-4c0b-64c4d5aca857",
+          "decididaEn": "1969-07-02T16:35:46.544Z"
+        },
+        "entradaBitacoraId": "005527f5-0efe-1112-db45-d2b1f023ed5a",
+        "relacion": {
+          "id": "e173fa05-ef37-71e3-d81f-5fb3127c51e4",
+          "origen": {
+            "id": "44f99ac8-4c6e-8feb-03f1-f08eafc348ca",
+            "nombre": "string",
+            "tipoElemento": {
+              "id": "df3dbdbd-a30f-90d6-24be-2bd8e26b0158",
+              "nombre": "string"
+            },
+            "capa": {
+              "id": "8000ea4e-99b8-1cfa-1342-924f43b87137",
+              "nombre": "string"
+            },
+            "estado": "baja"
+          },
+          "tipoRelacion": {
+            "id": "aed109b1-6213-561e-083c-54449dea1dee",
+            "nombre": "H",
+            "descripcion": "h",
+            "tipoOrigenId": "9f3204ce-3a0d-67e9-98da-5da38c53d84c",
+            "tipoDestinoId": "36b25e36-9f8e-f124-ccf3-3905c5fc86e3"
+          },
+          "destino": {
+            "id": "4a217750-ef8b-b9bc-4e1b-47ed8777b8ec",
+            "nombre": "string",
+            "tipoElemento": {
+              "id": "94a6f392-f9c7-f0a7-c9f8-98761f47af47",
+              "nombre": "string"
+            },
+            "capa": {
+              "id": "8a3a6992-95c0-dd43-dd6a-ba81f3765e59",
+              "nombre": "string"
+            },
+            "estado": "activo"
+          },
+          "justificacion": "string",
+          "estado": "vigente",
+          "version": 9993,
+          "autoria": {
+            "creadorId": "256c3410-310a-78cd-fe32-ff9bf229c9e2",
+            "creadoEn": "2007-08-22T17:07:24.184Z",
+            "ultimoModificadorId": "fe3a0810-0778-9280-5c5b-4d2dc462239d",
+            "modificadoEn": "1969-05-19T06:50:17.355Z"
+          }
+        }
+      }
+order: 1000

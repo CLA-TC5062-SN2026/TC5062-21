@@ -1,0 +1,18 @@
+$kind: http-request
+description: Recupera identidad y nombre guardados. Lectura disponible para toda cuenta autenticada.
+url: "{{baseUrl}}/v1/capas/:capaId"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: capaId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar capa.resources/examples
+order: 3000

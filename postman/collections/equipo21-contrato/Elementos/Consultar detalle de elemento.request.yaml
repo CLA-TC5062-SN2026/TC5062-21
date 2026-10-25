@@ -1,0 +1,23 @@
+$kind: http-request
+description: Devuelve capa, tipo, definiciones, valores y autoría. Para elemento de baja requiere incluirBaja=true; con el valor por defecto responde 404. Todos los usuarios autenticados pueden consultar el histórico explícitamente. Lectura disponible para toda cuenta autenticada.
+url: "{{baseUrl}}/v1/elementos/:elementoId?incluirBaja=false"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: incluirBaja
+    value: "false"
+    disabled: false
+    description: Permite consultar elementos dados de baja con su etiqueta. No cambia el mapa ordinario.
+pathVariables:
+  - key: elementoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar detalle de elemento.resources/examples
+order: 3000

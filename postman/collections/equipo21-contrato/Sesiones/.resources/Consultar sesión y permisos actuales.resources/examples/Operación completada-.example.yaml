@@ -1,0 +1,40 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/sesiones/actual"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "32f7cdae-3768-f98b-7dfa-a4da893e49c0",
+        "usuario": {
+          "id": "f8f08fe9-7842-1c0a-aff5-664e620a72b8",
+          "correo": "nvHv8ROqOt@Hskn.ahu",
+          "nombre": "string",
+          "rol": "Administrador",
+          "activo": false,
+          "capasEditables": [
+            "ddbf99b2-12de-428c-8ae2-df1822395f51",
+            "d4e89944-e336-b333-9e65-776586cd76bd"
+          ]
+        },
+        "creadaEn": "1997-03-01T16:10:55.277Z",
+        "ultimaActividadEn": "1996-12-31T00:49:44.863Z",
+        "expiraEn": "1958-08-19T23:16:34.226Z"
+      }
+order: 1000

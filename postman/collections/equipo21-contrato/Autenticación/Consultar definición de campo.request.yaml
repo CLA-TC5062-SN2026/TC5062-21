@@ -1,0 +1,22 @@
+$kind: http-request
+description: Consultar definición de campo. JSON; errores sin credenciales ni trazas internas.
+url: "{{baseUrl}}/v1/tipos-elemento/:tipoId/campos/:campoId"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: tipoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+  - key: campoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar definición de campo.resources/examples
+order: 1000

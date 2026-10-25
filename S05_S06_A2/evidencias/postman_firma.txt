@@ -1,0 +1,34 @@
+No authorization data found. Please use the `postman login` command.
+Refer:https://learning.postman.com/docs/postman-cli/postman-cli-options/#postman-login
+
+Running your collection...
+postman
+
+S05-S06-A2-Firma
+
+Root Firma invalida
+
+  GET http://127.0.0.1:8000/api/v1/capas [401 Unauthorized, 307 B, 5 ms]
+  Pass  HTTP 401
+  Pass  Respuesta JSON
+  Pass  Sin secretos de almacenamiento
+
+------------------------------------------------------------------
+|                         |          executed |           failed |
+--------------------------+-------------------+-------------------
+|              iterations |                 1 |                0 |
+--------------------------+-------------------+-------------------
+|                requests |                 1 |                0 |
+--------------------------+-------------------+-------------------
+|            test-scripts |                 1 |                0 |
+--------------------------+-------------------+-------------------
+|      prerequest-scripts |                 0 |                0 |
+--------------------------+-------------------+-------------------
+|              assertions |                 3 |                0 |
+------------------------------------------------------------------
+| total run duration: 127 ms                                     |
+------------------------------------------------------------------
+| total data received: 88 B (approx)                             |
+------------------------------------------------------------------
+| average response time: 5 ms [min: 5 ms, max: 5 ms, s.d.: 0 us] |
+------------------------------------------------------------------

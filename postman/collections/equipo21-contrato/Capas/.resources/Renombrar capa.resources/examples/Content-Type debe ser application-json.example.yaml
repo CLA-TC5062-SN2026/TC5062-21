@@ -1,0 +1,45 @@
+$kind: http-example
+name: Content-Type debe ser application/json
+request:
+  url: "{{baseUrl}}/v1/capas/:capaId"
+  method: PATCH
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: capaId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: json
+    content: |-
+      {
+        "nombre": "@"
+      }
+response:
+  statusCode: 415
+  statusText: Unsupported Media Type
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "codigo": "string",
+        "mensaje": "string",
+        "detalles": [
+          {
+            "campo": "string",
+            "motivo": "string"
+          },
+          {
+            "campo": "string",
+            "motivo": "string"
+          }
+        ]
+      }
+order: 8000

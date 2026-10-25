@@ -1,0 +1,48 @@
+$kind: http-example
+name: Credenciales incorrectas, cuenta inactiva o JWT ausente, inválido, expirado o sesión revocada/inactiva. No se entregan datos privados.
+request:
+  url: "{{baseUrl}}/v1/tipos-relacion"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "nombre": "9",
+        "descripcion": "'",
+        "tipoOrigenId": "819a76f4-f1fc-3428-8715-e477dd593729",
+        "tipoDestinoId": "2cd426d5-4bb4-ea13-30b4-4946faac17d9"
+      }
+response:
+  statusCode: 401
+  statusText: Unauthorized
+  headers:
+    - key: WWW-Authenticate
+      value: Bearer realm="arquitectura"
+      disabled: false
+      description: Obligatorio en toda respuesta 401. Challenge Bearer; un JWT presentado pero inválido puede añadir error="invalid_token".
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "codigo": "string",
+        "mensaje": "string",
+        "detalles": [
+          {
+            "campo": "string",
+            "motivo": "string"
+          },
+          {
+            "campo": "string",
+            "motivo": "string"
+          }
+        ]
+      }
+order: 3000

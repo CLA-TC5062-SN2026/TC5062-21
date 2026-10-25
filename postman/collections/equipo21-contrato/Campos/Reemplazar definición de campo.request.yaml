@@ -1,0 +1,41 @@
+$kind: http-request
+description: PUT reemplaza nombre, tipo, obligatoriedad y lista ordenada de opciones. Solo antes de existir elementos; Nombre base es inalterable. Mantiene el ID del campo. Conserva historial de versiones/opciones retiradas sin borrado físico; repetir la misma definición conserva IDs y no duplica opciones. Solo Administrador.
+url: "{{baseUrl}}/v1/tipos-elemento/:tipoId/campos/:campoId"
+method: PUT
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: tipoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+  - key: campoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+body:
+  type: json
+  content: |-
+    {
+      "nombre": ".",
+      "tipoDato": "texto",
+      "obligatorio": true,
+      "opciones": [
+        {
+          "etiqueta": "P",
+          "orden": 9960
+        },
+        {
+          "etiqueta": "I",
+          "orden": 9272
+        }
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Reemplazar definición de campo.resources/examples
+order: 3000

@@ -1,0 +1,21 @@
+$kind: http-request
+description: "Solo Administrador. PUT asegura el registro de carga de la muestra fija identificada por la URI. Si no existe, crea el registro y carga en una transacción la plantilla ficticia completa, capa adicional y relaciones aprobadas entre capas: 201. Si existe el mismo registro, devuelve 200 y mismos IDs sin duplicar, sobrescribir modificaciones posteriores ni ejecutar de nuevo propuestas/decisiones. El recurso representa el registro de carga, no una orden para restaurar datos. Cuerpo completo y URI deben identificar la misma versión. Control transaccional impide duplicados concurrentes."
+url: "{{baseUrl}}/v1/demostraciones/arquitectura-ficticia-v1"
+method: PUT
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "muestraId": "arquitectura-ficticia-v1",
+      "ficticia": true
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Cargar muestra ficticia sin duplicados.resources/examples
+order: 1000

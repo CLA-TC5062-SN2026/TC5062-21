@@ -1,0 +1,110 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/tipos-elemento?capaId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  queryParams:
+    capaId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "items": [
+          {
+            "id": "b33d12ce-28d4-055b-f82b-c0b12a9e25f6",
+            "nombre": "string",
+            "capaId": "a4b886fd-5be2-9fce-12e9-b2e6a18a14d7",
+            "estructuraBloqueada": false,
+            "campos": [
+              {
+                "id": "1a365e0c-968c-4e3a-f77b-32e83ba6622a",
+                "tipoElementoId": "61d9ebbd-97d5-7231-0295-bd372361ed72",
+                "nombre": "string",
+                "tipoDato": "fecha",
+                "obligatorio": false,
+                "esBaseNombre": false,
+                "opciones": [
+                  {
+                    "id": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    },
+                    "etiqueta": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    },
+                    "orden": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    }
+                  },
+                  {
+                    "id": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    },
+                    "etiqueta": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    },
+                    "orden": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "d288450b-f6ab-1a75-4bc1-7235f7fcb9e9",
+            "nombre": "string",
+            "capaId": "e192b8e6-eefd-9be7-bca1-2d4b42395716",
+            "estructuraBloqueada": true,
+            "campos": [
+              {
+                "id": "8fddd09d-85b6-df2f-eb1f-b1d4131be06a",
+                "tipoElementoId": "0895f728-498d-d392-d45e-88e722891bbf",
+                "nombre": "string",
+                "tipoDato": "fecha",
+                "obligatorio": false,
+                "esBaseNombre": true,
+                "opciones": [
+                  {
+                    "id": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    },
+                    "etiqueta": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    },
+                    "orden": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    }
+                  },
+                  {
+                    "id": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    },
+                    "etiqueta": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    },
+                    "orden": {
+                      "value": "<Error: Too many levels of nesting to fake this schema>"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "total": 516
+      }
+order: 1000

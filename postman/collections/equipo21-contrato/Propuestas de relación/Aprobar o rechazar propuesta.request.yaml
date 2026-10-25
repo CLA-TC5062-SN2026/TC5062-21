@@ -1,0 +1,25 @@
+$kind: http-request
+description: Acción separada incluso si el proponente es Administrador. Solo resuelve pendientes. Aprobar revalida extremos activos, compatibilidad, duplicados y versionBase. Alta crea relación; cambio/retiro mantiene identidad y actualiza versión. Retiro cambia estado a retirada. Un conflicto de duplicado o versión devuelve 409; extremos inactivos/incompatibles devuelven 422. En ambos casos no hay decisión ni cambios y la propuesta sigue pendiente. Rechazar conserva relación previa y no crea vínculo. Actor, fecha, resolución, relación y bitácora se confirman en una sola transacción. Solo Administrador. Devuelve 201 al crear el evento de decisión, referenciado por entradaBitacoraId. Cada propuesta tiene una sola decisión definitiva; repetir un POST sobre una propuesta resuelta devuelve 409 y no duplica la relación ni el evento. Ante timeout consultar la propuesta antes de repetir.
+url: "{{baseUrl}}/v1/propuestas-relacion/:propuestaId/decisiones"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: propuestaId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+body:
+  type: json
+  content: |-
+    {
+      "decision": "rechazar"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Aprobar o rechazar propuesta.resources/examples
+order: 5000

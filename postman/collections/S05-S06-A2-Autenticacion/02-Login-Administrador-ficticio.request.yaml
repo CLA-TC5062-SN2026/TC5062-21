@@ -1,0 +1,25 @@
+$kind: http-request
+name: 02 Login Administrador ficticio
+method: POST
+url: '{{baseUrl}}/auth/login'
+headers:
+- key: Content-Type
+  value: application/json
+auth:
+  type: noauth
+scripts:
+- type: afterResponse
+  language: text/javascript
+  code: |
+    pm.test("HTTP 200", () => pm.response.to.have.status(200));
+    pm.test("Respuesta JSON", () => pm.expect(pm.response.headers.get("Content-Type")).to.include("application/json"));
+    pm.test("Sin secretos de almacenamiento", () => { const text = pm.response.text(); pm.expect(text).not.to.include("hashContrasena"); pm.expect(text).not.to.include("hash_contrasena"); });
+    pm.test("JWT presente", () => pm.expect(pm.response.json().accessToken.split(".")).to.have.lengthOf(3)); pm.collectionVariables.set("adminToken",pm.response.json().accessToken);
+body:
+  type: json
+  content: |-
+    {
+      "correo": "{{adminEmail}}",
+      "contrasena": "{{demoPassword}}"
+    }
+order: 2000

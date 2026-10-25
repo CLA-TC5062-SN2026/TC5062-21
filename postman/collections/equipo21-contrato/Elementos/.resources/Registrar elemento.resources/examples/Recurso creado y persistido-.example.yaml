@@ -1,0 +1,84 @@
+$kind: http-example
+name: Recurso creado y persistido.
+request:
+  url: "{{baseUrl}}/v1/elementos"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "tipoElementoId": "cd4c4235-4dfd-dd3d-414a-bbe575a5700a",
+        "valores": [
+          {
+            "campoId": "1679401e-e7d3-d6b6-daf0-f42e5446cfe5",
+            "texto": "string"
+          }
+        ]
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    - key: Location
+      value: /api/v1/elementos/00000000-0000-4000-8000-000000000005
+      disabled: false
+      description: URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1.
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "ec1e3958-9035-e0eb-d9d5-98d59e14e620",
+        "nombre": "string",
+        "tipoElemento": {
+          "id": "94aad7d5-b42d-50bb-4d75-89dfd1f2a59f",
+          "nombre": "string"
+        },
+        "capa": {
+          "id": "73596b10-9d9f-27eb-65d8-e9707d9879a4",
+          "nombre": "string"
+        },
+        "estado": "baja",
+        "campos": [
+          {
+            "id": "0fbee893-b6e1-1f5c-d425-2f8ec1514a33",
+            "tipoElementoId": "cd4b5622-cc4d-e706-4a34-3abd216e4153",
+            "nombre": "string",
+            "tipoDato": "texto",
+            "obligatorio": false,
+            "esBaseNombre": false,
+            "opciones": [
+              {
+                "id": "75895d23-b08b-2f03-ba74-6d3c491bdce4",
+                "etiqueta": "string",
+                "orden": 2611
+              },
+              {
+                "id": "5bfffd52-887d-ac24-5335-11470ceec17a",
+                "etiqueta": "string",
+                "orden": 2831
+              }
+            ]
+          }
+        ],
+        "valores": [
+          {
+            "campoId": "8a00b1e0-bef0-b7d9-af87-0ed2e8b62ef2",
+            "texto": "string"
+          }
+        ],
+        "autoria": {
+          "creadorId": "84cd8691-e666-1500-6d2c-42fc8cda73ee",
+          "creadoEn": "1970-09-25T06:19:29.889Z",
+          "ultimoModificadorId": "24a6532a-607a-79c5-ea99-f19f86c763c1",
+          "modificadoEn": "1950-01-14T18:10:03.328Z"
+        }
+      }
+order: 1000

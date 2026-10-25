@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: arquitectura21
+      POSTGRES_USER: equipo21
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Definir DB_PASSWORD}
+    volumes:
+      - equipo21_pg:/var/lib/postgresql/data
+      - ./S05_S06_A1/esquema_bd.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U equipo21 -d arquitectura21"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://equipo21:${DB_PASSWORD:?Definir DB_PASSWORD}@db:5432/arquitectura21
+      JWT_SECRET: ${JWT_SECRET:?Definir JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-28800}
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  equipo21_pg:

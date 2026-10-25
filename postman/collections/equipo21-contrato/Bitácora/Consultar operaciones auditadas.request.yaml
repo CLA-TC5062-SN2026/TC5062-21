@@ -1,0 +1,30 @@
+$kind: http-request
+description: Consulta inmutable para cualquier cuenta autenticada, según la visibilidad general del SRS. Registra altas, modificaciones, bajas, reactivaciones, propuestas, decisiones y cambios de acceso. Orden fecha descendente y luego ID. Instantáneas excluyen contraseñas, hashes, JWT y secretos. Lectura disponible para toda cuenta autenticada.
+url: "{{baseUrl}}/v1/entradas-bitacora?pagina=1&objetoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&tipoObjeto=string&actorId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: pagina
+    value: "1"
+    disabled: false
+    description: Página desde 1; tamaño fijo de 25.
+  - key: objetoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Filtra por objeto auditado existente, incluyendo bajas/retiradas.
+  - key: tipoObjeto
+    value: string
+    disabled: false
+    description: Filtra la clase de objeto.
+  - key: actorId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Filtra por cuenta existente.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar operaciones auditadas.resources/examples
+order: 1000

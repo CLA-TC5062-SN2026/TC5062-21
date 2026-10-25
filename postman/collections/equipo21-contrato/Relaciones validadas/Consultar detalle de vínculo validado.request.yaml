@@ -1,0 +1,18 @@
+$kind: http-request
+description: "Recupera también vínculos retirados para historial. Incluye origen, tipo, destino, justificación, estado, versión y autoría. IDs de extremos permiten abrir su detalle con incluirBaja=true si corresponde. No permite editar directamente: cambios y retiros requieren propuestas aprobadas. Lectura disponible para toda cuenta autenticada."
+url: "{{baseUrl}}/v1/relaciones/:relacionId"
+method: GET
+headers:
+  Accept: application/json
+pathVariables:
+  - key: relacionId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar detalle de vínculo validado.resources/examples
+order: 2000

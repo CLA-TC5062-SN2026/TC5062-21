@@ -1,0 +1,5 @@
+localResources:
+  specs:
+    - ../postman/specs/openapi.yaml
+workspace:
+  id: ''

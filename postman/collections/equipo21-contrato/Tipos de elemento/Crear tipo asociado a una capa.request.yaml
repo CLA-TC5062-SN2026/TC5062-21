@@ -1,0 +1,21 @@
+$kind: http-request
+description: Crea tipo y campo base Nombre en una transacción. Rechaza capa inexistente con 404 y nombre repetido dentro de esa capa con 409. Solo Administrador.
+url: "{{baseUrl}}/v1/tipos-elemento"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "@",
+      "capaId": "5223032c-af33-c3cc-96f1-804d9522b711"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Crear tipo asociado a una capa.resources/examples
+order: 2000

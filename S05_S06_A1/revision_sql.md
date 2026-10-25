@@ -10,16 +10,16 @@ Se importó `esquema_bd.sql` en una base PostgreSQL real con `psql -v ON_ERROR_S
 |---|---|
 | Usuario / usuarios | UUID, correo normalizado único, nombre obligatorio, bcrypt interno, rol y estado válidos. Correo sin distinguir mayúsculas. |
 | Sesion / sesiones | Usuario 1:N sesiones; hash del token único, fechas de creación, actividad, expiración y revocación. El JWT completo no se almacena. |
-| Capa / capas; PermisoEdicionCapa / permisos_edicion_capa | Nombre de capa único sin distinguir mayúsculas; asignación única por usuario/capa, con autor y fecha. |
+| Capa / capas; Permiso / permisos_edicion_capa | Nombre de capa único sin distinguir mayúsculas; asignación única por usuario/capa, con autor y fecha. |
 | TipoElemento / tipos_elemento | Pertenece a una capa; nombre único dentro de ella. |
-| DefinicionCampo / definiciones_campo | Pertenece a un tipo; tipo de dato, obligatoriedad y marca de Nombre base. Índices parciales garantizan un único Nombre por tipo. |
-| OpcionCampo / opciones_campo | Pertenece a un campo; etiqueta, orden y estado. Opciones reemplazadas se conservan inactivas. |
-| Elemento / elementos; ValorCampo / valores_campo | Un valor por elemento/campo; exactamente una columna de texto, número, fecha u opción; FK a elemento, campo y opción. |
+| Campo / definiciones_campo | Pertenece a un tipo; tipo de dato, obligatoriedad y marca de Nombre base. Índices parciales garantizan un único Nombre por tipo. |
+| Opcion / opciones_campo | Pertenece a un campo; etiqueta, orden y estado. Opciones reemplazadas se conservan inactivas. |
+| Elemento / elementos; Valor / valores_campo | Un valor por elemento/campo; exactamente una columna de texto, número, fecha u opción; FK a elemento, campo y opción. |
 | TipoRelacion / tipos_relacion | FK a tipos de origen y destino; nombre único y restricciones de compatibilidad en el servicio. |
-| RelacionValidada / relaciones_validadas | FK a extremos, tipo y autor; versión y estado; unicidad de vínculo vigente. |
-| PropuestaRelacion / propuestas_relacion | Autor, extremos, operación y relación objetivo opcional según operación; estado, justificación y versión esperada. |
-| DecisionPropuesta / decisiones_propuesta | Una decisión por propuesta mediante UNIQUE; decisor, resolución y fecha. |
-| EntradaBitacora / entradas_bitacora | Actor, acción, fecha e instantáneas JSONB; trigger impide UPDATE y DELETE ordinarios. |
+| Relacion / relaciones_validadas | FK a extremos, tipo y autor; versión y estado; unicidad de vínculo vigente. |
+| Propuesta / propuestas_relacion | Autor, extremos, operación y relación objetivo opcional según operación; estado, justificación y versión esperada. |
+| Decision / decisiones_propuesta | Una decisión por propuesta mediante UNIQUE; decisor, resolución y fecha. |
+| Bitacora / entradas_bitacora | Actor, acción, fecha e instantáneas JSONB; trigger impide UPDATE y DELETE ordinarios. |
 | CargaDemostracion / cargas_demostracion | Identificador de muestra único y resultado persistente para PUT idempotente. |
 
 El diagrama de clases presenta atributos camelCase equivalentes a las columnas snake_case. Los schemas públicos son proyecciones del dominio: excluyen hashes y metadatos internos; valores y decisiones se anidan en respuestas. Nombre del elemento se deriva del campo base y se mantiene como columna de búsqueda en la misma transacción. Las opciones y decisiones tienen tablas propias, aunque aparezcan anidadas en JSON. No se equipara cada schema de request con una tabla.

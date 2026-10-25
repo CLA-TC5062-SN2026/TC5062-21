@@ -1,0 +1,23 @@
+$kind: http-request
+description: Crea cuenta activa con exactamente un rol; asigna capas solo a Editor. Persiste usuario, asignaciones y bitácora de forma atómica. No devuelve la contraseña enviada. Solo Administrador.
+url: "{{baseUrl}}/v1/usuarios"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "correo": "5aU7@TGJdGQvZQvALeUWmyXH.xsr",
+      "nombre": "G",
+      "contrasenaInicial": "stringstring",
+      "rol": "Consulta"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Crear cuenta con rol y capas.resources/examples
+order: 2000

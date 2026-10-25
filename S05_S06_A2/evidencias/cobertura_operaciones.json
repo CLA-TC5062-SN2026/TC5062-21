@@ -1,0 +1,352 @@
+[
+  {
+    "operacion": "consultarSalud",
+    "metodo": "GET",
+    "ruta": "/api/salud",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "registrarUsuario",
+    "metodo": "POST",
+    "ruta": "/api/auth/register",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "autenticarUsuario",
+    "metodo": "POST",
+    "ruta": "/api/auth/login",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarPerfil",
+    "metodo": "GET",
+    "ruta": "/api/auth/me",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "iniciarSesion",
+    "metodo": "POST",
+    "ruta": "/api/v1/sesiones",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarSesionActual",
+    "metodo": "GET",
+    "ruta": "/api/v1/sesiones/actual",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "cerrarSesionActual",
+    "metodo": "DELETE",
+    "ruta": "/api/v1/sesiones/actual",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "listarUsuarios",
+    "metodo": "GET",
+    "ruta": "/api/v1/usuarios",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "crearCapa",
+    "metodo": "POST",
+    "ruta": "/api/v1/capas",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "listarCapas",
+    "metodo": "GET",
+    "ruta": "/api/v1/capas",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarCapa",
+    "metodo": "GET",
+    "ruta": "/api/v1/capas/c2fd0322-90e6-4072-af65-b7761a493e3b",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "renombrarCapa",
+    "metodo": "PATCH",
+    "ruta": "/api/v1/capas/c2fd0322-90e6-4072-af65-b7761a493e3b",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "crearUsuario",
+    "metodo": "POST",
+    "ruta": "/api/v1/usuarios",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarUsuario",
+    "metodo": "GET",
+    "ruta": "/api/v1/usuarios/8aca2d0b-702a-449c-99d5-8d2cb70fd570",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarCapasEditables",
+    "metodo": "GET",
+    "ruta": "/api/v1/usuarios/8aca2d0b-702a-449c-99d5-8d2cb70fd570/capas-editables",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "reemplazarCapasEditables",
+    "metodo": "PUT",
+    "ruta": "/api/v1/usuarios/8aca2d0b-702a-449c-99d5-8d2cb70fd570/capas-editables",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "actualizarUsuario",
+    "metodo": "PATCH",
+    "ruta": "/api/v1/usuarios/8aca2d0b-702a-449c-99d5-8d2cb70fd570",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "restablecerContrasena",
+    "metodo": "POST",
+    "ruta": "/api/v1/usuarios/8aca2d0b-702a-449c-99d5-8d2cb70fd570/restablecimientos-contrasena",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "crearTipoElemento",
+    "metodo": "POST",
+    "ruta": "/api/v1/tipos-elemento",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "listarTiposElemento",
+    "metodo": "GET",
+    "ruta": "/api/v1/tipos-elemento",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarTipoElemento",
+    "metodo": "GET",
+    "ruta": "/api/v1/tipos-elemento/0ca61a20-8c04-4d48-8bae-55da60a9b56c",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "renombrarTipoElemento",
+    "metodo": "PATCH",
+    "ruta": "/api/v1/tipos-elemento/0ca61a20-8c04-4d48-8bae-55da60a9b56c",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "crearCampo",
+    "metodo": "POST",
+    "ruta": "/api/v1/tipos-elemento/0ca61a20-8c04-4d48-8bae-55da60a9b56c/campos",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "listarCampos",
+    "metodo": "GET",
+    "ruta": "/api/v1/tipos-elemento/0ca61a20-8c04-4d48-8bae-55da60a9b56c/campos",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarCampo",
+    "metodo": "GET",
+    "ruta": "/api/v1/tipos-elemento/0ca61a20-8c04-4d48-8bae-55da60a9b56c/campos/dee3a0dc-b8ec-4421-89c8-f7dfc2477aa3",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "reemplazarDefinicionCampo",
+    "metodo": "PUT",
+    "ruta": "/api/v1/tipos-elemento/0ca61a20-8c04-4d48-8bae-55da60a9b56c/campos/dee3a0dc-b8ec-4421-89c8-f7dfc2477aa3",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "crearElemento",
+    "metodo": "POST",
+    "ruta": "/api/v1/elementos",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "listarElementos",
+    "metodo": "GET",
+    "ruta": "/api/v1/elementos",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarElemento",
+    "metodo": "GET",
+    "ruta": "/api/v1/elementos/ba36ddaa-4898-43b6-8826-b8748806ec28",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "modificarElemento",
+    "metodo": "PATCH",
+    "ruta": "/api/v1/elementos/ba36ddaa-4898-43b6-8826-b8748806ec28",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "darBajaElemento",
+    "metodo": "DELETE",
+    "ruta": "/api/v1/elementos/ba36ddaa-4898-43b6-8826-b8748806ec28",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "modificarElemento",
+    "metodo": "PATCH",
+    "ruta": "/api/v1/elementos/ba36ddaa-4898-43b6-8826-b8748806ec28",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "crearTipoElemento",
+    "metodo": "POST",
+    "ruta": "/api/v1/tipos-elemento",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "crearElemento",
+    "metodo": "POST",
+    "ruta": "/api/v1/elementos",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "crearTipoRelacion",
+    "metodo": "POST",
+    "ruta": "/api/v1/tipos-relacion",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "listarTiposRelacion",
+    "metodo": "GET",
+    "ruta": "/api/v1/tipos-relacion",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarTipoRelacion",
+    "metodo": "GET",
+    "ruta": "/api/v1/tipos-relacion/f7ccf520-3693-49aa-99ce-825ae61d8c19",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "modificarTipoRelacion",
+    "metodo": "PATCH",
+    "ruta": "/api/v1/tipos-relacion/f7ccf520-3693-49aa-99ce-825ae61d8c19",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "crearPropuesta",
+    "metodo": "POST",
+    "ruta": "/api/v1/propuestas-relacion",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "listarPropuestas",
+    "metodo": "GET",
+    "ruta": "/api/v1/propuestas-relacion",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarPropuesta",
+    "metodo": "GET",
+    "ruta": "/api/v1/propuestas-relacion/7392434e-0958-4f81-be2e-a9c167b3c7f2",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "corregirPropuestaPendiente",
+    "metodo": "PATCH",
+    "ruta": "/api/v1/propuestas-relacion/7392434e-0958-4f81-be2e-a9c167b3c7f2",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "decidirPropuesta",
+    "metodo": "POST",
+    "ruta": "/api/v1/propuestas-relacion/7392434e-0958-4f81-be2e-a9c167b3c7f2/decisiones",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "listarRelaciones",
+    "metodo": "GET",
+    "ruta": "/api/v1/relaciones",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarRelacion",
+    "metodo": "GET",
+    "ruta": "/api/v1/relaciones/83072989-e8c1-4168-9407-aa74dc94b924",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarMapa",
+    "metodo": "GET",
+    "ruta": "/api/v1/mapas/ba36ddaa-4898-43b6-8826-b8748806ec28",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "listarBitacora",
+    "metodo": "GET",
+    "ruta": "/api/v1/entradas-bitacora",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "consultarEntradaBitacora",
+    "metodo": "GET",
+    "ruta": "/api/v1/entradas-bitacora/9f62f55a-f57a-4004-af50-2330de0dd2ec",
+    "estado": 200,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "cargarDemostracion",
+    "metodo": "PUT",
+    "ruta": "/api/v1/demostraciones/arquitectura-ficticia-v1",
+    "estado": 201,
+    "schema": "correcto"
+  },
+  {
+    "operacion": "cargarDemostracion",
+    "metodo": "PUT",
+    "ruta": "/api/v1/demostraciones/arquitectura-ficticia-v1",
+    "estado": 200,
+    "schema": "correcto"
+  }
+]

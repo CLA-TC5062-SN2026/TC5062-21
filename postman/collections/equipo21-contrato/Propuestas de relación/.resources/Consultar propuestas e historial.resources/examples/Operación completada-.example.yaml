@@ -1,0 +1,68 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/propuestas-relacion?pagina=1&estado=aprobada&relacionId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  queryParams:
+    pagina: "1"
+    estado: aprobada
+    relacionId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "items": [
+          {
+            "id": "b5e01c62-0444-1809-4e56-8aacb2dcd470",
+            "operacion": "alta",
+            "estado": "pendiente",
+            "origenId": "eb0578a4-8d52-e594-cd83-9eec3e885064",
+            "tipoRelacionId": "43776b9b-8454-3f8f-15a7-3a80435df081",
+            "destinoId": "00455e73-4e57-7a7f-902b-01849a391b22",
+            "justificacion": "stringstring",
+            "estadoSolicitado": "vigente",
+            "relacionId": "1b955e46-8d6b-114a-3e65-edc59b820b79",
+            "relacionResultadoId": "6ec3e0bc-93be-62e3-1daa-439dc7d23374",
+            "versionBase": 3036,
+            "autorId": "a0a0f646-54e2-de0d-dc77-e42b523fa6dd",
+            "creadaEn": "2022-12-16T05:59:18.801Z",
+            "decisorId": "1f1678ea-9b9f-b5b8-1011-6d2be0c8ae74",
+            "decididaEn": "2021-11-16T19:23:35.162Z"
+          },
+          {
+            "id": "decd629c-bc97-4add-8ce9-a3d8ad84977c",
+            "operacion": "retiro",
+            "estado": "rechazada",
+            "origenId": "adf23f77-07b1-e010-c6d5-ccb0a07efca0",
+            "tipoRelacionId": "1f236d34-d422-ae7a-d083-30f052447788",
+            "destinoId": "3b8890f2-8cb7-78f0-f377-28fab88a5afa",
+            "justificacion": "stringstring",
+            "estadoSolicitado": "vigente",
+            "relacionId": "9f776839-c841-f435-af98-eee382a387f1",
+            "relacionResultadoId": "78864666-99a9-5624-10ec-259f9b5b640a",
+            "versionBase": 8581,
+            "autorId": "d6c1046d-2b06-4f3c-0343-50006c205af7",
+            "creadaEn": "1949-04-03T21:27:39.990Z",
+            "decisorId": "c941bed1-1b7f-af45-4136-a57ae637a0cf",
+            "decididaEn": "1982-09-30T23:27:20.536Z"
+          }
+        ],
+        "total": 7363,
+        "pagina": 1947,
+        "tamanoPagina": 25
+      }
+order: 1000

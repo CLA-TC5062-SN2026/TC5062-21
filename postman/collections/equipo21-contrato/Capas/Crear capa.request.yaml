@@ -1,0 +1,20 @@
+$kind: http-request
+description: Normaliza espacios extremos y rechaza duplicados sin distinguir mayúsculas. La nueva capa está disponible inmediatamente sin reinicio. Solo Administrador.
+url: "{{baseUrl}}/v1/capas"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "@"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Crear capa.resources/examples
+order: 2000

@@ -1,0 +1,3 @@
+$kind: collection
+description: Registro, actualización, consulta y ciclo de vida conservador.
+order: 6000

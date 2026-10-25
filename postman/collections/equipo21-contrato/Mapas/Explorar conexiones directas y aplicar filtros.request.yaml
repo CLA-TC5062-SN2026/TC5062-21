@@ -1,0 +1,31 @@
+$kind: http-request
+description: Requiere partida activa. Devuelve partida y vecinos de relaciones directas vigentes, entrantes o salientes, preservando dirección real. Los filtros de capa, tipo de vecino y tipo de relación se intersectan; partida permanece como contexto. Solo aristas incidentes a la partida con ambos extremos visibles. Sin vecinos devuelve solo partida y aristas=[]. Máximo 100 nodos contando partida, vecinos en orden estable por UUID; indica truncamiento. Para recorrer se solicita este endpoint con otro ID; no inventa vínculos transitivos. Omitir filtros recupera vista ordinaria sin alterar datos. Lectura disponible para toda cuenta autenticada.
+url: "{{baseUrl}}/v1/mapas/:elementoId?capaDestinoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&tipoElementoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&tipoRelacionId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: capaDestinoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Capa de los vecinos que se desean mostrar; se aplica también a vecinos de vínculos entrantes.
+  - key: tipoElementoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Tipo de elemento de los vecinos.
+  - key: tipoRelacionId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Tipo de las relaciones directas.
+pathVariables:
+  - key: elementoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Explorar conexiones directas y aplicar filtros.resources/examples
+order: 1000

@@ -1,0 +1,62 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/elementos?pagina=1&incluirBaja=false&q=x&capaId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&tipoElementoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  queryParams:
+    pagina: "1"
+    incluirBaja: "false"
+    q: x
+    capaId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    tipoElementoId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "items": [
+          {
+            "id": "5c35ea4b-7fca-e954-f170-1847564519ac",
+            "nombre": "string",
+            "tipoElemento": {
+              "id": "f2367465-1240-bf81-eef7-b8cc43267b60",
+              "nombre": "string"
+            },
+            "capa": {
+              "id": "ffabca63-65b9-077b-03f2-afed9dc6fc94",
+              "nombre": "string"
+            },
+            "estado": "baja"
+          },
+          {
+            "id": "ba58c6fe-d1cf-7bd3-0491-3bd6feec21c9",
+            "nombre": "string",
+            "tipoElemento": {
+              "id": "e7c6a912-f4bb-fe9b-b9b2-2439a51f79ac",
+              "nombre": "string"
+            },
+            "capa": {
+              "id": "346cf805-7e0e-e45d-ccc7-b5dd2c4733c6",
+              "nombre": "string"
+            },
+            "estado": "activo"
+          }
+        ],
+        "total": 8481,
+        "pagina": 5464,
+        "tamanoPagina": 25
+      }
+order: 1000

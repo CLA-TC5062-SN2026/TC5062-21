@@ -1,0 +1,51 @@
+$kind: http-example
+name: Solicitud mal formada (por ejemplo JSON ilegible). No se aplican cambios.
+request:
+  url: "{{baseUrl}}/v1/elementos/:elementoId"
+  method: PATCH
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: elementoId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: json
+    content: |-
+      {
+        "valores": [
+          {
+            "campoId": "968dc06b-d8a9-1f3d-a0ff-4a42d7d00643",
+            "texto": "string"
+          }
+        ],
+        "estado": "activo"
+      }
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "codigo": "string",
+        "mensaje": "string",
+        "detalles": [
+          {
+            "campo": "string",
+            "motivo": "string"
+          },
+          {
+            "campo": "string",
+            "motivo": "string"
+          }
+        ]
+      }
+order: 2000

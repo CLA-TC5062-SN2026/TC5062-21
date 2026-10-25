@@ -1,0 +1,124 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/relaciones?pagina=1&elementoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&incluirHistoricas=false"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  queryParams:
+    pagina: "1"
+    elementoId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    incluirHistoricas: "false"
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "items": [
+          {
+            "id": "33834543-9dbe-9b85-c0ce-3a265fd7f541",
+            "origen": {
+              "id": "7943640a-fe01-064d-44be-50bc8d81479c",
+              "nombre": "string",
+              "tipoElemento": {
+                "id": "50fea22c-bc76-c21e-6e5a-8808f3bd60b3",
+                "nombre": "string"
+              },
+              "capa": {
+                "id": "f9c73e66-c49e-03ac-2772-fa9a540eb64b",
+                "nombre": "string"
+              },
+              "estado": "activo"
+            },
+            "tipoRelacion": {
+              "id": "b001afb3-6c0a-cb03-2ef3-b473eea92c0c",
+              "nombre": "y",
+              "descripcion": "p",
+              "tipoOrigenId": "a5097dc6-d3c3-e771-9a6b-b13520cd7aa2",
+              "tipoDestinoId": "db8090a1-9b73-11e2-2b89-28347acf583c"
+            },
+            "destino": {
+              "id": "843abd86-3542-f3b8-50f5-1bf0da01bfad",
+              "nombre": "string",
+              "tipoElemento": {
+                "id": "7c1368f2-8980-09fb-de9a-4a587a9db5ff",
+                "nombre": "string"
+              },
+              "capa": {
+                "id": "b5503552-f52e-e7ff-642e-a74e0380c0d1",
+                "nombre": "string"
+              },
+              "estado": "baja"
+            },
+            "justificacion": "string",
+            "estado": "vigente",
+            "version": 6813,
+            "autoria": {
+              "creadorId": "0b318e59-3408-39cc-d7d9-4d6bb0cc13e2",
+              "creadoEn": "2021-03-10T06:15:31.729Z",
+              "ultimoModificadorId": "0804a356-a1dd-fa2f-84fb-33507030c4af",
+              "modificadoEn": "1991-01-07T10:02:40.111Z"
+            }
+          },
+          {
+            "id": "8ff245f2-3da2-9d69-7b52-7bb1532d76d7",
+            "origen": {
+              "id": "39264ab3-9eac-1dcc-236a-ce2ddfb7fcfa",
+              "nombre": "string",
+              "tipoElemento": {
+                "id": "3deb5043-e84c-c196-e970-547efefa48c8",
+                "nombre": "string"
+              },
+              "capa": {
+                "id": "de4752a8-463b-1f6b-99df-114a664b88e3",
+                "nombre": "string"
+              },
+              "estado": "baja"
+            },
+            "tipoRelacion": {
+              "id": "ee2e6383-5597-13e4-6aa4-a3fd2da50d07",
+              "nombre": "b",
+              "descripcion": "Q",
+              "tipoOrigenId": "7b999cca-cb05-55b0-64e3-d45ebde0e81b",
+              "tipoDestinoId": "db3a39e7-c39e-6d7a-f82e-e711f51bb898"
+            },
+            "destino": {
+              "id": "b9f90f39-93c3-e860-7587-2c692bad99bd",
+              "nombre": "string",
+              "tipoElemento": {
+                "id": "ecac9f53-1b98-4a60-9a1d-735c7345ba8c",
+                "nombre": "string"
+              },
+              "capa": {
+                "id": "c7f867e7-f4b7-a6c4-6d2e-37ffacd2d9c2",
+                "nombre": "string"
+              },
+              "estado": "baja"
+            },
+            "justificacion": "string",
+            "estado": "retirada",
+            "version": 7573,
+            "autoria": {
+              "creadorId": "c5c44670-0dd1-1481-751b-be075ec6d3b3",
+              "creadoEn": "1992-08-07T01:45:11.011Z",
+              "ultimoModificadorId": "1df92f06-ad86-83ab-04f0-05b91fbe3ea9",
+              "modificadoEn": "1967-12-02T18:03:55.931Z"
+            }
+          }
+        ],
+        "total": 2015,
+        "pagina": 528,
+        "tamanoPagina": 25
+      }
+order: 1000

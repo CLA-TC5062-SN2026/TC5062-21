@@ -1,0 +1,45 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/tipos-relacion?tipoOrigenId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&tipoDestinoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  queryParams:
+    tipoOrigenId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    tipoDestinoId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "items": [
+          {
+            "id": "33418fe6-6a40-4f31-b7e7-5072752e5831",
+            "nombre": "I",
+            "descripcion": "J",
+            "tipoOrigenId": "b8ebef16-0beb-045e-24aa-d6de40f258b5",
+            "tipoDestinoId": "29188300-e4bd-cd9b-56dc-927f4bee5ca4"
+          },
+          {
+            "id": "7da10392-ff44-f506-c7e6-0e2577f8f9ae",
+            "nombre": "l",
+            "descripcion": "j",
+            "tipoOrigenId": "ad568830-4422-a85c-5fc7-59fb723177ec",
+            "tipoDestinoId": "762edaf9-65b3-5ac6-54ae-ea19ca8d0d0e"
+          }
+        ],
+        "total": 8506
+      }
+order: 1000
