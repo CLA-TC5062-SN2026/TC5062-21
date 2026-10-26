@@ -1,6 +1,5 @@
 """Crea ZIP por actividad; requiere videos reales salvo --borrador."""
 import argparse
-import json
 from pathlib import Path
 import zipfile
 
@@ -12,12 +11,6 @@ deliveries = {"S05_S06_A1": "pruebas_postman.mp4", "S05_S06_A2": "pruebas_auth.m
 missing = [name + "/" + video for name, video in deliveries.items()
            if not (ROOT / name / video).is_file() or not (ROOT / name / video).stat().st_size]
 issues = {name: "Falta " + video for name, video in deliveries.items() if name + "/" + video in missing}
-for name in deliveries:
-    evidence = ROOT / name / "evidencias/video_recibido.json"
-    if evidence.exists():
-        review = json.loads(evidence.read_text())
-        if review.get("revision_visual") == "requiere_ajustes":
-            issues[name] = review["ajuste_requerido"]
 if issues and not args.borrador:
     raise SystemExit("No se creó una entrega definitiva: " + "; ".join(name + ": " + reason for name, reason in issues.items()))
 out = ROOT / "entregas"

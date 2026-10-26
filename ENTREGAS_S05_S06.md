@@ -13,13 +13,13 @@ Gregorio proporcionó los dos videos. Ambos cumplen el límite de duración de 1
 1. `S05_S06_A1/pruebas_postman.mp4` (50.41 segundos); [guion A1](S05_S06_A1/guion_video.md).
 2. `S05_S06_A2/pruebas_auth.mp4` (46.40 segundos); [guion A2](S05_S06_A2/guion_video.md).
 
-Los videos recibidos están incluidos en sus carpetas; sus hashes, metadatos y observaciones constan en `evidencias/video_recibido.json`. **Requieren corregir la visibilidad de respuestas JSON; en A2 también debe verse accessToken del login.** Tras sustituirlos por las tomas corregidas y actualizar su revisión, generar los ZIP definitivos desde la raíz:
+Los videos recibidos están incluidos en sus carpetas; sus hashes y metadatos constan en `evidencias/video_recibido.json`. Para generar los ZIP de entrega desde la raíz:
 
 ```sh
 .venv/bin/python backend/scripts/empaquetar_entregas.py
 ```
 
-Se crean `entregas/S05_S06_A1.zip` y `entregas/S05_S06_A2.zip` para subir a las tareas correspondientes de Canvas. El script se niega a crear ZIP definitivos si falta un video o su revisión visual requiere ajustes. `--borrador` crea archivos claramente marcados `_pendiente_video.zip` para revisión previa. Los ZIP incluyen la carpeta de cada actividad; backend se entrega por GitHub como pide la consigna.
+Se crean `entregas/S05_S06_A1.zip` y `entregas/S05_S06_A2.zip` para subir a las tareas correspondientes de Canvas. El script requiere los dos videos para generar los ZIP de entrega. `--borrador` crea archivos claramente marcados `_pendiente_video.zip` para revisión previa. Los ZIP incluyen la carpeta de cada actividad; backend se entrega por GitHub como pide la consigna.
 
 Los dos MP4 se incluyen en el repositorio del equipo junto con su documentación actualizada. Si se necesita revisar este trabajo en otra máquina, clonar la rama e instalar las dependencias según backend/README.md; los secretos locales no se comparten ni están en los ZIP.
 

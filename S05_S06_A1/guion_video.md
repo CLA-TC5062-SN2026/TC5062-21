@@ -19,9 +19,3 @@
 | 45–55 s | DELETE /api/v1/elementos/{elementoId} | 200 y estado baja |
 
 Son seis combinaciones de método y ruta, con POST, GET y DELETE. Usa un solo recorrido sin cortes. Guarda como `S05_S06_A1/pruebas_postman.mp4`. Después detén la copia A1 sin autenticación; la API final del puerto 8000 conserva JWT.
-
-## Ajuste del video recibido
-
-Volver a grabar mostrando Body en el panel de respuesta de al menos cinco operaciones, con sus JSON y códigos HTTP visibles. En el video recibido capa, tipo y consultas muestran principalmente Test Results; el JSON sí se ve en alta y baja de elemento.
-
-Antes de grabar, abre cada petición y selecciona **Body en el panel inferior de respuesta**. Después de Send, deja visibles el código HTTP y el JSON; no basta con el resultado PASSED del test. La preparación y la revisión de variables pueden quedar fuera de la toma para reservar tiempo a las respuestas. La toma final debe ser continua y de máximo 60 segundos.

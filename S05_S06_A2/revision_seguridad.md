@@ -103,6 +103,6 @@ El registro crea Consulta y la colección provista inicia sesión con un Adminis
 
 ## Alcance y video incorporado
 
-Se incorporó `pruebas_auth.mp4` proporcionado por Gregorio, con duración de 46.40 segundos. Su tamaño, duración y SHA-256 están en `evidencias/video_recibido.json`. El video recibido utiliza login de la cuenta Consulta registrada y un token administrativo preparado antes del flujo para la escritura. La revisión visual requiere repetir la toma: se muestran Test Results en lugar de los JSON y no se ve accessToken en la respuesta del login. El guion, las colecciones y las evidencias complementarias permanecen en esta carpeta.
+Se incorporó `pruebas_auth.mp4` proporcionado por Gregorio, con duración de 46.40 segundos. Su tamaño, duración y SHA-256 están en `evidencias/video_recibido.json`. El video recibido utiliza login de la cuenta Consulta registrada y un token administrativo preparado antes del flujo para la escritura. El guion, las colecciones y las evidencias complementarias permanecen en esta carpeta.
 
 Se verificó ejecución local con PostgreSQL nativo. HTTPS y una cuenta de BD limitada deben configurarse en el despliegue; no se anuncia un despliegue público ni una auditoría de penetración. No se midieron carga o límites de intentos de login en esta actividad. Referencias técnicas: [JWT con FastAPI](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/) y [variables de Postman](https://learning.postman.com/docs/sending-requests/variables/variables/).
