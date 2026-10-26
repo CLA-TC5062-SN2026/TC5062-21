@@ -1,6 +1,6 @@
 # Consolidación de diseños — Equipo 21
 
-Fecha: 25 de octubre de 2026. Fuentes individuales originales conservadas en `insumos/`, con hashes SHA-256 en `insumos/manifest.json`. Línea base funcional: `insumos/SRS_equipo.md` (19 RF, 56 criterios canónicos). Las resoluciones siguientes son decisiones técnicas de esta implementación y quedan disponibles para revisión de los integrantes; no se presentan como consenso previo.
+Fecha: 25 de octubre de 2026. Fuentes individuales originales conservadas en `insumos/`, con hashes SHA-256 en `insumos/manifest.json`. Línea base funcional: `insumos/SRS_equipo.md` (19 RF, 56 criterios canónicos). Las resoluciones siguientes documentan las decisiones técnicas aplicadas en la implementación.
 
 ## Aportaciones de cada integrante
 

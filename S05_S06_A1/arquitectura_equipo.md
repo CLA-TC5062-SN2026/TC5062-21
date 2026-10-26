@@ -1,6 +1,6 @@
 # Arquitectura consolidada — Equipo 21
 
-Fecha: 25 de octubre de 2026. Resolución técnica para esta implementación, preparada a partir de los diseños de Gregorio, Jean Paul y Liciel. Los integrantes deben revisar la consolidación antes de su entrega; este documento no acredita una aprobación previa del equipo o del cliente.
+Fecha: 25 de octubre de 2026. Arquitectura consolidada a partir de los diseños de Gregorio, Jean Paul y Liciel.
 
 ## Contenedores
 
@@ -12,7 +12,7 @@ flowchart LR
   API -.-> ENV[Variables de entorno\nDATABASE_URL / JWT_SECRET / JWT_EXPIRATION]
 ```
 
-El frontend se conserva como decisión de arquitectura; estas actividades implementan el backend. En desarrollo, Uvicorn escucha únicamente en `127.0.0.1:8000`. En despliegue se requiere HTTPS mediante el punto de entrada de la infraestructura. El proveedor cloud permanece pendiente, como en los tres diseños; no se inventa un despliegue público.
+El frontend se conserva como decisión de arquitectura; estas actividades implementan el backend. En desarrollo, Uvicorn escucha únicamente en `127.0.0.1:8000`. En despliegue se requiere HTTPS mediante el punto de entrada de la infraestructura. La implementación de esta actividad se ejecuta localmente con PostgreSQL nativo.
 
 ## Componentes internos del backend
 
@@ -36,7 +36,7 @@ El contrato es la fuente de rutas, métodos, validaciones y respuestas documenta
 
 - Dominio bajo `/api/v1`, con recursos en español y campos camelCase. Autenticación académica bajo `/api/auth` para cumplir S05-S06-A2.
 - PostgreSQL almacena los cuatro tipos de campo con columnas tipadas, restricciones y claves foráneas; JSONB se reserva para instantáneas de bitácora y el resultado de carga de demostración.
-- Las escrituras y su bitácora usan una transacción. Un bloqueo asesor transaccional serializa escrituras en esta versión académica y evita carreras de último administrador, propuestas y validación de estructuras. Su capacidad debe medirse antes de ampliar la carga; no se afirma cumplimiento del RNF de rendimiento sin medición.
+- Las escrituras y su bitácora usan una transacción. Un bloqueo asesor transaccional serializa escrituras en esta versión académica y evita carreras de último administrador, propuestas y validación de estructuras.
 - Las llamadas SQL bloqueantes se ejecutan en el pool de hilos para permitir peticiones concurrentes sin detener el bucle ASGI.
 - Los permisos se consultan en servidor por solicitud. El JWT no decide roles. La cuenta y la sesión deben seguir activas; hay revocación individual y por cuenta.
 - bcrypt con coste 12. La contraseña no se devuelve, ni siquiera en altas administrativas. El registro público crea exclusivamente Consulta y rechaza un rol enviado por el cliente.

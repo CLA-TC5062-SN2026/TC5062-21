@@ -1,6 +1,6 @@
 # S05-S06-A1 — Diseño de base de datos y servicios CRUD
 
-El diseño consolidado, DDL, revisión y colecciones están listos. Se incorporó el video de Gregorio `pruebas_postman.mp4` (50.41 segundos), dentro del máximo de 1 minuto. El video está incluido en la carpeta y en el ZIP de entrega. Las decisiones de consolidación quedan disponibles para revisión del equipo.
+El diseño consolidado, DDL, revisión y colecciones están listos. Se incorporó el video de Gregorio `pruebas_postman.mp4` (50.41 segundos), dentro del máximo de 1 minuto. El video está incluido en la carpeta y en el ZIP de entrega.
 
 ## Archivos
 

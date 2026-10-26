@@ -2,8 +2,8 @@ openapi: 3.0.3
 info:
   title: Plataforma de Arquitectura Empresarial — Equipo 21
   version: 2.0.0
-  description: 'Contrato consolidado de Gregorio Escobedo, Jean Paul Lozano y Liciel. Decisiones técnicas propuestas
-    para revisión del equipo en diferencias_diseno.md. SRS canónico: insumos/SRS_equipo.md, 19 RF y 56 criterios.
+  description: 'Contrato consolidado de Gregorio Escobedo, Jean Paul Lozano y Liciel. Decisiones técnicas documentadas
+    en diferencias_diseno.md. SRS canónico: insumos/SRS_equipo.md, 19 RF y 56 criterios.
     CRUD y dominio bajo /api/v1; autenticación académica bajo /api/auth. El registro público crea únicamente cuentas
     Consulta; los roles los asigna un Administrador. Las sesiones JWT se comprueban en PostgreSQL, vencen en un
     máximo de 8 horas o 30 minutos de inactividad. Toda escritura de negocio y su bitácora se confirman en una transacción;

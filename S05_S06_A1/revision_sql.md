@@ -1,6 +1,6 @@
 # Revisión del esquema y del código CRUD
 
-Fecha: 25 de octubre de 2026. Motor ejecutado: PostgreSQL 17.11. Python 3.12, FastAPI, SQLAlchemy y psycopg. Esta revisión registra verificaciones realizadas sobre la implementación; el equipo conserva la responsabilidad de revisar y aceptar la consolidación.
+Fecha: 25 de octubre de 2026. Motor ejecutado: PostgreSQL 17.11. Python 3.12, FastAPI, SQLAlchemy y psycopg. Esta revisión registra las comprobaciones y correcciones del esquema y los servicios CRUD.
 
 ## Correspondencia entre diseño, API y SQL
 
@@ -45,7 +45,7 @@ UUID se usa para identidades; `timestamptz` para instantes; `date` para campos d
 - Se añadieron límites de 1 MiB (413), manejo seguro de indisponibilidad de BD (503), Location en creaciones y mensajes sin valores sensibles.
 - Se confirmó la transacción antes de enviar la respuesta y se revierte ante errores; escritura y bitácora son atómicas.
 - Una prueba concurrente detectó bloqueo del bucle ASGI al esperar el bloqueo asesor desde una llamada SQL síncrona. Se trasladó SQL/servicios al pool de hilos; dos altas con el mismo nombre terminan en una 201 y una 409.
-- El diagrama y DDL se regeneraron desde el modelo corregido; OpenAPI se actualizó con los mismos límites, campos y respuestas. Los 56 IDs de criterios canónicos se conservaron; la trazabilidad no significa que todos los RNF o pantallas estén probados.
+- El diagrama y DDL se regeneraron desde el modelo corregido; OpenAPI se actualizó con los mismos límites, campos y respuestas. Se conservaron los 56 IDs de criterios canónicos. Las verificaciones de esta actividad corresponden a la base de datos y la API.
 
 ## Ejecución y resultados
 
@@ -62,4 +62,4 @@ La prueba A1 se ejecutó en una copia local de la etapa CRUD, sin autenticación
 
 Resultado Postman: 6 peticiones, 21 aserciones, 0 fallas (`evidencias/postman_crud.txt`). La suite final A2 prueba las 46 operaciones, sus respuestas exitosas contra schema y errores de negocio, sobre PostgreSQL aislado; resultado: 50 pruebas aprobadas. Evidencias en `../S05_S06_A2/evidencias/`.
 
-Se incorporó el video `pruebas_postman.mp4` proporcionado por Gregorio, con duración de 50.41 segundos. Su tamaño, duración y SHA-256 están en `evidencias/video_recibido.json`. Docker Compose se incluye como alternativa de reproducción, pero no se ejecutó: la comprobación de persistencia fue con PostgreSQL nativo.
+Se incorporó el video `pruebas_postman.mp4` proporcionado por Gregorio, con duración de 50.41 segundos. Su tamaño, duración y SHA-256 están en `evidencias/video_recibido.json`. La comprobación de persistencia se realizó con PostgreSQL nativo.

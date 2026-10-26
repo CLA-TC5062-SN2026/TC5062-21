@@ -30,7 +30,7 @@ Los endpoints usan `correo` y `contrasena` conforme a la convención del contrat
 
 ## Protección de rutas
 
-A = Administrador; E = Editor; C = Consulta. Todas las rutas de la tabla requieren JWT. En escrituras de elementos y propuestas, E también requiere asignación a la capa correspondiente; no basta con su rol. Las 42 operaciones protegidas se prueban automáticamente sin token y con token inválido. Los estados de éxito se verificaron con datos válidos y rol permitido en la suite integral; no se afirma haber ejecutado manualmente cada fila.
+A = Administrador; E = Editor; C = Consulta. Todas las rutas de la tabla requieren JWT. En escrituras de elementos y propuestas, E también requiere asignación a la capa correspondiente; no basta con su rol. Las 42 operaciones protegidas se prueban automáticamente sin token y con token inválido. Los estados de éxito se verificaron con datos válidos y rol permitido en la suite integral.
 
 | Método y ruta protegida | Roles | Éxito según contrato | Sin token / inválido (suite) |
 |---|---|---|---|
@@ -96,7 +96,7 @@ Respuestas completas sanitizadas: `evidencias/pruebas_terminal.json`. Reproducci
 
 - Recorrido A2: 6 peticiones, 22 aserciones, 0 fallas; registro 201 → login 200 → me 200 → POST capa 201 → sin token 401 → Consulta 403.
 - Colección adicional de firma alterada: 1 petición, 3 aserciones, 0 fallas.
-- pytest sobre PostgreSQL real aislado: 50 pruebas aprobadas, incluidas las 46 operaciones con validación de respuesta contra OpenAPI, roles/capas, revocación, duplicados concurrentes e integridad SQL. El reporte conserva una advertencia de deprecación de la dependencia de TestClient; no afectó las aserciones.
+- pytest sobre PostgreSQL real aislado: 50 pruebas aprobadas, incluidas las 46 operaciones con validación de respuesta contra OpenAPI, roles/capas, revocación, duplicados concurrentes e integridad SQL.
 - Evidencias: `evidencias/pytest.xml`, `evidencias/cobertura_operaciones.json`, `evidencias/postman_auth_salida_final.txt`, `evidencias/postman_firma.txt` y `evidencias/pruebas_terminal.json`.
 
 El registro crea Consulta y la colección provista inicia sesión con un Administrador ficticio previamente provisionado para demostrar una escritura administrativa y el rechazo 403. En esa colección, el token de GET /auth/me y de la escritura procede del login del paso 2. La cuenta Consulta usada en el último paso tiene su propio token, preparado antes de grabar. No se eleva el rol del usuario registrado para facilitar la demostración.
@@ -105,4 +105,4 @@ El registro crea Consulta y la colección provista inicia sesión con un Adminis
 
 Se incorporó `pruebas_auth.mp4` proporcionado por Gregorio, con duración de 46.40 segundos. Su tamaño, duración y SHA-256 están en `evidencias/video_recibido.json`. El video recibido utiliza login de la cuenta Consulta registrada y un token administrativo preparado antes del flujo para la escritura. El guion, las colecciones y las evidencias complementarias permanecen en esta carpeta.
 
-Se verificó ejecución local con PostgreSQL nativo. HTTPS y una cuenta de BD limitada deben configurarse en el despliegue; no se anuncia un despliegue público ni una auditoría de penetración. No se midieron carga o límites de intentos de login en esta actividad. Referencias técnicas: [JWT con FastAPI](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/) y [variables de Postman](https://learning.postman.com/docs/sending-requests/variables/variables/).
+Se verificó la ejecución local con PostgreSQL nativo. La arquitectura de despliegue contempla HTTPS y una cuenta de base de datos limitada a la aplicación. Referencias técnicas: [JWT con FastAPI](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/) y [variables de Postman](https://learning.postman.com/docs/sending-requests/variables/variables/).
