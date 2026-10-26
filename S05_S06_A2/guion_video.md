@@ -21,3 +21,9 @@
 | 49–58 s | Misma POST con Bearer de Consulta | Cabecera de Consulta; 403 y JSON |
 
 Sin cortes de edición. Guarda como `S05_S06_A2/pruebas_auth.mp4`. La prueba de firma alterada se entrega adicionalmente como evidencia de terminal y colección independiente; no hace falta añadirla a los seis pasos del video.
+
+## Ajuste del video recibido
+
+Volver a grabar mostrando Body en el panel de respuesta de los seis pasos, incluido accessToken visible después del login y JSON en los casos 201, 200, 401 y 403. En el video recibido el flujo muestra Test Results y no el JWT del login.
+
+Antes de grabar, abre cada petición y selecciona **Body en el panel inferior de respuesta**. Después de Send, deja visibles el código HTTP y el JSON; no basta con el resultado PASSED del test. La preparación y la revisión de variables pueden quedar fuera de la toma para reservar tiempo a las respuestas. La toma final debe ser continua y de máximo 60 segundos.

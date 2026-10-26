@@ -1,6 +1,6 @@
 # S05-S06-A2 — Autenticación y seguridad del API
 
-Implementación en `../backend/` y contrato consolidado en `../S05_S06_A1/openapi_equipo.yaml`. Revisión de seguridad y evidencias listas. **Pendiente de Gregorio:** grabar `pruebas_auth.mp4` (continuo, máximo 1 minuto) antes del ZIP definitivo y la entrega en Canvas.
+Implementación en `../backend/` y contrato consolidado en `../S05_S06_A1/openapi_equipo.yaml`. Revisión de seguridad y evidencias listas. Se incorporó el video de Gregorio `pruebas_auth.mp4` (46.40 segundos), dentro del máximo de 1 minuto. **Pendiente:** corregir la visibilidad del video antes del ZIP definitivo: Volver a grabar mostrando Body en el panel de respuesta de los seis pasos, incluido accessToken visible después del login y JSON en los casos 201, 200, 401 y 403. En el video recibido el flujo muestra Test Results y no el JWT del login.
 
 ## Archivos
 

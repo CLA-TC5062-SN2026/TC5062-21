@@ -99,10 +99,10 @@ Respuestas completas sanitizadas: `evidencias/pruebas_terminal.json`. Reproducci
 - pytest sobre PostgreSQL real aislado: 50 pruebas aprobadas, incluidas las 46 operaciones con validación de respuesta contra OpenAPI, roles/capas, revocación, duplicados concurrentes e integridad SQL. El reporte conserva una advertencia de deprecación de la dependencia de TestClient; no afectó las aserciones.
 - Evidencias: `evidencias/pytest.xml`, `evidencias/cobertura_operaciones.json`, `evidencias/postman_auth_salida_final.txt`, `evidencias/postman_firma.txt` y `evidencias/pruebas_terminal.json`.
 
-El registro crea Consulta y el video inicia sesión con un Administrador ficticio previamente provisionado para demostrar una escritura administrativa y el rechazo 403. El token de GET /auth/me y de la escritura sí procede del login del paso 2. La cuenta Consulta usada en el último paso tiene su propio token, preparado antes de grabar. No se eleva el rol del usuario registrado para facilitar la demostración.
+El registro crea Consulta y la colección provista inicia sesión con un Administrador ficticio previamente provisionado para demostrar una escritura administrativa y el rechazo 403. En esa colección, el token de GET /auth/me y de la escritura procede del login del paso 2. La cuenta Consulta usada en el último paso tiene su propio token, preparado antes de grabar. No se eleva el rol del usuario registrado para facilitar la demostración.
 
-## Alcance y pendientes de entrega
+## Alcance y video incorporado
 
-Gregorio grabará `pruebas_auth.mp4`, continuo y de máximo 1 minuto; sigue pendiente de incorporar. Las evidencias automatizadas no sustituyen este archivo. El guion y las colecciones están preparados en esta carpeta.
+Se incorporó `pruebas_auth.mp4` proporcionado por Gregorio, con duración de 46.40 segundos. Su tamaño, duración y SHA-256 están en `evidencias/video_recibido.json`. El video recibido utiliza login de la cuenta Consulta registrada y un token administrativo preparado antes del flujo para la escritura. La revisión visual requiere repetir la toma: se muestran Test Results en lugar de los JSON y no se ve accessToken en la respuesta del login. El guion, las colecciones y las evidencias complementarias permanecen en esta carpeta.
 
 Se verificó ejecución local con PostgreSQL nativo. HTTPS y una cuenta de BD limitada deben configurarse en el despliegue; no se anuncia un despliegue público ni una auditoría de penetración. No se midieron carga o límites de intentos de login en esta actividad. Referencias técnicas: [JWT con FastAPI](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/) y [variables de Postman](https://learning.postman.com/docs/sending-requests/variables/variables/).

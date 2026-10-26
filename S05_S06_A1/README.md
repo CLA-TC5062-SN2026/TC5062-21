@@ -1,6 +1,6 @@
 # S05-S06-A1 — Diseño de base de datos y servicios CRUD
 
-El diseño consolidado, DDL, revisión y colecciones están listos. **Pendiente de Gregorio:** grabar `pruebas_postman.mp4` (continuo, máximo 1 minuto) y añadirlo antes del ZIP definitivo y la entrega en Canvas. Las decisiones de consolidación quedan disponibles para revisión del equipo.
+El diseño consolidado, DDL, revisión y colecciones están listos. Se incorporó el video de Gregorio `pruebas_postman.mp4` (50.41 segundos), dentro del máximo de 1 minuto. **Pendiente:** corregir la visibilidad del video antes del ZIP definitivo: Volver a grabar mostrando Body en el panel de respuesta de al menos cinco operaciones, con sus JSON y códigos HTTP visibles. En el video recibido capa, tipo y consultas muestran principalmente Test Results; el JSON sí se ve en alta y baja de elemento. Las decisiones de consolidación quedan disponibles para revisión del equipo.
 
 ## Archivos
 

@@ -62,4 +62,4 @@ La prueba A1 se ejecutó en una copia local de la etapa CRUD, sin autenticación
 
 Resultado Postman: 6 peticiones, 21 aserciones, 0 fallas (`evidencias/postman_crud.txt`). La suite final A2 prueba las 46 operaciones, sus respuestas exitosas contra schema y errores de negocio, sobre PostgreSQL aislado; resultado: 50 pruebas aprobadas. Evidencias en `../S05_S06_A2/evidencias/`.
 
-El video continuo de máximo 1 minuto queda a cargo de Gregorio y debe guardarse como `pruebas_postman.mp4`. Los reportes de texto no sustituyen ese video. Docker Compose se incluye como alternativa de reproducción, pero no se ejecutó: la comprobación de persistencia fue con PostgreSQL nativo.
+Se incorporó el video `pruebas_postman.mp4` proporcionado por Gregorio, con duración de 50.41 segundos. Su tamaño, duración y SHA-256 están en `evidencias/video_recibido.json`. La revisión visual detectó que faltan JSON visibles en varias operaciones; se requiere repetir la toma con Body de respuesta abierto antes de la entrega definitiva. Docker Compose se incluye como alternativa de reproducción, pero no se ejecutó: la comprobación de persistencia fue con PostgreSQL nativo.

@@ -1,0 +1,13 @@
+{
+  "archivo": "pruebas_auth.mp4",
+  "origen": "Video proporcionado por Gregorio",
+  "duracion_segundos": 46.399979,
+  "limite_segundos": 60,
+  "cumple_duracion": true,
+  "bytes": 23200143,
+  "sha256": "ae3bccbc20d73619ce308c3c708b22a6f41d0626a90fc7be757fa9c9025b3233",
+  "metodo_duracion": "Cabecera mvhd del contenedor MP4",
+  "revision_visual": "requiere_ajustes",
+  "ajuste_requerido": "Volver a grabar mostrando Body en el panel de respuesta de los seis pasos, incluido accessToken visible después del login y JSON en los casos 201, 200, 401 y 403. En el video recibido el flujo muestra Test Results y no el JWT del login.",
+  "metodo_revision_visual": "Fotogramas del flujo y muestreo de un fotograma por segundo; no se afirma una auditoría de continuidad."
+}

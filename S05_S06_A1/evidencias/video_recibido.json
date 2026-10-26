@@ -1,0 +1,13 @@
+{
+  "archivo": "pruebas_postman.mp4",
+  "origen": "Video proporcionado por Gregorio",
+  "duracion_segundos": 50.410646,
+  "limite_segundos": 60,
+  "cumple_duracion": true,
+  "bytes": 25122634,
+  "sha256": "c6dd9d778e939b5a95e05570d640d5060276be42a87835d1be3a336b196f828c",
+  "metodo_duracion": "Cabecera mvhd del contenedor MP4",
+  "revision_visual": "requiere_ajustes",
+  "ajuste_requerido": "Volver a grabar mostrando Body en el panel de respuesta de al menos cinco operaciones, con sus JSON y códigos HTTP visibles. En el video recibido capa, tipo y consultas muestran principalmente Test Results; el JSON sí se ve en alta y baja de elemento.",
+  "metodo_revision_visual": "Fotogramas del flujo y muestreo de un fotograma por segundo; no se afirma una auditoría de continuidad."
+}
