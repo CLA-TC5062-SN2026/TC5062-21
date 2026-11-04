@@ -1,0 +1,82 @@
+{
+  "fecha": "2026-11-03",
+  "metodo": "Luminancia relativa sRGB WCAG 2.1; umbral evaluado sin redondear",
+  "antes": [
+    {
+      "elemento": "Borde de campo",
+      "ratio": 1.65,
+      "minimo": 3
+    },
+    {
+      "elemento": "Texto de ayuda",
+      "ratio": 3.95,
+      "minimo": 4.5
+    }
+  ],
+  "despues": [
+    {
+      "elemento": "Texto principal",
+      "frente": "#1e352d",
+      "fondo": "#ffffff",
+      "ratio": 13.11,
+      "minimo": 4.5,
+      "cumple": true
+    },
+    {
+      "elemento": "Texto secundario",
+      "frente": "#5d7067",
+      "fondo": "#ffffff",
+      "ratio": 5.28,
+      "minimo": 4.5,
+      "cumple": true
+    },
+    {
+      "elemento": "Botón primario",
+      "frente": "#ffffff",
+      "fondo": "#0b6b5b",
+      "ratio": 6.43,
+      "minimo": 4.5,
+      "cumple": true
+    },
+    {
+      "elemento": "Ayuda de login corregida",
+      "frente": "#5d705c",
+      "fondo": "#fafcf7",
+      "ratio": 5.16,
+      "minimo": 4.5,
+      "cumple": true
+    },
+    {
+      "elemento": "Nota de inventario corregida",
+      "frente": "#536b58",
+      "fondo": "#f6f8f5",
+      "ratio": 5.44,
+      "minimo": 4.5,
+      "cumple": true
+    },
+    {
+      "elemento": "Borde de campo corregido",
+      "frente": "#7c9186",
+      "fondo": "#ffffff",
+      "ratio": 3.36,
+      "minimo": 3,
+      "cumple": true
+    },
+    {
+      "elemento": "Foco sobre fondo claro",
+      "frente": "#178473",
+      "fondo": "#ffffff",
+      "ratio": 4.58,
+      "minimo": 3,
+      "cumple": true
+    },
+    {
+      "elemento": "Foco sobre navegación oscura",
+      "frente": "#178473",
+      "fondo": "#102d27",
+      "ratio": 3.21,
+      "minimo": 3,
+      "cumple": true
+    }
+  ]
+}

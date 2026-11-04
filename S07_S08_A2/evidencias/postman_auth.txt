@@ -1,0 +1,78 @@
+No authorization data found. Please use the `postman login` command.
+Refer:https://learning.postman.com/docs/postman-cli/postman-cli-options/#postman-login
+
+Running your collection...
+postman
+
+S05-S06-A2-Autenticacion
+
+Root 01 Registro Consulta
+
+  POST http://127.0.0.1:8000/api/auth/register [201 Created, 423 B, 191 ms]
+  Pass  HTTP 201
+  Pass  Respuesta JSON
+  Pass  Sin secretos de almacenamiento
+  Pass  Sin contraseña
+
+Root 02 Login Administrador ficticio
+
+  POST http://127.0.0.1:8000/api/auth/login [200 OK, 892 B, 182 ms]
+  Pass  HTTP 200
+  Pass  Respuesta JSON
+  Pass  Sin secretos de almacenamiento
+  Pass  JWT presente
+
+Root 03 Perfil del token anterior
+
+  GET http://127.0.0.1:8000/api/auth/me [200 OK, 355 B, 3 ms]
+  Pass  HTTP 200
+  Pass  Respuesta JSON
+  Pass  Sin secretos de almacenamiento
+  Pass  Identidad y rol
+
+Root 04 CRUD con token y rol correctos
+
+  POST http://127.0.0.1:8000/api/v1/capas [201 Created, 334 B, 4 ms]
+  Pass  HTTP 201
+  Pass  Respuesta JSON
+  Pass  Sin secretos de almacenamiento
+
+Root 05 Misma ruta sin token
+
+  POST http://127.0.0.1:8000/api/v1/capas [401 Unauthorized, 305 B, 1 ms]
+  Pass  HTTP 401
+  Pass  Respuesta JSON
+  Pass  Sin secretos de almacenamiento
+  Pass  Desafío Bearer
+
+Root 06 Misma ruta con rol incorrecto
+
+  POST http://127.0.0.1:8000/api/v1/capas [403 Forbidden, 284 B, 2 ms]
+  Pass  HTTP 403
+  Pass  Respuesta JSON
+  Pass  Sin secretos de almacenamiento
+
+----------------------------------------------------------------------
+|                         |            executed |             failed |
+--------------------------+---------------------+---------------------
+|              iterations |                   1 |                  0 |
+--------------------------+---------------------+---------------------
+|                requests |                   6 |                  0 |
+--------------------------+---------------------+---------------------
+|            test-scripts |                   6 |                  0 |
+--------------------------+---------------------+---------------------
+|      prerequest-scripts |                   0 |                  0 |
+--------------------------+---------------------+---------------------
+|              assertions |                  22 |                  0 |
+----------------------------------------------------------------------
+| total run duration: 579 ms                                         |
+----------------------------------------------------------------------
+| total data received: 1.29 KB (approx)                              |
+----------------------------------------------------------------------
+| average response time: 64 ms [min: 1 ms, max: 191 ms, s.d.: 86 ms] |
+----------------------------------------------------------------------
+
+A new version of Postman CLI is available (v1.85.0). Refer https://go.pstmn.io/cli-release-notes for changelogs.
+To update your Postman CLI, run:
+
+postman update
