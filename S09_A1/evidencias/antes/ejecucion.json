@@ -1,0 +1,675 @@
+{
+  "fecha_utc": "2026-11-13T17:57:54.297524+00:00",
+  "python": "3.12.16",
+  "pylint": "pylint 4.1.3\nastroid 4.3.4\nPython 3.12.16 (main, Oct 26 2026, 13:59:40) [Clang 23.1.3 ]",
+  "comando": [
+    ".venv/bin/python",
+    "-m",
+    "pylint",
+    "--rcfile=backend/pylintrc",
+    "--output-format=text,json2:<salida>/pylint.json",
+    "backend/app/__init__.py",
+    "backend/app/config.py",
+    "backend/app/contract.py",
+    "backend/app/errors.py",
+    "backend/app/main.py",
+    "backend/app/models.py",
+    "backend/app/security.py",
+    "backend/app/services.py"
+  ],
+  "codigo_salida": 28,
+  "commit_base_local": "092d11a7008468447304d00c42ede102305ce5ee",
+  "sha256_fuentes": {
+    "backend/app/__init__.py": "4467190f400ee0032cb450d9a06d80c50bd6d6c4156e082899a94a884de5d942",
+    "backend/app/config.py": "fc3a1f6dfaeaa01c3c8c5d53a827e9df6a0f5d74befd9e877430507d76ae01e9",
+    "backend/app/contract.py": "9e2f1c8eef06ce52112ae727905b30a3dcb49656799d07ec49dd0ec5d83ae9ef",
+    "backend/app/errors.py": "89299f6870f34b95af9ebd94ebc08c4a5c63f62b77b76bd49ec9b37342492dea",
+    "backend/app/main.py": "5045bf66389c4290d57e5e4e7aff96ef5864646abd94e3cb8aa735b6c693c9cd",
+    "backend/app/models.py": "0654ca89bd0402d586ea0ea1c7934f876dc1f604d08742f9e8326f773a4cd043",
+    "backend/app/security.py": "38b2c2c7626ec26677953f07a553bcab1336b67eb7190e0661e0ab3f2e4c3ca5",
+    "backend/app/services.py": "da0173ce2c9076e53278d49531f771970c553cc72309fe880dfe4dc50e5ef4fc"
+  },
+  "lineas_fisicas": {
+    "backend/app/__init__.py": 1,
+    "backend/app/config.py": 31,
+    "backend/app/contract.py": 89,
+    "backend/app/errors.py": 9,
+    "backend/app/main.py": 111,
+    "backend/app/models.py": 215,
+    "backend/app/security.py": 83,
+    "backend/app/services.py": 629
+  },
+  "total_mensajes": 518,
+  "por_simbolo": {
+    "missing-module-docstring": 2,
+    "missing-class-docstring": 21,
+    "missing-function-docstring": 93,
+    "line-too-long": 142,
+    "multiple-statements": 89,
+    "raise-missing-from": 2,
+    "too-many-branches": 2,
+    "redefined-outer-name": 4,
+    "broad-exception-caught": 1,
+    "too-many-return-statements": 1,
+    "unused-argument": 86,
+    "unused-import": 2,
+    "too-few-public-methods": 18,
+    "too-many-ancestors": 2,
+    "inconsistent-return-statements": 1,
+    "import-outside-toplevel": 1,
+    "too-many-boolean-expressions": 1,
+    "invalid-name": 45,
+    "too-many-arguments": 1,
+    "too-many-positional-arguments": 1,
+    "use-dict-literal": 1,
+    "too-many-locals": 1,
+    "too-many-public-methods": 1
+  },
+  "por_tipo_pylint": {
+    "convention": 393,
+    "warning": 95,
+    "refactor": 30
+  },
+  "estadisticas_pylint": {
+    "messageTypeCount": {
+      "fatal": 0,
+      "error": 0,
+      "warning": 95,
+      "refactor": 30,
+      "convention": 393,
+      "info": 0
+    },
+    "modulesLinted": 11,
+    "score": 4.604166666666667
+  },
+  "funciones": [
+    {
+      "archivo": "backend/app/config.py",
+      "nombre": "from_env",
+      "linea": 21,
+      "lineas_fisicas": 11
+    },
+    {
+      "archivo": "backend/app/contract.py",
+      "nombre": "json_schema",
+      "linea": 16,
+      "lineas_fisicas": 12
+    },
+    {
+      "archivo": "backend/app/contract.py",
+      "nombre": "resolve",
+      "linea": 33,
+      "lineas_fisicas": 6
+    },
+    {
+      "archivo": "backend/app/contract.py",
+      "nombre": "validate",
+      "linea": 41,
+      "lineas_fisicas": 9
+    },
+    {
+      "archivo": "backend/app/contract.py",
+      "nombre": "request_data",
+      "linea": 52,
+      "lineas_fisicas": 38
+    },
+    {
+      "archivo": "backend/app/contract.py",
+      "nombre": "reject_constant",
+      "linea": 83,
+      "lineas_fisicas": 1
+    },
+    {
+      "archivo": "backend/app/errors.py",
+      "nombre": "invalid",
+      "linea": 8,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/errors.py",
+      "nombre": "__init__",
+      "linea": 2,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/main.py",
+      "nombre": "error_response",
+      "linea": 33,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/main.py",
+      "nombre": "transaction_and_security",
+      "linea": 40,
+      "lineas_fisicas": 39
+    },
+    {
+      "archivo": "backend/app/main.py",
+      "nombre": "api_error_handler",
+      "linea": 82,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/main.py",
+      "nombre": "endpoint_factory",
+      "linea": 86,
+      "lineas_fisicas": 19
+    },
+    {
+      "archivo": "backend/app/main.py",
+      "nombre": "endpoint",
+      "linea": 87,
+      "lineas_fisicas": 16
+    },
+    {
+      "archivo": "backend/app/models.py",
+      "nombre": "now",
+      "linea": 11,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/models.py",
+      "nombre": "uid",
+      "linea": 15,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/security.py",
+      "nombre": "correo_normalizado",
+      "linea": 18,
+      "lineas_fisicas": 5
+    },
+    {
+      "archivo": "backend/app/security.py",
+      "nombre": "hash_password",
+      "linea": 25,
+      "lineas_fisicas": 5
+    },
+    {
+      "archivo": "backend/app/security.py",
+      "nombre": "verify_password",
+      "linea": 32,
+      "lineas_fisicas": 6
+    },
+    {
+      "archivo": "backend/app/security.py",
+      "nombre": "unauthorized",
+      "linea": 40,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/security.py",
+      "nombre": "issue_token",
+      "linea": 44,
+      "lineas_fisicas": 13
+    },
+    {
+      "archivo": "backend/app/security.py",
+      "nombre": "authenticate",
+      "linea": 59,
+      "lineas_fisicas": 25
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "clean",
+      "linea": 15,
+      "lineas_fisicas": 5
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "iso",
+      "linea": 22,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "__init__",
+      "linea": 27,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "get",
+      "linea": 30,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "all",
+      "linea": 35,
+      "lineas_fisicas": 3
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "add",
+      "linea": 39,
+      "lineas_fisicas": 5
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "audit",
+      "linea": 45,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "layers",
+      "linea": 50,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "may_edit",
+      "linea": 53,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "user_json",
+      "linea": 58,
+      "lineas_fisicas": 3
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "capa_json",
+      "linea": 62,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "campo_json",
+      "linea": 65,
+      "lineas_fisicas": 5
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "fields",
+      "linea": 71,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "tipo_json",
+      "linea": 74,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "autoria",
+      "linea": 79,
+      "lineas_fisicas": 3
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "summary",
+      "linea": 83,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "values",
+      "linea": 88,
+      "lineas_fisicas": 9
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "elemento_json",
+      "linea": 98,
+      "lineas_fisicas": 3
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "tipo_rel_json",
+      "linea": 102,
+      "lineas_fisicas": 3
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "relacion_json",
+      "linea": 106,
+      "lineas_fisicas": 5
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "propuesta_json",
+      "linea": 112,
+      "lineas_fisicas": 9
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "audit_json",
+      "linea": 122,
+      "lineas_fisicas": 3
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "listing",
+      "linea": 126,
+      "lineas_fisicas": 7
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "touch",
+      "linea": 134,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "revoke",
+      "linea": 139,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "dispatch",
+      "linea": 142,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarSalud",
+      "linea": 145,
+      "lineas_fisicas": 3
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "registrarUsuario",
+      "linea": 149,
+      "lineas_fisicas": 7
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "autenticarUsuario",
+      "linea": 157,
+      "lineas_fisicas": 8
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarPerfil",
+      "linea": 168,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarSesionActual",
+      "linea": 171,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "cerrarSesionActual",
+      "linea": 176,
+      "lineas_fisicas": 3
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "listarUsuarios",
+      "linea": 180,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarUsuario",
+      "linea": 183,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "assign_layers",
+      "linea": 186,
+      "lineas_fisicas": 7
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "crearUsuario",
+      "linea": 194,
+      "lineas_fisicas": 7
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "actualizarUsuario",
+      "linea": 202,
+      "lineas_fisicas": 14
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "restablecerContrasena",
+      "linea": 217,
+      "lineas_fisicas": 6
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarCapasEditables",
+      "linea": 224,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "reemplazarCapasEditables",
+      "linea": 227,
+      "lineas_fisicas": 7
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "listarCapas",
+      "linea": 235,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "crearCapa",
+      "linea": 238,
+      "lineas_fisicas": 5
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarCapa",
+      "linea": 244,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "renombrarCapa",
+      "linea": 247,
+      "lineas_fisicas": 7
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "listarTiposElemento",
+      "linea": 255,
+      "lineas_fisicas": 6
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "crearTipoElemento",
+      "linea": 262,
+      "lineas_fisicas": 7
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarTipoElemento",
+      "linea": 270,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "renombrarTipoElemento",
+      "linea": 273,
+      "lineas_fisicas": 7
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "listarCampos",
+      "linea": 281,
+      "lineas_fisicas": 3
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarCampo",
+      "linea": 285,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "ensure_unlocked",
+      "linea": 290,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "write_field",
+      "linea": 295,
+      "lineas_fisicas": 19
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "crearCampo",
+      "linea": 315,
+      "lineas_fisicas": 9
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "reemplazarDefinicionCampo",
+      "linea": 325,
+      "lineas_fisicas": 13
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "write_values",
+      "linea": 339,
+      "lineas_fisicas": 33
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "listarElementos",
+      "linea": 373,
+      "lineas_fisicas": 15
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "crearElemento",
+      "linea": 389,
+      "lineas_fisicas": 13
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarElemento",
+      "linea": 403,
+      "lineas_fisicas": 4
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "modificarElemento",
+      "linea": 408,
+      "lineas_fisicas": 11
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "darBajaElemento",
+      "linea": 420,
+      "lineas_fisicas": 9
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "listarTiposRelacion",
+      "linea": 430,
+      "lineas_fisicas": 5
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "crearTipoRelacion",
+      "linea": 436,
+      "lineas_fisicas": 7
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarTipoRelacion",
+      "linea": 444,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "modificarTipoRelacion",
+      "linea": 447,
+      "lineas_fisicas": 8
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "validate_endpoints",
+      "linea": 456,
+      "lineas_fisicas": 14
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "prepare_proposal",
+      "linea": 471,
+      "lineas_fisicas": 18
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "crearPropuesta",
+      "linea": 490,
+      "lineas_fisicas": 5
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "listarPropuestas",
+      "linea": 496,
+      "lineas_fisicas": 7
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarPropuesta",
+      "linea": 504,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "corregirPropuestaPendiente",
+      "linea": 507,
+      "lineas_fisicas": 15
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "decidirPropuesta",
+      "linea": 523,
+      "lineas_fisicas": 29
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "listarRelaciones",
+      "linea": 553,
+      "lineas_fisicas": 9
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarRelacion",
+      "linea": 563,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarMapa",
+      "linea": 566,
+      "lineas_fisicas": 23
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "listarBitacora",
+      "linea": 590,
+      "lineas_fisicas": 7
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "consultarEntradaBitacora",
+      "linea": 598,
+      "lineas_fisicas": 2
+    },
+    {
+      "archivo": "backend/app/services.py",
+      "nombre": "cargarDemostracion",
+      "linea": 601,
+      "lineas_fisicas": 29
+    }
+  ]
+}

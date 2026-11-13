@@ -1,0 +1,23 @@
+{
+  "fecha_utc": "2026-11-13T17:59:30.747683+00:00",
+  "metrica": "SELECT enviados por SQLAlchemy; sin autenticación HTTP ni SQL de triggers",
+  "aislamiento": "Cada muestra usa rollback; no modifica la base de trabajo.",
+  "muestras": [
+    {
+      "elementos": 60,
+      "campos_por_elemento": 9,
+      "elementos_devueltos": 25,
+      "listar_pagina_1": 122,
+      "guardar_8_campos": 10,
+      "modificar_nombre": 57
+    },
+    {
+      "elementos": 300,
+      "campos_por_elemento": 9,
+      "elementos_devueltos": 25,
+      "listar_pagina_1": 602,
+      "guardar_8_campos": 10,
+      "modificar_nombre": 57
+    }
+  ]
+}

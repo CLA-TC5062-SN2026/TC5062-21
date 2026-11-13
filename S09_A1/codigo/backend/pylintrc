@@ -1,0 +1,9 @@
+[MAIN]
+persistent=no
+
+[REPORTS]
+reports=yes
+score=yes
+
+[FORMAT]
+max-line-length=100

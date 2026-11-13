@@ -1,0 +1,94 @@
+{
+  "missing-module-docstring": [
+    "Menor",
+    "Falta documentar el propósito de un módulo; no demuestra defecto funcional."
+  ],
+  "missing-class-docstring": [
+    "Menor",
+    "Documentación de clase ausente; revisar prioridad según complejidad."
+  ],
+  "missing-function-docstring": [
+    "Menor",
+    "Contrato de una función sin documentar; no equivale a fallo de ejecución."
+  ],
+  "line-too-long": [
+    "Menor",
+    "Legibilidad; longitud mayor a 100 caracteres."
+  ],
+  "multiple-statements": [
+    "Menor",
+    "Varias instrucciones por línea dificultan revisión y depuración."
+  ],
+  "raise-missing-from": [
+    "Menor",
+    "Encadenamiento de errores por aclarar, manteniendo mensajes HTTP sin datos sensibles."
+  ],
+  "too-many-branches": [
+    "Importante",
+    "Complejidad de flujo: requiere muchas rutas de prueba y dificulta cambios."
+  ],
+  "redefined-outer-name": [
+    "Menor",
+    "Sombreado de nombres: aquí no se confirmó cambio de comportamiento."
+  ],
+  "broad-exception-caught": [
+    "Importante",
+    "Contención HTTP válida, pero falta diagnóstico seguro del tipo de error (H06)."
+  ],
+  "too-many-return-statements": [
+    "Importante",
+    "Middleware con varios motivos de salida y responsabilidades; separar después de caracterizar comportamiento."
+  ],
+  "unused-argument": [
+    "Menor",
+    "Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró."
+  ],
+  "unused-import": [
+    "Menor",
+    "Importación sin uso; limpieza sin impacto de negocio."
+  ],
+  "too-few-public-methods": [
+    "Menor",
+    "Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+  ],
+  "too-many-ancestors": [
+    "Menor",
+    "Herencia técnica de SQLAlchemy y mixins; no se observó ruptura de sustitución."
+  ],
+  "inconsistent-return-statements": [
+    "Menor",
+    "El camino alterno llama invalid, que siempre lanza APIError; se aclara con NoReturn, no era un retorno None real."
+  ],
+  "import-outside-toplevel": [
+    "Menor",
+    "Importación de UUID dentro de authenticate; oportunidad de organización."
+  ],
+  "too-many-boolean-expressions": [
+    "Importante",
+    "Nueve condiciones de sesión en un guard; conservar todas al extraer predicados comprobables."
+  ],
+  "invalid-name": [
+    "Menor",
+    "Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch."
+  ],
+  "too-many-arguments": [
+    "Importante",
+    "validate_endpoints mezcla varios datos y opciones; considerar objeto de parámetros."
+  ],
+  "too-many-positional-arguments": [
+    "Importante",
+    "La misma firma compleja; no es un defecto adicional independiente."
+  ],
+  "use-dict-literal": [
+    "Menor",
+    "Preferencia sintáctica por literal de diccionario."
+  ],
+  "too-many-locals": [
+    "Importante",
+    "La carga de muestra combina preparación de catálogos, elementos y relaciones."
+  ],
+  "too-many-public-methods": [
+    "Importante",
+    "Service concentra dominios y persistencia (H04)."
+  ]
+}

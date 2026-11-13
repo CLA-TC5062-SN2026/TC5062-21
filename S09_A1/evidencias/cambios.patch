@@ -1,0 +1,869 @@
+diff --git a/backend/app/errors.py b/backend/app/errors.py
+index c7d1ba3..19e5a19 100644
+--- a/backend/app/errors.py
++++ b/backend/app/errors.py
+@@ -1,3 +1,7 @@
++"""Errores de dominio traducibles al contrato HTTP, sin datos sensibles."""
++from typing import NoReturn
++
++
+ class APIError(Exception):
+     def __init__(self, status, code, message, details=None):
+         self.status = status
+@@ -5,5 +9,5 @@ class APIError(Exception):
+         super().__init__(message)
+ 
+ 
+-def invalid(message, field=""):
++def invalid(message, field="") -> NoReturn:
+     raise APIError(422, "DATO_INVALIDO", message, [{"campo": field, "motivo": message}])
+diff --git a/backend/app/services.py b/backend/app/services.py
+index aab83c4..31f2961 100644
+--- a/backend/app/services.py
++++ b/backend/app/services.py
+@@ -1,22 +1,14 @@
+ """Casos de uso. La transacción y el bloqueo de escrituras los provee el middleware."""
+-from datetime import date
+-from math import isfinite
+-
+ from sqlalchemy import delete, func, or_, select, update
+ 
+ from .errors import APIError, invalid
+ from .models import (Bitacora, Campo, Capa, CargaDemostracion, Decision, Elemento,
+     Opcion, Permiso, Propuesta, Relacion, Sesion, TipoElemento, TipoRelacion, Usuario,
+-    Valor, now, uid)
++    Valor, now)
++from .pagination import paginate
+ from .security import (DUMMY_HASH, correo_normalizado, hash_password, issue_token,
+                        unauthorized, verify_password)
+-
+-
+-def clean(value, field="nombre", maximum=120):
+-    value = value.strip()
+-    if not value or len(value) > maximum:
+-        invalid(f"{field} debe tener entre 1 y {maximum} caracteres sin espacios extremos.", field)
+-    return value
++from .value_rules import clean, validate_changes
+ 
+ 
+ def iso(value):
+@@ -123,13 +115,13 @@ class Service:
+         return {"id": b.id, "actorId": b.actor_id, "fecha": iso(b.fecha), "tipoObjeto": b.tipo_objeto,
+             "objetoId": b.objeto_id, "accion": b.accion, "valoresAntes": b.valores_antes, "valoresDespues": b.valores_despues}
+ 
+-    def listing(self, values, serializer, q=None, paginated=False):
+-        result = {"items": [serializer(v) for v in values], "total": len(values)}
+-        if paginated:
+-            page = (q or {}).get("pagina", 1)
+-            result["items"] = result["items"][(page-1)*25:page*25]
+-            result.update(pagina=page, tamanoPagina=25)
+-        return result
++    def listing(self, values, serializer):
++        """Serializa catálogos cuyo contrato no define paginación."""
++        return {"items": [serializer(value) for value in values], "total": len(values)}
++
++    def _paginated(self, statement, serializer, query):
++        """Delega en la paginación SQL conservando el orden de cada recurso."""
++        return paginate(self.db, statement, serializer, query.get("pagina", 1))
+ 
+     def touch(self, obj):
+         obj.ultimo_modificador_id = self.user.id
+@@ -178,7 +170,7 @@ class Service:
+         return {"mensaje": "Sesión cerrada."}
+ 
+     def listarUsuarios(self, p, q, b):
+-        return self.listing(self.all(Usuario, order=Usuario.correo), self.user_json, q, True)
++        return self._paginated(select(Usuario).order_by(Usuario.correo), self.user_json, q)
+ 
+     def consultarUsuario(self, p, q, b):
+         return self.user_json(self.get(Usuario, p["usuarioId"]))
+@@ -336,39 +328,27 @@ class Service:
+         if before != result: self.audit(c, "reemplazar", result, before)
+         return result
+ 
+-    def write_values(self, e, entries, creating=False):
+-        fields = {c.id: c for c in self.fields(e.tipo_elemento_id)}
+-        ids = [item["campoId"] for item in entries]
+-        if len(set(ids)) != len(ids): invalid("No se permiten campos repetidos.", "valores")
+-        for item in entries:
+-            c = fields.get(item["campoId"])
+-            if not c: invalid("El campo no pertenece al tipo.", "valores")
+-            old = self.db.scalar(select(Valor).where(Valor.elemento_id == e.id, Valor.campo_id == c.id))
+-            if item.get("vaciar"):
+-                if c.obligatorio: invalid("No se puede vaciar un campo obligatorio.", "valores")
+-                if old: self.db.delete(old)
++    def write_values(self, element, entries):
++        """Carga valores en lote, valida sin escribir y aplica dentro de la transacción."""
++        fields = {field.id: field for field in self.fields(element.tipo_elemento_id)}
++        existing = {row.campo_id: row for row in self.all(Valor, Valor.elemento_id == element.id)}
++        changes = validate_changes(fields, entries, set(existing),
++                                   lambda option_id: self.get(Opcion, option_id))
++        for change in changes:
++            row = existing.get(change.field_id)
++            if change.attribute is None:
++                if row is not None:
++                    self.db.delete(row)
+                 continue
+-            key = {"texto": "texto", "numero": "numero", "fecha": "fecha", "seleccion": "opcionId"}[c.tipo_dato]
+-            if key not in item: invalid("El valor no corresponde al tipo de campo.", "valores")
+-            value = item[key]
+-            if key == "texto":
+-                if c.obligatorio and not value.strip(): invalid("Un texto obligatorio no puede estar vacío.", "valores")
+-                if c.es_base_nombre: value = clean(value, "Nombre", 500); e.nombre = value
+-            if key == "numero" and not isfinite(value): invalid("El número debe ser finito.", "valores")
+-            if key == "fecha":
+-                try: value = date.fromisoformat(value)
+-                except ValueError: invalid("La fecha no es válida.", "valores")
+-            if key == "opcionId":
+-                option = self.get(Opcion, value)
+-                if option.campo_id != c.id or not option.activa: invalid("La opción no pertenece al campo.", "valores")
+-            row = old or Valor(elemento_id=e.id, campo_id=c.id)
+-            for attr in ("texto", "numero", "fecha", "opcion_id"): setattr(row, attr, None)
+-            setattr(row, "opcion_id" if key == "opcionId" else key, value)
++            if row is None:
++                row = Valor(elemento_id=element.id, campo_id=change.field_id)
++            for attribute in ("texto", "numero", "fecha", "opcion_id"):
++                setattr(row, attribute, None)
++            setattr(row, change.attribute, change.value)
++            if change.is_name:
++                element.nombre = change.value
+             self.db.add(row)
+         self.db.flush()
+-        present = set(self.db.scalars(select(Valor.campo_id).where(Valor.elemento_id == e.id)))
+-        for c in fields.values():
+-            if c.obligatorio and c.id not in present: invalid(f"Falta el campo obligatorio {c.nombre}.", "valores")
+ 
+     def listarElementos(self, p, q, b):
+         conditions = []
+@@ -383,8 +363,8 @@ class Service:
+         if q.get("capaId"):
+             self.get(Capa, q["capaId"])
+             conditions.append(Elemento.tipo_elemento_id.in_(select(TipoElemento.id).where(TipoElemento.capa_id == q["capaId"])))
+-        values = list(self.db.scalars(select(Elemento).where(*conditions).order_by(func.lower(Elemento.nombre), Elemento.id)))
+-        return self.listing(values, self.summary, q, True)
++        statement = select(Elemento).where(*conditions).order_by(func.lower(Elemento.nombre), Elemento.id)
++        return self._paginated(statement, self.summary, q)
+ 
+     def crearElemento(self, p, q, b):
+         t = self.get(TipoElemento, b["tipoElementoId"])
+@@ -395,7 +375,7 @@ class Service:
+         if name is None: invalid("Falta el campo base Nombre.", "valores")
+         e = self.add(Elemento, tipo_elemento_id=t.id, nombre=clean(name, "Nombre", 500),
+             estado="activo", creador_id=self.user.id, ultimo_modificador_id=self.user.id)
+-        self.write_values(e, b["valores"], creating=True)
++        self.write_values(e, b["valores"])
+         result = self.elemento_json(e)
+         self.audit(e, "alta", result)
+         return result
+@@ -411,21 +391,25 @@ class Service:
+         before = self.elemento_json(e)
+         if "valores" in b: self.write_values(e, b["valores"])
+         if b.get("estado") == "activo": e.estado = "activo"
+-        # No renovar autoría ni bitácora si una asignación no cambia los valores.
+-        if before != self.elemento_json(e):
+-            self.touch(e)
+-            self.audit(e, "modificar", self.elemento_json(e), before)
+-        return self.elemento_json(e)
++        return self._finish_element_change(e, before, "modificar")
+ 
+     def darBajaElemento(self, p, q, b):
+         e = self.get(Elemento, p["elementoId"])
+         self.may_edit(self.get(TipoElemento, e.tipo_elemento_id).capa_id)
+         before = self.elemento_json(e)
+-        if e.estado != "baja":
+-            e.estado = "baja"
+-            self.touch(e)
+-            self.audit(e, "baja", self.elemento_json(e), before)
+-        return self.elemento_json(e)
++        if e.estado == "baja":
++            return before
++        e.estado = "baja"
++        return self._finish_element_change(e, before, "baja")
++
++    def _finish_element_change(self, element, before, action):
++        """Reutiliza el estado final en respuesta y bitácora, preservando los no cambios."""
++        after = self.elemento_json(element)
++        if before != after:
++            self.touch(element)
++            after["autoria"] = self.autoria(element)
++            self.audit(element, action, after, before)
++        return after
+ 
+     def listarTiposRelacion(self, p, q, b):
+         conditions = []
+@@ -499,7 +483,8 @@ class Service:
+         if "relacionId" in q:
+             self.get(Relacion, q["relacionId"])
+             conditions.append(or_(Propuesta.relacion_id == q["relacionId"], Propuesta.relacion_resultado_id == q["relacionId"]))
+-        return self.listing(self.all(Propuesta, *conditions), self.propuesta_json, q, True)
++        statement = select(Propuesta).where(*conditions).order_by(Propuesta.id)
++        return self._paginated(statement, self.propuesta_json, q)
+ 
+     def consultarPropuesta(self, p, q, b):
+         return self.propuesta_json(self.get(Propuesta, p["propuestaId"]))
+@@ -558,7 +543,8 @@ class Service:
+         if not q.get("incluirHistoricas", False):
+             active = select(Elemento.id).where(Elemento.estado == "activo")
+             conditions += [Relacion.estado == "vigente", Relacion.origen_id.in_(active), Relacion.destino_id.in_(active)]
+-        return self.listing(self.all(Relacion, *conditions), self.relacion_json, q, True)
++        statement = select(Relacion).where(*conditions).order_by(Relacion.id)
++        return self._paginated(statement, self.relacion_json, q)
+ 
+     def consultarRelacion(self, p, q, b):
+         return self.relacion_json(self.get(Relacion, p["relacionId"]))
+@@ -592,8 +578,8 @@ class Service:
+         for key, attr in (("objetoId", Bitacora.objeto_id), ("tipoObjeto", Bitacora.tipo_objeto), ("actorId", Bitacora.actor_id)):
+             if key in q: conditions.append(attr == q[key])
+         if "actorId" in q: self.get(Usuario, q["actorId"])
+-        rows = list(self.db.scalars(select(Bitacora).where(*conditions).order_by(Bitacora.fecha.desc(), Bitacora.id)))
+-        return self.listing(rows, self.audit_json, q, True)
++        statement = select(Bitacora).where(*conditions).order_by(Bitacora.fecha.desc(), Bitacora.id)
++        return self._paginated(statement, self.audit_json, q)
+ 
+     def consultarEntradaBitacora(self, p, q, b):
+         return self.audit_json(self.get(Bitacora, p["entradaId"]))
+diff --git a/backend/app/pagination.py b/backend/app/pagination.py
+new file mode 100644
+index 0000000..83ffa80
+--- /dev/null
++++ b/backend/app/pagination.py
+@@ -0,0 +1,12 @@
++"""Paginación SQL compartida: contar y cargar solo los registros solicitados."""
++from sqlalchemy import func, select
++
++PAGE_SIZE = 25
++
++
++def paginate(db, statement, serializer, page=1):
++    """Conserva filtros y orden del SELECT, y serializa como máximo una página."""
++    total = db.scalar(select(func.count()).select_from(statement.order_by(None).subquery()))
++    rows = db.scalars(statement.limit(PAGE_SIZE).offset((page - 1) * PAGE_SIZE))
++    return {"items": [serializer(row) for row in rows], "total": total,
++            "pagina": page, "tamanoPagina": PAGE_SIZE}
+diff --git a/backend/app/value_rules.py b/backend/app/value_rules.py
+new file mode 100644
+index 0000000..5854a0d
+--- /dev/null
++++ b/backend/app/value_rules.py
+@@ -0,0 +1,108 @@
++"""Reglas de valores de campo, independientes de SQLAlchemy y de la transacción."""
++from collections.abc import Callable, Mapping, Sequence
++from dataclasses import dataclass
++from datetime import date
++from math import isfinite
++from typing import Any, Protocol
++
++from .errors import invalid
++
++
++class FieldDefinition(Protocol):
++    """Datos mínimos que necesita una regla; no expone operaciones de persistencia."""
++    id: str
++    nombre: str
++    tipo_dato: str
++    obligatorio: bool
++    es_base_nombre: bool
++
++
++class FieldOption(Protocol):
++    """Estado consultable de una opción, sin depender de su modelo de almacenamiento."""
++    campo_id: str
++    activa: bool
++
++
++OptionLookup = Callable[[str], FieldOption]
++
++
++@dataclass(frozen=True)
++class ValueChange:
++    """Cambio validado; attribute=None representa vaciar un campo opcional."""
++    field_id: str
++    attribute: str | None
++    value: Any = None
++    is_name: bool = False
++
++
++def clean(value: str, field: str = "nombre", maximum: int = 120) -> str:
++    """Normaliza texto y comprueba longitud después de quitar espacios extremos."""
++    value = value.strip()
++    if not value or len(value) > maximum:
++        invalid(f"{field} debe tener entre 1 y {maximum} caracteres sin espacios extremos.", field)
++    return value
++
++
++def _text_value(field: FieldDefinition, value: str) -> str:
++    if field.obligatorio and not value.strip():
++        invalid("Un texto obligatorio no puede estar vacío.", "valores")
++    return clean(value, "Nombre", 500) if field.es_base_nombre else value
++
++
++def _number_value(_field: FieldDefinition, value: float) -> float:
++    if not isfinite(value):
++        invalid("El número debe ser finito.", "valores")
++    return value
++
++
++def _date_value(_field: FieldDefinition, value: str) -> date:
++    try:
++        return date.fromisoformat(value)
++    except ValueError:
++        invalid("La fecha no es válida.", "valores")
++
++
++_SCALAR_RULES = {"texto": _text_value, "numero": _number_value, "fecha": _date_value}
++
++
++def normalize_change(field: FieldDefinition, entry: Mapping[str, Any],
++                     lookup_option: OptionLookup) -> ValueChange:
++    """Valida y convierte una entrada cuyo formato JSON ya revisó el contrato."""
++    if entry.get("vaciar"):
++        if field.obligatorio:
++            invalid("No se puede vaciar un campo obligatorio.", "valores")
++        return ValueChange(field.id, None)
++    key = "opcionId" if field.tipo_dato == "seleccion" else field.tipo_dato
++    if key not in entry:
++        invalid("El valor no corresponde al tipo de campo.", "valores")
++    value = entry[key]
++    if key == "opcionId":
++        option = lookup_option(value)
++        if option.campo_id != field.id or not option.activa:
++            invalid("La opción no pertenece al campo.", "valores")
++        return ValueChange(field.id, "opcion_id", value)
++    return ValueChange(field.id, key, _SCALAR_RULES[key](field, value), field.es_base_nombre)
++
++
++def validate_changes(fields: Mapping[str, FieldDefinition], entries: Sequence[Mapping[str, Any]],
++                     existing_ids: set[str], lookup_option: OptionLookup) -> list[ValueChange]:
++    """Comprueba el lote completo y los obligatorios antes de modificar filas."""
++    identifiers = [entry["campoId"] for entry in entries]
++    if len(set(identifiers)) != len(identifiers):
++        invalid("No se permiten campos repetidos.", "valores")
++    changes = []
++    present = set(existing_ids)
++    for entry in entries:
++        field = fields.get(entry["campoId"])
++        if field is None:
++            invalid("El campo no pertenece al tipo.", "valores")
++        change = normalize_change(field, entry, lookup_option)
++        changes.append(change)
++        if change.attribute is None:
++            present.discard(change.field_id)
++        else:
++            present.add(change.field_id)
++    for field in fields.values():
++        if field.obligatorio and field.id not in present:
++            invalid(f"Falta el campo obligatorio {field.nombre}.", "valores")
++    return changes
+diff --git a/backend/tests/test_quality_integration.py b/backend/tests/test_quality_integration.py
+new file mode 100644
+index 0000000..8629fb9
+--- /dev/null
++++ b/backend/tests/test_quality_integration.py
+@@ -0,0 +1,134 @@
++"""Regresión de paginación, transacciones, autoría y costo de consultas de Semana 9."""
++from datetime import datetime, timezone
++from uuid import uuid4
++
++import pytest
++from sqlalchemy import select
++from sqlalchemy.orm import Session
++
++from backend.app.models import Bitacora, Capa
++from backend.app.pagination import paginate
++from backend.scripts.medir_consultas_s09 import count_selects, run_sample
++
++
++def normalized_timestamps(value):
++    """Compara instantes, porque PostgreSQL puede devolver un offset distinto a UTC."""
++    if isinstance(value, list):
++        return [normalized_timestamps(item) for item in value]
++    if isinstance(value, dict):
++        return {key: (datetime.fromisoformat(item).astimezone(timezone.utc).isoformat()
++                      if key in {"creadoEn", "modificadoEn"} else normalized_timestamps(item))
++                for key, item in value.items()}
++    return value
++
++
++@pytest.mark.parametrize("page,expected", [(1, 25), (2, 25), (3, 10), (4, 0)])
++def test_pagination_keeps_filters_total_order_and_boundaries(api, page, expected):
++    prefix = "Página-" + uuid4().hex
++    with Session(api.test_engine) as db:
++        try:
++            db.add_all([Capa(nombre=f"{prefix}-{index:03d}") for index in range(60)])
++            db.add(Capa(nombre="Excluida-" + uuid4().hex))
++            db.flush()
++            serialized = []
++
++            def serialize(row):
++                serialized.append(row.id)
++                return row.nombre
++
++            statement = select(Capa).where(Capa.nombre.startswith(prefix)).order_by(Capa.nombre)
++            with count_selects(api.test_engine) as count:
++                result = paginate(db, statement, serialize, page)
++            assert result["total"] == 60
++            assert result["pagina"] == page and result["tamanoPagina"] == 25
++            assert len(result["items"]) == len(serialized) == expected
++            start = (page - 1) * 25
++            assert result["items"] == [f"{prefix}-{i:03d}" for i in range(start, start + expected)]
++            assert count["selects"] == 2
++        finally:
++            db.rollback()
++
++
++@pytest.mark.parametrize("resource", ["usuarios", "elementos", "propuestas-relacion", "relaciones", "entradas-bitacora"])
++def test_all_paginated_routes_keep_total_on_empty_page(api, admin_token, resource):
++    headers = {"Authorization": "Bearer " + admin_token}
++    first = api.get("/api/v1/" + resource, headers=headers)
++    empty = api.get("/api/v1/" + resource, params={"pagina": 100000}, headers=headers)
++    assert first.status_code == empty.status_code == 200
++    assert empty.json()["items"] == []
++    assert empty.json()["total"] == first.json()["total"]
++    assert empty.json()["pagina"] == 100000
++
++
++@pytest.fixture
++def sample_element(api, admin_token):
++    headers = {"Authorization": "Bearer " + admin_token}
++
++    def post(route, body):
++        response = api.post("/api/v1/" + route, headers=headers, json=body)
++        assert response.status_code == 201, response.text
++        return response.json()
++
++    layer = post("capas", {"nombre": "Regresión-" + uuid4().hex})
++    kind = post("tipos-elemento", {"nombre": "Entidad", "capaId": layer["id"]})
++    base = kind["campos"][0]["id"]
++    number = post(f"tipos-elemento/{kind['id']}/campos", {
++        "nombre": "Monto", "tipoDato": "numero", "obligatorio": False, "opciones": []})
++    element = post("elementos", {"tipoElementoId": kind["id"], "valores": [
++        {"campoId": base, "texto": "Nombre inicial"}, {"campoId": number["id"], "numero": 7}]})
++    return headers, element, base, number["id"]
++
++
++def test_invalid_later_value_rolls_back_name_and_history(api, sample_element):
++    headers, element, base, number = sample_element
++    response = api.patch("/api/v1/elementos/" + element["id"], headers=headers, json={"valores": [
++        {"campoId": base, "texto": "No debe persistir"}, {"campoId": number, "texto": "tipo incorrecto"}]})
++    assert response.status_code == 422
++    current = api.get("/api/v1/elementos/" + element["id"], headers=headers).json()
++    assert normalized_timestamps(current) == normalized_timestamps(element)
++    with Session(api.test_engine) as db:
++        entries = list(db.scalars(select(Bitacora).where(Bitacora.objeto_id == element["id"])))
++        assert len(entries) == 1 and entries[0].accion == "alta"
++
++
++def test_change_response_matches_history_and_noop_keeps_authorship(api, sample_element):
++    headers, element, base, _number = sample_element
++    payload = {"valores": [{"campoId": base, "texto": "Nombre actualizado"}]}
++    route = "/api/v1/elementos/" + element["id"]
++    changed = api.patch(route, headers=headers, json=payload)
++    assert changed.status_code == 200
++    unchanged = api.patch(route, headers=headers, json=payload)
++    assert unchanged.status_code == 200
++    assert normalized_timestamps(unchanged.json()) == normalized_timestamps(changed.json())
++    with Session(api.test_engine) as db:
++        entries = list(db.scalars(select(Bitacora).where(
++            Bitacora.objeto_id == element["id"], Bitacora.accion == "modificar")))
++        assert len(entries) == 1
++        assert normalized_timestamps(entries[0].valores_antes) == normalized_timestamps(element)
++        assert entries[0].valores_despues == changed.json()
++    retired = api.delete(route, headers=headers)
++    assert retired.status_code == 200
++    assert retired.json()["estado"] == "baja"
++    repeated = api.delete(route, headers=headers)
++    assert repeated.status_code == 200
++    assert normalized_timestamps(repeated.json()) == normalized_timestamps(retired.json())
++    with Session(api.test_engine) as db:
++        entries = list(db.scalars(select(Bitacora).where(
++            Bitacora.objeto_id == element["id"], Bitacora.accion == "baja")))
++        assert len(entries) == 1 and entries[0].valores_despues == retired.json()
++
++
++def test_optional_value_can_be_cleared_without_losing_required_name(api, sample_element):
++    headers, element, _base, number = sample_element
++    response = api.patch("/api/v1/elementos/" + element["id"], headers=headers,
++                         json={"valores": [{"campoId": number, "vaciar": True}]})
++    assert response.status_code == 200
++    assert response.json()["nombre"] == element["nombre"]
++    assert number not in {item["campoId"] for item in response.json()["valores"]}
++
++
++def test_query_budgets_do_not_return_to_full_scan(api):
++    sample = run_sample(api.test_engine, 60)
++    assert sample["listar_pagina_1"] <= 55
++    assert sample["guardar_8_campos"] <= 2
++    assert sample["modificar_nombre"] <= 30
+diff --git a/backend/tests/test_value_rules.py b/backend/tests/test_value_rules.py
+new file mode 100644
+index 0000000..3f647f5
+--- /dev/null
++++ b/backend/tests/test_value_rules.py
+@@ -0,0 +1,83 @@
++"""Casos de negocio del validador usando colaboradores sin base de datos."""
++from datetime import date
++from types import SimpleNamespace
++
++import pytest
++
++from backend.app.errors import APIError
++from backend.app.value_rules import validate_changes
++
++
++def field(kind="texto", required=False, base=False):
++    return SimpleNamespace(id="campo", nombre="Dato", tipo_dato=kind,
++                           obligatorio=required, es_base_nombre=base)
++
++
++def option(_ident):
++    return SimpleNamespace(campo_id="campo", activa=True)
++
++
++@pytest.mark.parametrize("definition,entry,attribute,expected", [
++    (field(), {"texto": "  conservar  "}, "texto", "  conservar  "),
++    (field(required=True, base=True), {"texto": "  Nombre  "}, "texto", "Nombre"),
++    (field("numero"), {"numero": 0}, "numero", 0),
++    (field("numero"), {"numero": -2.5}, "numero", -2.5),
++    (field("fecha"), {"fecha": "2024-02-29"}, "fecha", date(2024, 2, 29)),
++    (field("seleccion"), {"opcionId": "opcion"}, "opcion_id", "opcion"),
++    (field(), {"vaciar": True}, None, None),
++])
++def test_valid_field_values(definition, entry, attribute, expected):
++    changes = validate_changes({"campo": definition}, [{"campoId": "campo", **entry}],
++                               set(), option)
++    assert len(changes) == 1
++    assert (changes[0].attribute, changes[0].value) == (attribute, expected)
++    assert changes[0].is_name == (definition.es_base_nombre and attribute is not None)
++
++
++@pytest.mark.parametrize("definition,entry,message", [
++    (field(), {"numero": 2}, "tipo de campo"),
++    (field(required=True), {"texto": "  "}, "vacío"),
++    (field(required=True), {"vaciar": True}, "obligatorio"),
++    (field("fecha"), {"fecha": "2025-02-29"}, "fecha"),
++    (field("numero"), {"numero": float("inf")}, "finito"),
++    (field("numero"), {"numero": float("-inf")}, "finito"),
++    (field("numero"), {"numero": float("nan")}, "finito"),
++])
++def test_invalid_values_keep_domain_error(definition, entry, message):
++    with pytest.raises(APIError) as caught:
++        validate_changes({"campo": definition}, [{"campoId": "campo", **entry}], set(), option)
++    assert caught.value.status == 422
++    assert message in caught.value.body["mensaje"]
++
++
++@pytest.mark.parametrize("entries,message", [
++    ([{"campoId": "campo", "texto": "A"}] * 2, "repetidos"),
++    ([{"campoId": "ajeno", "texto": "A"}], "pertenece"),
++    ([], "Falta el campo obligatorio"),
++])
++def test_batch_rejects_duplicates_foreign_fields_and_missing_required(entries, message):
++    with pytest.raises(APIError, match=message):
++        validate_changes({"campo": field(required=True)}, entries, set(), option)
++
++
++@pytest.mark.parametrize("field_id,active", [("ajeno", True), ("campo", False)])
++def test_option_must_be_active_and_belong_to_field(field_id, active):
++    def lookup(_ident):
++        return SimpleNamespace(campo_id=field_id, activa=active)
++
++    with pytest.raises(APIError, match="opción no pertenece"):
++        validate_changes({"campo": field("seleccion")},
++                         [{"campoId": "campo", "opcionId": "opcion"}], set(), lookup)
++
++
++def test_partial_update_keeps_existing_required_values():
++    assert validate_changes({"campo": field(required=True)}, [], {"campo"}, option) == []
++
++
++def test_scalar_rule_does_not_need_option_storage():
++    def unavailable_lookup(_ident):
++        raise AssertionError("Un número no debe consultar opciones ni abrir conexión.")
++
++    change = validate_changes({"campo": field("numero")},
++                              [{"campoId": "campo", "numero": 42}], set(), unavailable_lookup)
++    assert change[0].value == 42
+diff --git a/backend/requirements-quality.txt b/backend/requirements-quality.txt
+new file mode 100644
+index 0000000..4dd3f72
+--- /dev/null
++++ b/backend/requirements-quality.txt
+@@ -0,0 +1,2 @@
++-r requirements-dev.txt
++pylint==4.1.3
+diff --git a/backend/requirements-quality.lock.txt b/backend/requirements-quality.lock.txt
+new file mode 100644
+index 0000000..d67fb94
+--- /dev/null
++++ b/backend/requirements-quality.lock.txt
+@@ -0,0 +1,52 @@
++annotated-doc==0.0.6
++annotated-types==0.8.0
++anyio==4.16.0
++astroid==4.3.4
++attrs==26.1.0
++bcrypt==5.0.0
++certifi==2026.10.23
++click==8.5.1
++dill==0.4.1
++dnspython==2.9.2
++email-validator==2.3.0
++fastapi==0.162.0
++h11==0.16.0
++httpcore==1.0.9
++httpx==0.28.1
++idna==3.20
++iniconfig==2.3.1
++isort==9.0.2
++jsonschema==4.26.0
++jsonschema-path==0.5.0
++jsonschema-specifications==2025.9.1
++lazy-object-proxy==1.13.0
++mccabe==0.7.0
++mypy_extensions==1.2.0
++openapi-schema-validator==0.9.0
++openapi-spec-validator==0.9.0
++opentelemetry-api==1.45.2
++packaging==26.3
++pathable==0.6.0
++platformdirs==4.14.5
++pluggy==1.7.0
++psycopg==3.3.6
++psycopg-binary==3.3.6
++pydantic==2.14.3
++pydantic-settings==2.16.3
++pydantic_core==2.50.4
++Pygments==2.21.0
++PyJWT==2.15.1
++pylint==4.1.3
++pytest==9.1.1
++python-dotenv==1.2.4
++PyYAML==6.0.3
++referencing==0.37.0
++rfc3339-validator==0.1.4
++rpds-py==2026.9.1
++six==1.17.0
++SQLAlchemy==2.1.6
++starlette==1.10.0
++tomlkit==0.15.2
++typing-inspection==0.4.5
++typing_extensions==4.16.0
++uvicorn==0.54.0
+diff --git a/backend/pylintrc b/backend/pylintrc
+new file mode 100644
+index 0000000..0d7541c
+--- /dev/null
++++ b/backend/pylintrc
+@@ -0,0 +1,9 @@
++[MAIN]
++persistent=no
++
++[REPORTS]
++reports=yes
++score=yes
++
++[FORMAT]
++max-line-length=100
+diff --git a/backend/scripts/auditar_calidad.py b/backend/scripts/auditar_calidad.py
+new file mode 100644
+index 0000000..1ca5d69
+--- /dev/null
++++ b/backend/scripts/auditar_calidad.py
+@@ -0,0 +1,76 @@
++"""Guarda la salida íntegra de Pylint y datos reproducibles de la auditoría."""
++import argparse
++import ast
++from collections import Counter
++from datetime import datetime, timezone
++import hashlib
++import json
++import os
++from pathlib import Path
++import platform
++import shutil
++import subprocess
++import sys
++
++ROOT = Path(__file__).resolve().parents[2]
++
++
++def main():
++    """Analiza únicamente el código de producto en backend/app, sin ocultar mensajes."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--output", type=Path,
++                        default=ROOT / "S09_A1/evidencias/reproduccion")
++    args = parser.parse_args()
++    destination = args.output.resolve()
++    destination.mkdir(parents=True, exist_ok=True)
++    files = sorted(ROOT.glob("backend/app/*.py"))
++    command = [sys.executable, "-m", "pylint", "--rcfile=backend/pylintrc",
++               f"--output-format=text,json2:{os.path.relpath(destination / 'pylint.json', ROOT)}",
++               *[str(path.relative_to(ROOT)) for path in files]]
++    result = subprocess.run(command, cwd=ROOT, text=True, capture_output=True,
++                            check=False)
++    (destination / "output_linter.txt").write_text(result.stdout + result.stderr,
++                                                 encoding="utf-8")
++    report = json.loads((destination / "pylint.json").read_text(encoding="utf-8"))
++    source_dir = destination / "codigo"
++    source_dir.mkdir(exist_ok=True)
++    sizes, hashes, functions = {}, {}, []
++    for path in files:
++        source = path.read_text(encoding="utf-8")
++        relative = str(path.relative_to(ROOT))
++        sizes[relative] = len(source.splitlines())
++        hashes[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
++        shutil.copy2(path, source_dir / path.name)
++        for node in ast.walk(ast.parse(source)):
++            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
++                functions.append({"archivo": relative, "nombre": node.name,
++                                  "linea": node.lineno,
++                                  "lineas_fisicas": node.end_lineno-node.lineno+1})
++    metadata = {
++        "fecha_utc": datetime.now(timezone.utc).isoformat(),
++        "python": platform.python_version(),
++        "pylint": subprocess.check_output(
++            [sys.executable, "-m", "pylint", "--version"], text=True).strip(),
++        "comando": [".venv/bin/python", *command[1:3], "--rcfile=backend/pylintrc",
++                    "--output-format=text,json2:<salida>/pylint.json", *command[5:]],
++        "codigo_salida": result.returncode,
++        "commit_base_local": (subprocess.check_output(
++            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
++            if (ROOT / ".git").exists() else None),
++        "sha256_fuentes": hashes,
++        "lineas_fisicas": sizes,
++        "total_mensajes": len(report["messages"]),
++        "por_simbolo": dict(Counter(item["symbol"] for item in report["messages"])),
++        "por_tipo_pylint": dict(Counter(item["type"] for item in report["messages"])),
++        "estadisticas_pylint": report["statistics"],
++        "funciones": functions,
++    }
++    (destination / "ejecucion.json").write_text(
++        json.dumps(metadata, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
++    print(f"Pylint: {metadata['total_mensajes']} mensajes; salida {result.returncode}.")
++    print(f"Evidencia: {destination}")
++    return result.returncode
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff --git a/backend/scripts/medir_consultas_s09.py b/backend/scripts/medir_consultas_s09.py
+new file mode 100644
+index 0000000..3e1ff93
+--- /dev/null
++++ b/backend/scripts/medir_consultas_s09.py
+@@ -0,0 +1,115 @@
++"""Compara SELECT de aplicación con datos sintéticos y revierte toda la muestra."""
++import argparse
++from contextlib import contextmanager
++from datetime import datetime, timezone
++import json
++from pathlib import Path
++import sys
++
++from dotenv import dotenv_values
++from sqlalchemy import create_engine, event, select
++from sqlalchemy.engine import make_url
++from sqlalchemy.orm import Session
++
++ROOT = Path(__file__).resolve().parents[2]
++sys.path.insert(0, str(ROOT))
++
++from backend.app.models import Elemento, Usuario, Valor, uid
++from backend.app.services import Service
++
++
++@contextmanager
++def count_selects(engine):
++    """Cuenta sentencias enviadas por SQLAlchemy; no incluye SQL interno de triggers."""
++    counter = {"selects": 0}
++
++    def capture(_connection, _cursor, statement, _parameters, _context, _many):
++        if statement.lstrip().upper().startswith("SELECT"):
++            counter["selects"] += 1
++
++    event.listen(engine, "before_cursor_execute", capture)
++    try:
++        yield counter
++    finally:
++        event.remove(engine, "before_cursor_execute", capture)
++
++
++def run_sample(engine, size):
++    """Mide tres casos de uso dentro de una transacción que nunca se confirma."""
++    with Session(engine, expire_on_commit=False) as db:
++        try:
++            admin = db.scalar(select(Usuario).where(Usuario.rol == "Administrador"))
++            if admin is None:
++                raise RuntimeError("Ejecute primero pytest para preparar la base aislada.")
++            service = Service(db, admin, None, None)
++            layer = service.crearCapa({}, {}, {"nombre": "Medición " + uid()})
++            kind = service.crearTipoElemento({}, {}, {"nombre": "Medible", "capaId": layer["id"]})
++            base_id = kind["campos"][0]["id"]
++            numeric_ids = []
++            for index in range(8):
++                field = service.crearCampo({"tipoId": kind["id"]}, {}, {
++                    "nombre": f"Dato {index}", "tipoDato": "numero",
++                    "obligatorio": False, "opciones": []})
++                numeric_ids.append(field["id"])
++            identifiers = [uid() for _ in range(size)]
++            for index, ident in enumerate(identifiers):
++                db.add(Elemento(id=ident, tipo_elemento_id=kind["id"],
++                                nombre=f"Elemento {index:04d}", estado="activo",
++                                creador_id=admin.id, ultimo_modificador_id=admin.id))
++            db.flush()
++            for index, ident in enumerate(identifiers):
++                db.add(Valor(elemento_id=ident, campo_id=base_id, texto=f"Elemento {index:04d}"))
++                for field_id in numeric_ids:
++                    db.add(Valor(elemento_id=ident, campo_id=field_id, numero=1))
++            db.flush()
++            db.expunge_all()
++            with count_selects(engine) as listing_count:
++                page = service.listarElementos({}, {"tipoElementoId": kind["id"], "pagina": 1}, {})
++            assert page["total"] == size and len(page["items"]) == 25
++            assert page["items"][0]["nombre"] == "Elemento 0000"
++            db.expunge_all()
++            element = service.get(Elemento, identifiers[0])
++            entries = [{"campoId": field_id, "numero": 2} for field_id in numeric_ids]
++            with count_selects(engine) as write_count:
++                service.write_values(element, entries)
++            assert db.scalar(select(Valor.numero).where(
++                Valor.elemento_id == element.id, Valor.campo_id == numeric_ids[0])) == 2
++            db.expunge_all()
++            with count_selects(engine) as modify_count:
++                result = service.modificarElemento({"elementoId": identifiers[0]}, {}, {
++                    "valores": [{"campoId": base_id, "texto": "Nombre actualizado"}]})
++            assert result["nombre"] == "Nombre actualizado"
++            return {"elementos": size, "campos_por_elemento": 9,
++                    "elementos_devueltos": len(page["items"]),
++                    "listar_pagina_1": listing_count["selects"],
++                    "guardar_8_campos": write_count["selects"],
++                    "modificar_nombre": modify_count["selects"]}
++        finally:
++            db.rollback()
++
++
++def main():
++    """Usa exclusivamente arquitectura21_test, la misma base aislada de pytest."""
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--output", type=Path, required=True)
++    args = parser.parse_args()
++    values = dotenv_values(ROOT / "backend/.env")
++    url = make_url(values["DATABASE_URL"]).set(database="arquitectura21_test")
++    assert url.database == "arquitectura21_test"
++    engine = create_engine(url)
++    try:
++        samples = [run_sample(engine, size) for size in (60, 300)]
++        report = {"fecha_utc": datetime.now(timezone.utc).isoformat(),
++                  "metrica": "SELECT enviados por SQLAlchemy; sin autenticación HTTP ni SQL de triggers",
++                  "aislamiento": "Cada muestra usa rollback; no modifica la base de trabajo.",
++                  "muestras": samples}
++        args.output.parent.mkdir(parents=True, exist_ok=True)
++        args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2)+"\n",
++                               encoding="utf-8")
++        print(json.dumps(samples, ensure_ascii=False))
++    finally:
++        engine.dispose()
++
++
++if __name__ == "__main__":
++    main()

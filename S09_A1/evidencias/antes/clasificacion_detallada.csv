@@ -1,0 +1,519 @@
+archivo,linea,columna,id_pylint,simbolo,categoria_pylint,prioridad_revision,mensaje,justificacion
+backend/app/config.py,1,0,C0114,missing-module-docstring,convention,Menor,Missing module docstring,Falta documentar el propósito de un módulo; no demuestra defecto funcional.
+backend/app/config.py,12,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/config.py,21,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/contract.py,44,0,C0301,line-too-long,convention,Menor,Line too long (127/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/contract.py,47,0,C0301,line-too-long,convention,Menor,Line too long (108/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/contract.py,48,0,C0301,line-too-long,convention,Menor,Line too long (111/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/contract.py,62,0,C0301,line-too-long,convention,Menor,Line too long (108/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/contract.py,65,0,C0301,line-too-long,convention,Menor,Line too long (113/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/contract.py,70,0,C0301,line-too-long,convention,Menor,Line too long (104/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/contract.py,72,0,C0301,line-too-long,convention,Menor,Line too long (134/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/contract.py,78,0,C0301,line-too-long,convention,Menor,Line too long (103/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/contract.py,23,32,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,24,32,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,26,32,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,33,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/contract.py,36,65,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,41,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/contract.py,52,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/contract.py,62,32,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,65,42,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,66,40,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,69,21,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,70,35,W0707,raise-missing-from,warning,Menor,"Consider explicitly re-raising using 'except ValueError as exc' and 'raise APIError(422, 'DATO_INVALIDO', 'El parámetro debe ser entero.') from exc'","Encadenamiento de errores por aclarar, manteniendo mensajes HTTP sin datos sensibles."
+backend/app/contract.py,70,35,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,72,59,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,81,35,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,83,40,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/contract.py,86,12,W0707,raise-missing-from,warning,Menor,"Consider explicitly re-raising using 'except (ValueError, UnicodeDecodeError) as exc' and 'raise APIError(400, 'JSON_INVALIDO', 'El cuerpo no es JSON válido.') from exc'","Encadenamiento de errores por aclarar, manteniendo mensajes HTTP sin datos sensibles."
+backend/app/contract.py,52,0,R0912,too-many-branches,refactor,Importante,Too many branches (15/12),Complejidad de flujo: requiere muchas rutas de prueba y dificulta cambios.
+backend/app/errors.py,1,0,C0114,missing-module-docstring,convention,Menor,Missing module docstring,Falta documentar el propósito de un módulo; no demuestra defecto funcional.
+backend/app/errors.py,1,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/errors.py,8,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/main.py,52,0,C0301,line-too-long,convention,Menor,Line too long (101/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,55,0,C0301,line-too-long,convention,Menor,Line too long (125/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,58,0,C0301,line-too-long,convention,Menor,Line too long (106/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,70,0,C0301,line-too-long,convention,Menor,Line too long (153/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,72,0,C0301,line-too-long,convention,Menor,Line too long (111/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,74,0,C0301,line-too-long,convention,Menor,Line too long (106/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,78,0,C0301,line-too-long,convention,Menor,Line too long (103/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,89,0,C0301,line-too-long,convention,Menor,Line too long (105/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,95,0,C0301,line-too-long,convention,Menor,Line too long (111/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,97,0,C0301,line-too-long,convention,Menor,Line too long (108/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,98,0,C0301,line-too-long,convention,Menor,Line too long (122/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,111,0,C0301,line-too-long,convention,Menor,Line too long (111/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/main.py,28,34,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/main.py,33,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/main.py,35,28,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/main.py,40,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/main.py,41,4,W0621,redefined-outer-name,warning,Menor,Redefining name 'operation' from outer scope (line 27),Sombreado de nombres: aquí no se confirmó cambio de comportamiento.
+backend/app/main.py,75,11,W0718,broad-exception-caught,warning,Importante,Catching too general exception Exception,"Contención HTTP válida, pero falta diagnóstico seguro del tipo de error (H06)."
+backend/app/main.py,40,0,R0911,too-many-return-statements,refactor,Importante,Too many return statements (7/6),Middleware con varios motivos de salida y responsabilidades; separar después de caracterizar comportamiento.
+backend/app/main.py,82,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/main.py,82,28,W0613,unused-argument,warning,Menor,Unused argument 'request',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/main.py,86,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/main.py,86,21,W0621,redefined-outer-name,warning,Menor,Redefining name 'path' from outer scope (line 26),Sombreado de nombres: aquí no se confirmó cambio de comportamiento.
+backend/app/main.py,86,27,W0621,redefined-outer-name,warning,Menor,Redefining name 'item' from outer scope (line 26),Sombreado de nombres: aquí no se confirmó cambio de comportamiento.
+backend/app/main.py,86,33,W0621,redefined-outer-name,warning,Menor,Redefining name 'operation' from outer scope (line 27),Sombreado de nombres: aquí no se confirmó cambio de comportamiento.
+backend/app/main.py,91,61,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/main.py,95,44,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/main.py,96,62,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/main.py,97,65,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/main.py,98,70,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/main.py,99,67,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/main.py,86,21,W0613,unused-argument,warning,Menor,Unused argument 'path',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/main.py,15,0,W0611,unused-import,warning,Menor,Unused Usuario imported from models,Importación sin uso; limpieza sin impacto de negocio.
+backend/app/models.py,45,0,C0301,line-too-long,convention,Menor,Line too long (103/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,76,0,C0301,line-too-long,convention,Menor,Line too long (105/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,81,0,C0301,line-too-long,convention,Menor,Line too long (103/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,87,0,C0301,line-too-long,convention,Menor,Line too long (101/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,89,0,C0301,line-too-long,convention,Menor,Line too long (127/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,90,0,C0301,line-too-long,convention,Menor,Line too long (101/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,91,0,C0301,line-too-long,convention,Menor,Line too long (105/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,110,0,C0301,line-too-long,convention,Menor,Line too long (102/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,117,0,C0301,line-too-long,convention,Menor,Line too long (115/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,128,0,C0301,line-too-long,convention,Menor,Line too long (111/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,132,0,C0301,line-too-long,convention,Menor,Line too long (103/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,135,0,C0301,line-too-long,convention,Menor,Line too long (104/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,136,0,C0301,line-too-long,convention,Menor,Line too long (141/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,144,0,C0301,line-too-long,convention,Menor,Line too long (113/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,145,0,C0301,line-too-long,convention,Menor,Line too long (114/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,146,0,C0301,line-too-long,convention,Menor,Line too long (134/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,152,0,C0301,line-too-long,convention,Menor,Line too long (103/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,153,0,C0301,line-too-long,convention,Menor,Line too long (104/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,154,0,C0301,line-too-long,convention,Menor,Line too long (103/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,161,0,C0301,line-too-long,convention,Menor,Line too long (109/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,162,0,C0301,line-too-long,convention,Menor,Line too long (140/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,172,0,C0301,line-too-long,convention,Menor,Line too long (103/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,175,0,C0301,line-too-long,convention,Menor,Line too long (111/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,176,0,C0301,line-too-long,convention,Menor,Line too long (121/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,181,0,C0301,line-too-long,convention,Menor,Line too long (147/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,183,0,C0301,line-too-long,convention,Menor,Line too long (110/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,184,0,C0301,line-too-long,convention,Menor,Line too long (196/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,185,0,C0301,line-too-long,convention,Menor,Line too long (103/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,186,0,C0301,line-too-long,convention,Menor,Line too long (140/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,187,0,C0301,line-too-long,convention,Menor,Line too long (170/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,193,0,C0301,line-too-long,convention,Menor,Line too long (117/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,197,0,C0301,line-too-long,convention,Menor,Line too long (108/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,202,0,C0301,line-too-long,convention,Menor,Line too long (101/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/models.py,11,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/models.py,15,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/models.py,19,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,19,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,23,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,23,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,27,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,27,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,43,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,43,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,55,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,55,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,62,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,62,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,71,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,71,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,79,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,79,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,95,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,95,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,108,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,108,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,115,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,115,0,R0901,too-many-ancestors,refactor,Menor,Too many ancestors (8/7),Herencia técnica de SQLAlchemy y mixins; no se observó ruptura de sustitución.
+backend/app/models.py,115,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,125,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,125,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,140,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,140,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,150,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,150,0,R0901,too-many-ancestors,refactor,Menor,Too many ancestors (8/7),Herencia técnica de SQLAlchemy y mixins; no se observó ruptura de sustitución.
+backend/app/models.py,150,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,166,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,166,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,191,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,191,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,200,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,200,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/models.py,211,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/models.py,211,0,R0903,too-few-public-methods,refactor,Menor,Too few public methods (0/2),"Heurística no accionable por sí sola en modelos ORM, configuración y protocolos de datos."
+backend/app/security.py,20,0,C0301,line-too-long,convention,Menor,Line too long (114/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/security.py,28,0,C0301,line-too-long,convention,Menor,Line too long (106/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/security.py,35,0,C0301,line-too-long,convention,Menor,Line too long (119/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/security.py,50,0,C0301,line-too-long,convention,Menor,Line too long (106/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/security.py,80,0,C0301,line-too-long,convention,Menor,Line too long (104/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/security.py,18,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/security.py,18,0,R1710,inconsistent-return-statements,refactor,Menor,"Either all return statements in a function should return an expression, or none of them should.","El camino alterno llama invalid, que siempre lanza APIError; se aclara con NoReturn, no era un retorno None real."
+backend/app/security.py,25,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/security.py,32,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/security.py,40,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/security.py,44,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/security.py,59,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/security.py,63,35,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/security.py,69,8,C0415,import-outside-toplevel,convention,Menor,Import outside toplevel (uuid.UUID),Importación de UUID dentro de authenticate; oportunidad de organización.
+backend/app/security.py,70,43,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/security.py,76,8,R0916,too-many-boolean-expressions,refactor,Importante,Too many boolean expressions in if statement (9/5),Nueve condiciones de sesión en un guard; conservar todas al extraer predicados comprobables.
+backend/app/services.py,51,0,C0301,line-too-long,convention,Menor,Line too long (124/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,69,0,C0301,line-too-long,convention,Menor,Line too long (113/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,76,0,C0301,line-too-long,convention,Menor,Line too long (127/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,92,0,C0301,line-too-long,convention,Menor,Line too long (119/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,99,0,C0301,line-too-long,convention,Menor,Line too long (107/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,109,0,C0301,line-too-long,convention,Menor,Line too long (104/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,115,0,C0301,line-too-long,convention,Menor,Line too long (110/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,123,0,C0301,line-too-long,convention,Menor,Line too long (102/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,124,0,C0301,line-too-long,convention,Menor,Line too long (126/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,140,0,C0301,line-too-long,convention,Menor,Line too long (131/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,163,0,C0301,line-too-long,convention,Menor,Line too long (103/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,164,0,C0301,line-too-long,convention,Menor,Line too long (105/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,207,0,C0301,line-too-long,convention,Menor,Line too long (142/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,208,0,C0301,line-too-long,convention,Menor,Line too long (116/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,265,0,C0301,line-too-long,convention,Menor,Line too long (121/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,287,0,C0301,line-too-long,convention,Menor,Line too long (116/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,293,0,C0301,line-too-long,convention,Menor,Line too long (116/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,297,0,C0301,line-too-long,convention,Menor,Line too long (139/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,298,0,C0301,line-too-long,convention,Menor,Line too long (114/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,299,0,C0301,line-too-long,convention,Menor,Line too long (114/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,302,0,C0301,line-too-long,convention,Menor,Line too long (146/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,318,0,C0301,line-too-long,convention,Menor,Line too long (125/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,319,0,C0301,line-too-long,convention,Menor,Line too long (161/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,327,0,C0301,line-too-long,convention,Menor,Line too long (116/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,346,0,C0301,line-too-long,convention,Menor,Line too long (104/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,351,0,C0301,line-too-long,convention,Menor,Line too long (112/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,355,0,C0301,line-too-long,convention,Menor,Line too long (120/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,357,0,C0301,line-too-long,convention,Menor,Line too long (104/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,363,0,C0301,line-too-long,convention,Menor,Line too long (119/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,371,0,C0301,line-too-long,convention,Menor,Line too long (115/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,385,0,C0301,line-too-long,convention,Menor,Line too long (128/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,386,0,C0301,line-too-long,convention,Menor,Line too long (126/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,405,0,C0301,line-too-long,convention,Menor,Line too long (134/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,432,0,C0301,line-too-long,convention,Menor,Line too long (122/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,438,0,C0301,line-too-long,convention,Menor,Line too long (120/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,453,0,C0301,line-too-long,convention,Menor,Line too long (101/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,456,0,C0301,line-too-long,convention,Menor,Line too long (122/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,457,0,C0301,line-too-long,convention,Menor,Line too long (107/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,460,0,C0301,line-too-long,convention,Menor,Line too long (133/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,461,0,C0301,line-too-long,convention,Menor,Line too long (155/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,468,0,C0301,line-too-long,convention,Menor,Line too long (116/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,469,0,C0301,line-too-long,convention,Menor,Line too long (129/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,475,0,C0301,line-too-long,convention,Menor,Line too long (114/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,476,0,C0301,line-too-long,convention,Menor,Line too long (142/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,477,0,C0301,line-too-long,convention,Menor,Line too long (182/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,478,0,C0301,line-too-long,convention,Menor,Line too long (107/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,481,0,C0301,line-too-long,convention,Menor,Line too long (113/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,483,0,C0301,line-too-long,convention,Menor,Line too long (144/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,485,0,C0301,line-too-long,convention,Menor,Line too long (111/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,488,0,C0301,line-too-long,convention,Menor,Line too long (116/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,491,0,C0301,line-too-long,convention,Menor,Line too long (109/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,501,0,C0301,line-too-long,convention,Menor,Line too long (128/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,509,0,C0301,line-too-long,convention,Menor,Line too long (117/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,510,0,C0301,line-too-long,convention,Menor,Line too long (179/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,512,0,C0301,line-too-long,convention,Menor,Line too long (125/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,513,0,C0301,line-too-long,convention,Menor,Line too long (119/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,515,0,C0301,line-too-long,convention,Menor,Line too long (111/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,517,0,C0301,line-too-long,convention,Menor,Line too long (102/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,525,0,C0301,line-too-long,convention,Menor,Line too long (117/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,529,0,C0301,line-too-long,convention,Menor,Line too long (118/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,534,0,C0301,line-too-long,convention,Menor,Line too long (107/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,535,0,C0301,line-too-long,convention,Menor,Line too long (101/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,536,0,C0301,line-too-long,convention,Menor,Line too long (109/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,540,0,C0301,line-too-long,convention,Menor,Line too long (117/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,547,0,C0301,line-too-long,convention,Menor,Line too long (102/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,550,0,C0301,line-too-long,convention,Menor,Line too long (108/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,557,0,C0301,line-too-long,convention,Menor,Line too long (113/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,560,0,C0301,line-too-long,convention,Menor,Line too long (121/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,568,0,C0301,line-too-long,convention,Menor,Line too long (104/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,569,0,C0301,line-too-long,convention,Menor,Line too long (120/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,572,0,C0301,line-too-long,convention,Menor,Line too long (136/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,582,0,C0301,line-too-long,convention,Menor,Line too long (129/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,586,0,C0301,line-too-long,convention,Menor,Line too long (126/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,592,0,C0301,line-too-long,convention,Menor,Line too long (130/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,595,0,C0301,line-too-long,convention,Menor,Line too long (118/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,603,0,C0301,line-too-long,convention,Menor,Line too long (103/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,610,0,C0301,line-too-long,convention,Menor,Line too long (160/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,611,0,C0301,line-too-long,convention,Menor,Line too long (149/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,612,0,C0301,line-too-long,convention,Menor,Line too long (132/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,614,0,C0301,line-too-long,convention,Menor,Line too long (183/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,616,0,C0301,line-too-long,convention,Menor,Line too long (132/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,621,0,C0301,line-too-long,convention,Menor,Line too long (245/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,623,0,C0301,line-too-long,convention,Menor,Line too long (142/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,624,0,C0301,line-too-long,convention,Menor,Line too long (102/100),Legibilidad; longitud mayor a 100 caracteres.
+backend/app/services.py,15,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,22,0,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,26,0,C0115,missing-class-docstring,convention,Menor,Missing class docstring,Documentación de clase ausente; revisar prioridad según complejidad.
+backend/app/services.py,30,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,32,24,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,35,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,39,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,45,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,50,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,53,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,54,45,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,58,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,62,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,65,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,71,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,74,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,79,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,83,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,88,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,94,38,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,98,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,102,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,106,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,112,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,122,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,126,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,134,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,139,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,142,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,145,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,145,4,C0103,invalid-name,convention,Menor,"Method name ""consultarSalud"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,145,29,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,145,32,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,145,35,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,149,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,149,4,C0103,invalid-name,convention,Menor,"Method name ""registrarUsuario"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,149,31,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,149,34,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,157,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,157,4,C0103,invalid-name,convention,Menor,"Method name ""autenticarUsuario"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,161,49,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,157,32,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,157,35,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,168,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,168,4,C0103,invalid-name,convention,Menor,"Method name ""consultarPerfil"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,168,30,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,168,33,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,168,36,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,171,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,171,4,C0103,invalid-name,convention,Menor,"Method name ""consultarSesionActual"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,171,36,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,171,39,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,171,42,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,176,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,176,4,C0103,invalid-name,convention,Menor,"Method name ""cerrarSesionActual"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,176,33,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,176,36,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,176,39,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,180,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,180,4,C0103,invalid-name,convention,Menor,"Method name ""listarUsuarios"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,180,29,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,180,35,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,183,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,183,4,C0103,invalid-name,convention,Menor,"Method name ""consultarUsuario"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,183,34,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,183,37,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,186,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,187,38,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,188,26,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,194,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,194,4,C0103,invalid-name,convention,Menor,"Method name ""crearUsuario"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,194,27,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,194,30,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,202,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,202,4,C0103,invalid-name,convention,Menor,"Method name ""actualizarUsuario"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,208,28,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,211,33,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,202,35,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,217,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,217,4,C0103,invalid-name,convention,Menor,"Method name ""restablecerContrasena"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,217,39,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,224,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,224,4,C0103,invalid-name,convention,Menor,"Method name ""consultarCapasEditables"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,224,41,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,224,44,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,227,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,227,4,C0103,invalid-name,convention,Menor,"Method name ""reemplazarCapasEditables"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,232,29,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,227,42,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,235,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,235,4,C0103,invalid-name,convention,Menor,"Method name ""listarCapas"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,235,26,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,235,29,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,235,32,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,238,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,238,4,C0103,invalid-name,convention,Menor,"Method name ""crearCapa"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,238,24,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,238,27,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,244,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,244,4,C0103,invalid-name,convention,Menor,"Method name ""consultarCapa"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,244,31,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,244,34,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,247,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,247,4,C0103,invalid-name,convention,Menor,"Method name ""renombrarCapa"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,252,40,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,247,31,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,255,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,255,4,C0103,invalid-name,convention,Menor,"Method name ""listarTiposElemento"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,255,34,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,255,40,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,262,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,262,4,C0103,invalid-name,convention,Menor,"Method name ""crearTipoElemento"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,262,32,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,262,35,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,270,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,270,4,C0103,invalid-name,convention,Menor,"Method name ""consultarTipoElemento"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,270,39,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,270,42,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,273,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,273,4,C0103,invalid-name,convention,Menor,"Method name ""renombrarTipoElemento"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,278,40,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,273,39,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,281,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,281,4,C0103,invalid-name,convention,Menor,"Method name ""listarCampos"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,281,30,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,281,33,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,285,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,285,4,C0103,invalid-name,convention,Menor,"Method name ""consultarCampo"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,287,46,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,285,32,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,285,35,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,290,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,295,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,297,62,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,298,63,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,299,59,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,302,79,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,305,32,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,315,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,315,4,C0103,invalid-name,convention,Menor,"Method name ""crearCampo"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,318,51,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,315,28,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,325,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,325,4,C0103,invalid-name,convention,Menor,"Method name ""reemplazarDefinicionCampo"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,327,46,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,336,29,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,325,43,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,339,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,342,38,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,345,22,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,348,34,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,349,24,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,352,32,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,355,56,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,356,37,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,357,56,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,359,21,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,360,35,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,363,65,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,365,67,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,371,54,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,339,4,R0912,too-many-branches,refactor,Importante,Too many branches (18/12),Complejidad de flujo: requiere muchas rutas de prueba y dificulta cambios.
+backend/app/services.py,339,39,W0613,unused-argument,warning,Menor,Unused argument 'creating',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,373,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,373,4,C0103,invalid-name,convention,Menor,"Method name ""listarElementos"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,375,44,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,373,30,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,373,36,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,389,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,389,4,C0103,invalid-name,convention,Menor,"Method name ""crearElemento"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,395,25,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,389,28,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,389,31,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,403,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,403,4,C0103,invalid-name,convention,Menor,"Method name ""consultarElemento"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,405,67,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,403,38,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,408,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,408,4,C0103,invalid-name,convention,Menor,"Method name ""modificarElemento"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,412,27,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,413,40,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,408,35,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,420,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,420,4,C0103,invalid-name,convention,Menor,"Method name ""darBajaElemento"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,420,33,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,420,36,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,430,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,430,4,C0103,invalid-name,convention,Menor,"Method name ""listarTiposRelacion"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,433,25,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,430,34,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,430,40,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,436,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,436,4,C0103,invalid-name,convention,Menor,"Method name ""crearTipoRelacion"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,437,51,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,436,32,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,436,35,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,444,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,444,4,C0103,invalid-name,convention,Menor,"Method name ""consultarTipoRelacion"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,444,39,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,444,42,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,447,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,447,4,C0103,invalid-name,convention,Menor,"Method name ""modificarTipoRelacion"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,451,25,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,453,44,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,447,39,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,456,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,456,4,R0913,too-many-arguments,refactor,Importante,Too many arguments (6/5),validate_endpoints mezcla varios datos y opciones; considerar objeto de parámetros.
+backend/app/services.py,456,4,R0917,too-many-positional-arguments,refactor,Importante,Too many positional arguments (6/5),La misma firma compleja; no es un defecto adicional independiente.
+backend/app/services.py,459,25,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,460,57,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,461,94,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,469,37,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,471,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,476,53,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,481,46,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,485,48,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,486,15,R1735,use-dict-literal,refactor,Menor,"Consider using '{""operacion"": operation, ""origen_id"": origin, ""destino_id"": dest, ""tipo_relacion_id"": kind, ... }' instead of a call to 'dict'.",Preferencia sintáctica por literal de diccionario.
+backend/app/services.py,490,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,490,4,C0103,invalid-name,convention,Menor,"Method name ""crearPropuesta"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,490,29,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,490,32,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,496,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,496,4,C0103,invalid-name,convention,Menor,"Method name ""listarPropuestas"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,498,26,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,496,31,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,496,37,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,504,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,504,4,C0103,invalid-name,convention,Menor,"Method name ""consultarPropuesta"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,504,36,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,504,39,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,507,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,507,4,C0103,invalid-name,convention,Menor,"Method name ""corregirPropuestaPendiente"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,509,43,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,510,83,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,517,73,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,520,29,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,507,44,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,523,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,523,4,C0103,invalid-name,convention,Menor,"Method name ""decidirPropuesta"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,525,43,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,549,21,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,523,34,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,553,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,553,4,C0103,invalid-name,convention,Menor,"Method name ""listarRelaciones"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,553,31,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,553,37,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,563,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,563,4,C0103,invalid-name,convention,Menor,"Method name ""consultarRelacion"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,563,35,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,563,38,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,566,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,566,4,C0103,invalid-name,convention,Menor,"Method name ""consultarMapa"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,568,37,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,570,25,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,575,41,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,576,73,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,577,70,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,578,84,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,566,34,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,590,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,590,4,C0103,invalid-name,convention,Menor,"Method name ""listarBitacora"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,593,25,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,594,27,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,590,29,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,590,35,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,598,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,598,4,C0103,invalid-name,convention,Menor,"Method name ""consultarEntradaBitacora"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,598,42,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,598,45,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,601,4,C0116,missing-function-docstring,convention,Menor,Missing function or method docstring,Contrato de una función sin documentar; no equivale a fallo de ejecución.
+backend/app/services.py,601,4,C0103,invalid-name,convention,Menor,"Method name ""cargarDemostracion"" doesn't conform to snake_case naming style",Nombres camelCase de operationId conservados por compatibilidad. No renombrar sin adaptar dispatch.
+backend/app/services.py,601,4,R0914,too-many-locals,refactor,Importante,Too many local variables (18/15),"La carga de muestra combina preparación de catálogos, elementos y relaciones."
+backend/app/services.py,603,21,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,612,22,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,614,76,C0321,multiple-statements,convention,Menor,More than one statement on a single line,Varias instrucciones por línea dificultan revisión y depuración.
+backend/app/services.py,601,33,W0613,unused-argument,warning,Menor,Unused argument 'p',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,601,36,W0613,unused-argument,warning,Menor,Unused argument 'q',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,601,39,W0613,unused-argument,warning,Menor,Unused argument 'b',Principalmente firma uniforme p/q/b del despacho. El parámetro creating sí era redundante y se retiró.
+backend/app/services.py,26,0,R0904,too-many-public-methods,refactor,Importante,Too many public methods (74/20),Service concentra dominios y persistencia (H04).
+backend/app/services.py,8,0,W0611,unused-import,warning,Menor,Unused uid imported from models,Importación sin uso; limpieza sin impacto de negocio.

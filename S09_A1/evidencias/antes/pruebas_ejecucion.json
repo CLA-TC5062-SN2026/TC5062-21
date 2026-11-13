@@ -1,0 +1,5 @@
+{
+  "codigo_salida": 0,
+  "segundos": 9.476,
+  "comando": ".venv/bin/python -m pytest backend/tests -q --junitxml=S09_A1/evidencias/antes/pytest.xml"
+}
