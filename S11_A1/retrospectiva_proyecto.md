@@ -1,95 +1,116 @@
 # Retrospectiva del proyecto
 
-**Proyecto técnico:** Plataforma de Arquitectura Empresarial · Equipo 21  
-**Enfoque:** retrospectiva Scrum, uso de agentes de IA y consistencia entre problema y solución.
-
-> Esta retrospectiva se elaboró con la documentación técnica disponible y la reflexión previa del equipo sobre SRS, backlog y priorización. Se distingue entre hechos observables y valoraciones del proceso; no se atribuyen resultados que no estén documentados.
+**Proyecto:** Plataforma de Arquitectura Empresarial · Equipo 21  
+**Fuentes revisadas:** SRS, Product Backlog, contrato OpenAPI, backend, suite de pruebas y auditoría de calidad de Semana 9.
 
 # Sección A — Retrospectiva SCRUM
 
 ## ¿Qué salió bien?
 
-- **Se consolidó una línea base técnica común.** El equipo contó con un contrato OpenAPI en español (v1.2.0), diagramas de arquitectura y clases, esquema SQL y colección Postman. Esto permitió que el diseño del dominio y la API tuvieran referencias compartidas.
-- **Se relacionaron historias con criterios del SRS.** La reflexión previa registra cinco épicas y el uso de identificadores `RF-XX-AC-Y` para mantener la trazabilidad.
-- **Se detectaron omisiones durante el refinamiento.** La reflexión del equipo señala que se identificó la falta de una historia para recuperar información entre sesiones y se añadió US-21 para representar RF-19.
-- **Se discutieron prioridades en lugar de aceptar automáticamente una propuesta.** Se comparó el orden original del backlog con una propuesta desde el punto de vista del Product Owner, lo que ayudó a hacer visibles los trade-offs entre el recorrido mínimo demostrable y el valor de capturar, mantener y consultar información.
-- **Se produjo una primera implementación ejecutable de API.** `main.py` incluye health check, operaciones básicas de capas, tipos, cuentas y consultas de elementos, relaciones y bitácora.
+- **Se definió un problema de información concreto.** El SRS parte de una necesidad organizacional: los objetivos, proyectos, capacidades, procesos y aplicaciones están distribuidos entre archivos y áreas, lo que dificulta consultarlos de manera conjunta y comprender sus relaciones.
+- **Se consolidó una especificación común.** El equipo integró un SRS con 19 requerimientos funcionales y 56 criterios de aceptación identificados de forma estable. Esto facilitó que el backlog y el contrato API tuvieran una referencia compartida.
+- **El Product Backlog quedó estructurado en cinco épicas y 21 historias.** Las historias relacionan sus criterios de aceptación con los RF del SRS. Durante el refinamiento se detectó la necesidad de representar la recuperación de datos entre sesiones y se incorporó US-21.
+- **Se diseñó un contrato API amplio antes de cerrar la implementación.** El contrato OpenAPI contempla 46 operaciones para sesiones, usuarios, capas, tipos, elementos, propuestas, relaciones, mapas, bitácora y datos de demostración.
+- **Se construyó y refactorizó un backend funcional.** El backend utiliza FastAPI, SQLAlchemy y PostgreSQL. La auditoría de Semana 9 registra que las 50 pruebas originales continuaron pasando y que la suite final alcanzó 84 casos aprobados.
+- **Se mejoró el rendimiento de consultas en escenarios medidos.** Para una página de 25 elementos entre 300 registros, los SELECT enviados por SQLAlchemy bajaron de 602 a 53; para guardar ocho campos numéricos, de 10 a 2; y para modificar el nombre de un elemento de nueve campos, de 57 a 30. Son conteos de consultas, no mediciones de latencia.
+- **Se documentó la calidad y la deuda técnica.** La auditoría conserva pruebas, resultados de Pylint, mediciones y pasos de reproducción, lo que facilita repetir y revisar el trabajo.
 
 ## ¿Qué no salió bien?
 
-- **La implementación quedó por debajo del alcance del contrato.** El OpenAPI describe un conjunto funcional más amplio que las rutas presentes en `main.py`. Por ejemplo, no se observan las rutas de sesiones, propuestas, decisiones, mapas, detalle de bitácora, alta/edición de elementos ni baja/reactivación.
-- **La validación técnica no cerró el ciclo completo.** La colección Postman disponible contiene cuatro solicitudes, enfocadas en health y capas. El propio README técnico del paquete advierte que no se ejecutó integración real contra PostgreSQL durante la generación.
-- **No hay suite automatizada identificable.** En el paquete no aparece `backend/tests/`; por ello no podemos afirmar que exista cobertura automatizada de los requerimientos.
-- **La solución entregada no contiene la interfaz prevista.** La arquitectura contempla React + TypeScript y Nginx, pero esos componentes no están incluidos en el paquete revisado.
-- **La generación inicial con IA necesitó correcciones sustanciales.** La reflexión previa registra estimaciones repetitivas, historias que mezclaban acciones, omisiones en criterios y una historia sin asignación clara de capas. Una redacción convincente no garantizó precisión funcional.
-- **Persistió una brecha entre documentación y ejecución.** El contrato debe leerse como especificación objetivo, no como inventario de funcionalidades terminadas. No mantener esta distinción puede generar expectativas incorrectas durante la demo.
+- **La documentación y el código no siempre estuvieron sincronizados.** En distintas etapas fue necesario distinguir entre operaciones especificadas en el contrato y operaciones que ya estaban implementadas. Esa diferencia pudo generar confusión sobre el avance real.
+- **La experiencia completa de producto no está cerrada.** El SRS contempla una aplicación web, pero en el repositorio revisado se encuentra el backend y no se localizó una interfaz frontend. Por eso, aunque las operaciones del servicio estén implementadas y probadas, todavía no se puede demostrar el recorrido visual completo de los perfiles.
+- **La cobertura automatizada llegó a consolidarse en una etapa posterior.** La evidencia de Semana 9 muestra una suite de 84 pruebas; habría sido conveniente contar con pruebas de integración y persistencia desde los primeros incrementos.
+- **El análisis estático conserva observaciones.** La ejecución final de Pylint registra 492 mensajes (369 de convención, 93 advertencias y 30 de refactorización), sin errores ni mensajes fatales. La puntuación registrada fue 5.13/10. Los hallazgos están documentados, pero no se debe presentar como un análisis limpio.
+- **El uso inicial de IA requirió revisión humana.** La reflexión previa del equipo identifica estimaciones demasiado uniformes, historias que mezclaban acciones y criterios omitidos o poco claros. El resultado generado no siempre reflejó las reglas de negocio sin correcciones.
 
 ## ¿Qué haríamos diferente la próxima vez?
 
-1. **Cerrar el alcance antes de implementar.** Acordar un MVP con criterios de aceptación verificables y separar explícitamente lo comprometido para el sprint de lo que queda como evolución.
-2. **Mantener una matriz viva desde el primer sprint.** Cada RF debe tener historia, endpoint, responsable, prueba y estado; actualizarla en cada revisión, no al final.
-3. **Implementar vertical slices.** Completar una funcionalidad de extremo a extremo (persistencia, API, interfaz y prueba) antes de ampliar el contrato con más operaciones.
-4. **Definir una Definition of Done más estricta.** Una historia no se cierra solo porque existe una ruta: debe compilar, validar reglas, persistir, manejar errores y contar con prueba reproducible.
-5. **Automatizar temprano.** Configurar pruebas de API y de integración desde el primer incremento, con base de datos de prueba y ejecución repetible.
-6. **Revisar los artefactos generados por IA contra las fuentes.** Validar cada historia con el SRS, estimar en equipo, detectar duplicados y comprobar que el actor/beneficio estén bien definidos.
-7. **Proteger tiempo para integración y demo.** Reservar tiempo para desplegar, probar desde una máquina limpia y capturar evidencia real; no asumir que una arquitectura dibujada ya está operativa.
+1. **Validar el problema y el alcance con el stakeholder al inicio.** Acordar qué información necesita consultar, quién la mantiene, qué relaciones son importantes y cómo se medirá el valor de la plataforma.
+2. **Mantener la trazabilidad desde el primer sprint.** Cada criterio del SRS debe vincularse con una historia, endpoint, prueba y evidencia, actualizando la matriz al terminar cada incremento.
+3. **Desarrollar vertical slices.** Completar un flujo de extremo a extremo —persistencia, API, interfaz y prueba— antes de ampliar el número de funcionalidades.
+4. **Incluir frontend y backend en la planificación integrada.** Evitar que el contrato API avance mucho más rápido que la experiencia que utilizará el usuario.
+5. **Automatizar desde el primer sprint.** Preparar una base de pruebas reproducible, pruebas de integración y validaciones de contrato desde las primeras historias.
+6. **Definir una Definition of Done verificable.** Una historia se cierra cuando cumple criterios, persiste los datos, maneja errores, respeta permisos y cuenta con evidencia reproducible.
+7. **Reservar tiempo para integración y demo.** Probar desde una máquina limpia, preparar datos ficticios y validar el flujo completo antes de la presentación.
 
-## Análisis del uso de herramientas/agentes de IA
+## Análisis del uso de herramientas y agentes de IA
 
 ### ¿En qué fases fueron más útiles?
 
-- **Análisis y estructuración del SRS:** ayudaron a organizar los requisitos y criterios en grupos manejables.
-- **Construcción del Product Backlog:** permitieron proponer épicas, historias con formato consistente y relaciones entre historias y criterios `RF-XX-AC-Y`.
-- **Refinamiento y priorización:** facilitaron comparar opciones, identificar huecos (como US-21) y discutir el orden de trabajo.
-- **Documentación técnica:** son útiles para generar primeros borradores de diagramas, explicaciones, matrices y guías a partir de archivos fuente.
+- **Análisis y estructuración de requisitos:** ayudaron a organizar los requerimientos, detectar duplicidades y convertir necesidades en criterios verificables.
+- **Construcción y refinamiento del backlog:** aceleraron la redacción inicial de épicas e historias, así como la vinculación de historias con criterios RF.
+- **Diseño técnico:** apoyaron la elaboración y revisión del contrato OpenAPI, diagramas, esquema de datos y documentación.
+- **Programación y refactorización:** facilitaron explorar alternativas de implementación, revisar código y proponer mejoras; el equipo pudo contrastarlas con las pruebas.
+- **Pruebas y auditoría:** fueron útiles para generar casos, revisar resultados y documentar hallazgos de calidad y rendimiento.
 
 ### ¿En qué fases generaron trabajo adicional?
 
-- Cuando el agente asignó estimaciones demasiado uniformes o mezcló varias acciones en una historia, el equipo tuvo que dividir, reestimar y reescribir.
-- Cuando omitió reglas o referencias explícitas al SRS, fue necesario rastrear cada criterio y corregir la historia.
-- Cuando produjo documentación con tono definitivo sin evidencia de ejecución, hizo falta verificar qué estaba realmente implementado y qué solo estaba descrito en el contrato.
+- Cuando las historias generadas tenían estimaciones repetitivas o agrupaban varias acciones, fue necesario dividirlas y volver a estimarlas.
+- Cuando una propuesta omitía reglas del SRS —por ejemplo, permisos por capa, unicidad, justificación o aprobación— el equipo tuvo que rastrear la fuente y corregir los criterios.
+- Cuando el agente describía una ruta del contrato como si ya estuviera implementada, fue necesario revisar el código y las pruebas para separar especificación de evidencia.
+- Los borradores técnicos necesitaron validación de comandos, rutas y versiones reales del repositorio; una guía genérica habría dificultado la reproducción.
 
 ### ¿Cambió nuestra forma de programar?
 
-Sí. El uso de agentes impulsó una forma de trabajo más orientada a especificaciones: primero describir el comportamiento, criterios y contrato; después derivar estructura y código. También hizo más importante revisar las salidas, porque el código o documentación generados pueden parecer correctos aunque omitan reglas del dominio. La conclusión es que la IA acelera la exploración y la producción de borradores, pero no reemplaza la revisión técnica, las pruebas ni la responsabilidad de priorización del equipo.
+Sí. El trabajo con agentes reforzó un enfoque más orientado a especificaciones: primero aclarar el comportamiento, los criterios de aceptación y el contrato; después implementar y probar. También hizo más importante revisar cada salida con el repositorio y con pruebas automatizadas. La IA aceleró el análisis y la producción de borradores, pero no reemplazó las decisiones del equipo, la revisión de código ni la responsabilidad de comprobar que el sistema funciona.
 
 # Sección B — Consistencia problema–solución
 
 ## ¿La aplicación construida resuelve el problema planteado en la Semana 2?
 
-**No de manera directa, con la evidencia disponible.** En la Semana 2 se identificó como problema la desigualdad de acceso a educación STEM en Coacalco, México, particularmente en robótica, programación, inteligencia artificial e ingeniería. Se señalaron como causas la falta de recursos educativos, equipo, instructores especializados, infraestructura y colaboración entre escuelas, universidades e industria.
+**La solución implementada atiende directamente el problema de dispersión de información de arquitectura empresarial descrito en el SRS.** La necesidad identificada es que los objetivos, proyectos, capacidades, procesos y aplicaciones de una organización pueden estar repartidos entre archivos y áreas, lo que dificulta obtener una visión común y entender cómo se relacionan.
 
-La aplicación descrita por los artefactos técnicos actuales es una **Plataforma de Arquitectura Empresarial**. Su dominio incluye capas, tipos de elementos, elementos, relaciones, propuestas, decisiones y bitácora. La implementación observada permite gestionar parcialmente esos datos mediante una API. No se encontró evidencia de módulos para impartir cursos STEM, registrar estudiantes, administrar talleres, conectar mentores con escuelas, prestar equipo o medir el acceso y progreso educativo.
+La plataforma responde a esa necesidad al ofrecer un modelo común de información con capas, tipos de elemento, elementos y relaciones explícitas. La API permite administrar y consultar esos registros; el flujo de propuestas y decisiones permite controlar qué relaciones quedan validadas; los mapas permiten consultar conexiones; y la bitácora aporta trazabilidad de operaciones relevantes.
 
-Por tanto, no sería correcto afirmar que la plataforma actual resuelve el problema de acceso a STEM. La solución técnica puede demostrar capacidades de modelado y gestión de información, pero falta una relación funcional explícita entre esas capacidades y las necesidades de estudiantes, familias, escuelas y organizaciones STEM de Coacalco.
+La evidencia técnica disponible respalda que el backend implementa el contrato: la prueba `test_all_46_operations_and_persistence` recorre las 46 operaciones, y la ejecución documentada de pytest registra 84 pruebas aprobadas. Por tanto, existe evidencia de que la capa de servicios puede gestionar y recuperar la información centralizada.
 
-### Evidencia concreta disponible
+**La solución contribuye al problema, pero la entrega no está completa como producto web.** El SRS contempla una interfaz para Administrador, Editor y Consulta; sin embargo, en el repositorio revisado no se encontró código frontend. En consecuencia, podemos demostrar la gestión centralizada mediante la API y sus pruebas, pero no todavía una experiencia visual integral para que los usuarios de negocio exploren los mapas y administren la arquitectura desde una aplicación web.
 
-- `arquitectura_equipo.md` describe una plataforma con frontend web previsto, API REST y PostgreSQL, organizada alrededor de capas, tipos, elementos, propuestas, relaciones, mapas y bitácora.
-- `openapi_equipo.yaml` especifica operaciones para cuentas, capas, elementos, relaciones, propuestas y auditoría.
-- `main.py` implementa una parte de las operaciones de capas, tipos, cuentas y consultas.
-- `postman_collection.json` ofrece un recorrido manual mínimo de health y CRUD básico de capas.
+### Evidencia concreta
 
-Estas evidencias demuestran el tipo de sistema construido, pero no demuestran resultados educativos ni atención al problema de Semana 2. Tampoco se recibieron capturas reales, por lo que no se citan imágenes como evidencia visual.
+| Necesidad del problema | Funcionalidad que responde | Evidencia disponible |
+|---|---|---|
+| Consultar información en un lugar común | Capas, tipos y elementos persistidos en PostgreSQL | `S09_A1/codigo/backend/app/models.py`, `services.py` y `S05_S06_A1/esquema_bd.sql` |
+| Entender cómo se relacionan los componentes | Tipos de relación, relaciones y mapa por elemento | Operaciones `/api/v1/tipos-relacion`, `/api/v1/relaciones` y `/api/v1/mapas/{elementoId}`; prueba de integración de 46 operaciones |
+| Mantener consistencia de la información | Validación de campos, reglas de dominio y propuestas de relación | `test_value_rules.py`, `test_integration.py` |
+| Controlar cambios y responsabilidades | Roles, sesiones, autoría y bitácora | Operaciones de usuarios/sesiones y `/api/v1/entradas-bitacora`; pruebas de integración |
+| Recuperar información y dar continuidad | Persistencia y recuperación entre sesiones | `test_all_46_operations_and_persistence` |
+| Verificar que la solución funciona | Suite automatizada | `S09_A1/evidencias/despues/pytest.txt`: 84 passed, 1 warning |
+
+No se incluyen capturas inventadas. La evidencia visual deberá obtenerse ejecutando el backend y, cuando exista, la interfaz de usuario.
 
 ## ¿Qué partes del problema original no se lograron resolver? ¿Quedaron fuera del alcance o fueron obstáculos técnicos?
 
-La solución revisada no aborda directamente:
+Las principales limitaciones pendientes son:
 
-- La disponibilidad y distribución de kits, laboratorios, computadoras o conectividad.
-- La formación y disponibilidad de docentes o mentores especializados.
-- El diseño e impartición de experiencias de robótica, programación, IA e ingeniería para estudiantes de 8 a 18 años.
-- La vinculación efectiva entre escuelas, universidades, empresas, profesionales STEM y familias.
-- La medición de participación, permanencia, aprendizaje y progreso de estudiantes.
-- Las barreras de costo, transporte, horarios y acceso para comunidades con menos recursos.
+- **Accesibilidad para usuarios no técnicos:** sin frontend, los usuarios deben interactuar con la API o Swagger, lo cual no sustituye una aplicación visual de negocio.
+- **Exploración visual de arquitectura:** el backend expone datos de mapas y filtros, pero falta la representación gráfica interactiva en una interfaz.
+- **Validación con usuarios reales:** la evidencia del repositorio demuestra pruebas técnicas; no equivale a una validación de usabilidad o a confirmar que las vistas responden a las necesidades de las áreas.
+- **Integración con fuentes corporativas:** la primera entrega contempla captura manual. La sincronización automática con sistemas empresariales e importación masiva están fuera del alcance definido en el SRS.
+- **Gobierno y evolución de la arquitectura:** funciones avanzadas como perspectivas y subniveles jerárquicos, permisos por elemento, roles configurables, inicio federado y diagnósticos automáticos se dejaron fuera de la primera versión.
 
-La principal brecha no parece ser solamente un obstáculo técnico puntual: es una **desalineación de alcance y de dominio de producto** entre el problema original y el sistema documentado. La implementación parcial (sin frontend, seguridad ni pruebas completas) constituye además una limitación técnica del entregable, pero incluso una versión completa de la plataforma de arquitectura empresarial no resolvería automáticamente la desigualdad de acceso a STEM.
+La ausencia del frontend es una brecha técnica/de integración de la entrega revisada. La importación masiva, sincronización automática y otras funciones avanzadas son exclusiones explícitas del alcance inicial, no funcionalidades que deban presentarse como defectos del backend.
 
-## Si tuviéramos que presentar el proyecto al stakeholder de la Semana 2, ¿qué demostraríamos primero y por qué?
+## Si tuviéramos que presentarle el proyecto al stakeholder, ¿qué demostraríamos primero y por qué?
 
-Primero presentaríamos el problema original y validaríamos con el stakeholder si la necesidad sigue siendo mejorar el acceso a oportunidades STEM en Coacalco. Después mostraríamos un prototipo de flujo que conecte directamente con esa necesidad: por ejemplo, un catálogo de talleres de robótica/programación, registro de estudiantes, disponibilidad de mentores y equipo, y seguimiento del progreso de cada estudiante. Ese flujo permitiría comprobar valor para los beneficiarios y no solo enseñar una API.
+Primero demostraríamos un caso de uso que refleje la necesidad central: **consultar un conjunto de arquitectura en un solo lugar y comprender las relaciones entre sus componentes**. Utilizaríamos datos ficticios de una organización, por ejemplo, un objetivo conectado con un proyecto, una capacidad, un proceso y una aplicación.
 
-Con el sistema técnico actualmente disponible, la demo debe presentarse con transparencia como una **plataforma parcial de gestión de arquitectura empresarial**, no como la solución STEM. Si el objetivo académico exige conservar el problema de Semana 2, sería necesario redefinir el producto y adaptar el dominio, las historias y los criterios de aceptación antes de sostener que existe consistencia problema–solución.
+La demostración seguiría este orden:
+
+1. Mostrar las capas y los tipos de elemento que estructuran la información.
+2. Registrar o consultar un elemento y recuperar sus datos por identificador.
+3. Consultar una relación y explicar su origen, destino, tipo y justificación.
+4. Crear una propuesta de relación y mostrar el flujo de aprobación o rechazo.
+5. Consultar el mapa de conexiones y aplicar filtros desde la operación disponible de API.
+6. Consultar la bitácora para mostrar quién realizó un cambio y cuándo.
+7. Cerrar con la evidencia de pruebas automatizadas y explicar qué parte del producto sigue pendiente de interfaz.
+
+Empezaríamos por la consulta integrada y las relaciones porque es el núcleo del problema: pasar de información fragmentada a una visión común y trazable. Seríamos transparentes al explicar que el backend está implementado y probado, mientras que la interfaz web visual no está incluida en el repositorio revisado.
+
+## Cierre
+
+El proyecto avanzó desde la definición de una necesidad de información común hasta una API de arquitectura empresarial con 46 operaciones y una suite de 84 pruebas aprobadas. La solución backend está alineada con el problema de centralizar y relacionar información de arquitectura. El siguiente paso para completar la experiencia del stakeholder es integrar una interfaz web y validar sus flujos con usuarios de las áreas que consultarán y mantendrán la arquitectura.
+
 
 ## Cierre
 
