@@ -110,8 +110,3 @@ Empezaríamos por la consulta integrada y las relaciones porque es el núcleo de
 ## Cierre
 
 El proyecto avanzó desde la definición de una necesidad de información común hasta una API de arquitectura empresarial con 46 operaciones y una suite de 84 pruebas aprobadas. La solución backend está alineada con el problema de centralizar y relacionar información de arquitectura. El siguiente paso para completar la experiencia del stakeholder es integrar una interfaz web y validar sus flujos con usuarios de las áreas que consultarán y mantendrán la arquitectura.
-
-
-## Cierre
-
-El equipo logró consolidar una especificación técnica y una primera API, además de aprender a utilizar agentes para analizar requisitos, construir backlog y revisar prioridades. Sin embargo, la calidad de la documentación no debe ocultar dos brechas: la diferencia entre contrato e implementación, y la diferencia entre el problema de Semana 2 y el dominio del producto actual. Reconocerlas permite presentar el resultado con credibilidad y definir el siguiente incremento con una dirección clara.
