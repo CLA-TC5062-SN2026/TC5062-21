@@ -1,98 +1,146 @@
 # TC5062-21
 # Plataforma de Arquitectura Empresarial — Equipo 21
 
-> **Estado de esta documentación:** preparada a partir del paquete técnico consolidado disponible (`openapi_equipo.yaml`, `main.py`, `esquema_bd.sql`, `requirements.txt`, `.env.example`, `postman_collection.json` y `arquitectura_equipo.md`). El paquete no contiene una aplicación frontend ni evidencia de un despliegue productivo. No se deben interpretar las rutas del contrato OpenAPI como rutas ya implementadas.
+Repositorio del proyecto desarrollado para TC5062. Esta documentación se actualizó contrastando el SRS, el Product Backlog, el backend y la evidencia de la auditoría de calidad de Semana 9.
 
 ## 1. Descripción del proyecto
 
-La Plataforma de Arquitectura Empresarial busca organizar información de arquitectura mediante capas, tipos de elementos configurables, elementos, tipos de relación, propuestas de vínculos, relaciones validadas y una bitácora de auditoría. El valor esperado es centralizar la consulta y administración de estos artefactos, conservar trazabilidad de cambios y permitir explorar las conexiones entre elementos.
+Las organizaciones necesitan consultar de forma integrada qué objetivos, proyectos, capacidades, procesos y aplicaciones tienen, así como entender cómo se relacionan. Actualmente, esa información puede encontrarse distribuida entre archivos, documentos y distintas áreas, lo que dificulta mantener una visión común, localizar dependencias y dar seguimiento a los cambios.
 
-El dominio contempla perfiles Administrador, Editor y Consulta. El contrato funcional especifica autenticación/sesiones, administración de cuentas y capas, configuración de tipos y campos, gestión de elementos, propuestas y decisiones de relaciones, mapas y bitácora. **La implementación entregada es una primera API CRUD parcial**; no equivale a la solución completa descrita en el contrato.
+La **Plataforma de Arquitectura Empresarial** propone centralizar esa información en un modelo estructurado y consultable. Organiza los registros mediante capas (Negocio, Datos, Aplicaciones y Tecnología), tipos de elemento, elementos concretos y relaciones explícitas entre ellos. También contempla propuestas de relaciones sujetas a revisión, búsqueda, mapas de conexiones y bitácora de auditoría.
 
-### Alcance real de esta entrega
+El valor que entrega es disponer de una fuente común de información de arquitectura, mejorar la trazabilidad de los cambios y facilitar la exploración de dependencias entre componentes de la organización.
 
-- Backend API con FastAPI y conexión a PostgreSQL.
-- Endpoints implementados para salud, capas, tipos de elemento, tipos de relación, cuentas, consulta de elementos, consulta de relaciones y bitácora, además de una respuesta de muestra demostrativa.
-- Esquema relacional y contrato OpenAPI más amplio que la implementación.
-- Colección Postman con cuatro solicitudes: health check, creación de capa, consulta de capa creada y comprobación de 404.
-- No se incluye frontend React/TypeScript, Nginx, autenticación/autorización real, ni suite automatizada en `backend/tests/` en el paquete revisado.
+### Alcance funcional definido en el SRS
+
+- Autenticación y administración de sesiones.
+- Administración de usuarios, roles y capas editables.
+- Configuración de capas, tipos de elemento, campos y tipos de relación.
+- Registro, modificación, búsqueda, consulta, baja lógica y reactivación de elementos.
+- Propuestas de alta, cambio y retiro de relaciones, con aprobación o rechazo.
+- Exploración de mapas de relaciones, cruces y filtros.
+- Datos ficticios para demostración, persistencia y bitácora.
+
+### Estado real de la entrega disponible
+
+El repositorio contiene una implementación backend en FastAPI y PostgreSQL, con contrato OpenAPI y pruebas automatizadas. La evidencia de Semana 9 registra **84 pruebas aprobadas** y un recorrido de las **46 operaciones** del contrato. La implementación no debe confundirse con una aplicación web terminada: en el árbol revisado no se encontró un frontend web ni un despliegue productivo verificable. Por ello, la API y sus pruebas son evidencia del comportamiento backend, pero no sustituyen una interfaz visual para los usuarios.
 
 ## 2. Arquitectura
 
-### Diagrama lógico objetivo
+### Diagrama de componentes
 
 ```mermaid
 flowchart LR
-  U[Administrador / Editor / Consulta] --> FE[Frontend web React + TypeScript]
-  FE -->|REST / JSON| N[Nginx: estáticos y proxy TLS]
-  N --> API[Backend Python + FastAPI
-monolito modular en capas]
-  API --> DB[(PostgreSQL)]
-  subgraph Dominios
-    A[Identidad y sesiones]
-    B[Capas y tipos]
-    C[Elementos y valores]
-    D[Propuestas y relaciones]
-    E[Bitácora y mapas]
-  end
-  API --- A
-  API --- B
-  API --- C
-  API --- D
-  API --- E
+    U[Administrador / Editor / Consulta]
+    FE[Interfaz web<br/>prevista en el SRS]
+    API[API REST<br/>FastAPI]
+    SEC[Autenticación y autorización<br/>JWT / roles]
+    SVC[Servicios de dominio<br/>reglas y casos de uso]
+    ORM[Persistencia<br/>SQLAlchemy]
+    DB[(PostgreSQL)]
+    SPEC[Contrato OpenAPI<br/>validación de solicitudes y respuestas]
+    TEST[Pruebas automatizadas<br/>pytest]
+
+    U -. uso previsto .-> FE
+    FE -. HTTP / JSON .-> API
+    API --> SEC
+    API --> SPEC
+    API --> SVC
+    SVC --> ORM
+    ORM --> DB
+    TEST -. valida .-> API
+    TEST -. valida reglas .-> SVC
 ```
 
-El diagrama representa la **arquitectura consolidada/objetivo** descrita en `arquitectura_equipo.md`, no un despliegue que se haya podido verificar en ejecución. En el paquete implementado solo se observa el backend FastAPI y el esquema PostgreSQL. No hay código frontend ni configuración Nginx en los archivos revisados.
+**Lectura del diagrama:** el SRS contempla una interfaz web para los perfiles Administrador, Editor y Consulta. La implementación disponible en el repositorio se concentra en el backend: FastAPI expone las rutas REST, valida las solicitudes contra el contrato OpenAPI y delega la lógica de negocio a servicios. SQLAlchemy gestiona la persistencia en PostgreSQL. La autenticación usa tokens JWT y la autorización considera roles y permisos por capa. Pytest verifica operaciones, reglas e integración.
 
-### Responsabilidades
+> La interfaz web aparece como parte del producto especificado, pero no se encontró código frontend en la versión del repositorio revisada. El diagrama distingue por ello la interfaz prevista de los componentes backend implementados.
 
-| Componente | Responsabilidad prevista | Estado en el paquete revisado |
+### Responsabilidades principales
+
+| Componente | Responsabilidad | Estado |
 |---|---|---|
-| Frontend React + TypeScript | Formularios, búsqueda, propuestas y visualización | No incluido |
-| Nginx | Servir estáticos, TLS y proxy `/api` | No incluido |
-| FastAPI | API REST, validación y acceso a datos | Implementación parcial en `main.py` |
-| PostgreSQL | Persistencia relacional y restricciones | Esquema en `esquema_bd.sql`; conexión configurada por `DATABASE_URL`; integración no acreditada con evidencia de ejecución |
+| Interfaz web | Formularios, navegación, búsqueda y mapas para los tres perfiles | Prevista en SRS; no localizada en el repositorio revisado |
+| FastAPI | Exponer endpoints REST y documentación interactiva | Implementado |
+| Contrato OpenAPI | Definir operaciones, esquemas y validaciones | Implementado; contrato integrado en backend |
+| Servicios de dominio | Reglas de negocio para cuentas, capas, elementos, relaciones y auditoría | Implementado |
+| SQLAlchemy | Consultas y transacciones de persistencia | Implementado |
+| PostgreSQL | Almacenar usuarios, capas, tipos, elementos, relaciones, sesiones y bitácora | Esquema e integración de pruebas incluidos |
+| Pytest | Pruebas de integración, reglas y contrato | 84 pruebas aprobadas en evidencia de Semana 9 |
 
 ## 3. Stack tecnológico
 
-| Tecnología | Versión / rango declarado | Propósito |
-|---|---|---|
-| Python | 3.11+ | Lenguaje del backend (según README del paquete) |
-| FastAPI | `>=0.115,<1.0` | API REST y documentación OpenAPI |
-| Uvicorn | `>=0.30,<1.0` | Servidor ASGI local |
-| SQLAlchemy | `>=2.0,<3.0` | Acceso y ejecución SQL |
-| psycopg (binary) | `>=3.2,<4.0` | Driver PostgreSQL |
-| python-dotenv | `>=1.0,<2.0` | Carga de variables desde `.env` |
-| Pydantic | `>=2.8,<3.0` | Validación de modelos de entrada |
-| PostgreSQL | 15+ | Base de datos relacional |
-| Postman | Colección v2.1.0 | Ejecución manual de solicitudes de API |
-| React + TypeScript | No declarada en el paquete | Frontend objetivo, no incluido en esta entrega |
-| Nginx | No declarada en el paquete | Proxy/servidor objetivo, no incluido |
+Versiones tomadas del archivo `backend/requirements-quality.lock.txt` y de la evidencia de ejecución de Semana 9. Las versiones de Python y PostgreSQL corresponden al entorno registrado para esa ejecución.
 
-Las dependencias Python están expresadas como rangos en `requirements.txt`; no existe un archivo de bloqueo que fije versiones exactas. Por tanto, no se afirma que se haya probado con una versión puntual de cada dependencia.
+| Tecnología | Versión registrada | Propósito |
+|---|---:|---|
+| Python | 3.12.16 | Lenguaje del backend |
+| FastAPI | 0.162.0 | API REST |
+| Uvicorn | 0.54.0 | Servidor ASGI |
+| SQLAlchemy | 2.1.6 | ORM y transacciones |
+| PostgreSQL | 17.11 | Base de datos relacional |
+| psycopg / psycopg-binary | 3.3.6 | Driver PostgreSQL |
+| Pydantic | 2.14.3 | Modelos y validación de datos |
+| PyJWT | 2.15.1 | Emisión y validación de tokens |
+| bcrypt | 5.0.0 | Hash de contraseñas |
+| python-dotenv | 1.2.4 | Lectura de variables de entorno |
+| PyYAML | 6.0.3 | Lectura del contrato OpenAPI |
+| jsonschema | 4.26.0 | Validación de esquemas |
+| pytest | 9.1.1 | Pruebas automatizadas |
+| Pylint | 4.1.3 | Análisis estático |
 
-## 4. Instalación y ejecución local
+## 4. Estructura relevante del repositorio
 
-### Prerrequisitos
+```text
+TC5062-21/
+├── S03_A1/
+│   ├── SRS_equipo.md
+│   └── backlog.md
+├── S09_A1/
+│   ├── README.md
+│   ├── REPRODUCCION.md
+│   ├── evidencias/
+│   │   └── despues/
+│   │       ├── pytest.txt
+│   │       ├── pruebas_ejecucion.json
+│   │       └── cobertura_operaciones.json
+│   └── codigo/
+│       ├── S05_S06_A1/
+│       │   ├── openapi_equipo.yaml
+│       │   └── esquema_bd.sql
+│       └── backend/
+│           ├── app/
+│           ├── scripts/
+│           ├── tests/
+│           ├── requirements.txt
+│           └── requirements-quality.lock.txt
+└── S11_A1/
+    ├── matriz_trazabilidad.md
+    └── retrospectiva_proyecto.md
+```
 
-- Git.
-- Python 3.11 o posterior.
-- PostgreSQL 15 o posterior y `psql`.
-- Terminal con permisos para crear una base de datos.
+## 5. Instalación y ejecución local
+
+Los comandos siguientes corresponden a la estructura que contiene el backend auditado. Requisitos: Git, Python 3.12, PostgreSQL 17 y sus herramientas (`initdb`, `pg_ctl`, `createdb`, `psql`).
 
 ### Paso 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/CLA-TC5062-SN2026/TC5062-21.git
 cd TC5062-21
+cd S09_A1/codigo
 ```
-
-> La estructura exacta del repositorio remoto no se pudo validar desde este entorno. Los comandos siguientes corresponden al paquete técnico disponible. Si el equipo guarda estos archivos en una subcarpeta, entra a esa carpeta antes de ejecutarlos.
 
 ### Paso 2. Crear y activar un entorno virtual
 
 ```bash
-python -m venv .venv
+python3.12 -m venv .venv
+```
+
+macOS / Linux:
+
+```bash
+source .venv/bin/activate
 ```
 
 Windows PowerShell:
@@ -101,128 +149,115 @@ Windows PowerShell:
 .venv\Scripts\Activate.ps1
 ```
 
-macOS/Linux:
+### Paso 3. Instalar dependencias bloqueadas
 
 ```bash
-source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r backend/requirements-quality.lock.txt
 ```
 
-### Paso 3. Instalar dependencias
+El archivo lock fija las versiones utilizadas en la reproducción de la auditoría. `backend/requirements.txt` contiene las dependencias principales de la aplicación.
+
+### Paso 4. Preparar PostgreSQL y las variables de entorno
+
+El script `backend/scripts/setup_local.py` prepara una instancia local aislada, crea la base `arquitectura21`, carga `S05_S06_A1/esquema_bd.sql`, genera `backend/.env` si no existe y provisiona cuentas ficticias para pruebas y demostración.
+
+En macOS con PostgreSQL 17 instalado mediante Homebrew, el script usa por defecto `/opt/homebrew/opt/postgresql@17/bin`. Si tus binarios están en otra ubicación, define `PG_BIN`:
 
 ```bash
-pip install -r requirements.txt
+PG_BIN=/ruta/a/postgresql17/bin python backend/scripts/setup_local.py
 ```
 
-### Paso 4. Crear la base de datos y cargar el esquema
+En PowerShell:
 
-```bash
-createdb arquitectura
-psql -U postgres -d arquitectura -f esquema_bd.sql
+```powershell
+$env:PG_BIN = "C:\ruta\a\postgresql\bin"
+python backend/scripts/setup_local.py
 ```
 
-Ajusta usuario/host según la instalación local de PostgreSQL. Si `createdb` no está disponible, crea la base desde `psql` o una herramienta gráfica.
+El script crea `backend/.env` con estas variables:
 
-### Paso 5. Configurar variables de entorno
-
-Copia el archivo de ejemplo:
-
-```bash
-# macOS/Linux
-cp .env.example .env
-# Windows PowerShell
-Copy-Item .env.example .env
-```
-
-Edita `DATABASE_URL` en `.env` con las credenciales de tu instancia local. No subas credenciales reales al repositorio.
-
-### Paso 6. Levantar el backend
-
-En el directorio que contiene `main.py`:
-
-```bash
-uvicorn main:app --reload
-```
-
-La API local se publica por defecto en `http://127.0.0.1:8000`.
-
-- Raíz: `http://127.0.0.1:8000/`
-- Salud y conexión a BD: `http://127.0.0.1:8000/health`
-- Swagger UI: `http://127.0.0.1:8000/docs`
-- OpenAPI JSON generado por FastAPI: `http://127.0.0.1:8000/openapi.json`
-
-### Frontend
-
-No se proporcionó código de frontend en el paquete revisado. Por ello no es posible documentar comandos de instalación/ejecución del frontend sin inventarlos. La arquitectura lo contempla como React + TypeScript, pero esa capa no forma parte de la entrega inspeccionada.
-
-## 5. Ejecución de pruebas
-
-No se encontró una carpeta `backend/tests/` ni una suite automatizada `pytest` en el paquete revisado. La evidencia disponible es `postman_collection.json`, que contiene cuatro solicitudes para ejecutar manualmente:
-
-1. `Health check` — consulta `GET /health`.
-2. `Crear capa` — crea una capa y captura su identificador.
-3. `Consultar capa creada` — consulta la capa creada.
-4. `404 para capa inexistente` — comprueba el comportamiento de recurso inexistente.
-
-Pasos:
-
-1. Levanta PostgreSQL, carga `esquema_bd.sql` y configura `.env`.
-2. Inicia el backend.
-3. Abre Postman e importa `postman_collection.json`.
-4. Configura `baseUrl` como `http://127.0.0.1:8000`.
-5. Ejecuta las solicitudes en el orden de la colección.
-6. Guarda capturas de las respuestas y registra fecha, entorno y resultado.
-
-La colección es una prueba manual guiada; no debe describirse como una suite automatizada ni como evidencia de que todos los requisitos del SRS están probados. El README incluido en el paquete señala que no se acreditó una integración real contra PostgreSQL en el entorno de generación.
-
-## 6. Variables de entorno
-
-| Variable | Obligatoria | Descripción | Ejemplo no sensible |
-|---|---|---|---|
-| `DATABASE_URL` | Sí | Cadena de conexión SQLAlchemy para PostgreSQL | `postgresql+psycopg://<usuario>:<password>@<host>:5432/<base>` |
-
-No se identificaron otras variables de entorno en `.env.example`. No coloques contraseñas reales en esta tabla ni en el repositorio.
-
-## 7. URL de producción
-
-**No se proporcionó ni se pudo verificar una URL de producción.** La única URL acreditada por el paquete es la dirección local de desarrollo `http://127.0.0.1:8000`. No debe presentarse como despliegue público. La documentación de arquitectura advierte que esta versión CRUD no implementa seguridad y no debe desplegarse públicamente.
-
-## 8. Capturas de pantalla
-
-No se incluyeron capturas en el paquete recibido. Para completar esta sección, agrega imágenes reales tomadas de la ejecución local. Se recomiendan estas evidencias:
-
-| Archivo sugerido | Vista | Evidencia que debe mostrar |
+| Variable | Obligatoria | Descripción |
 |---|---|---|
-| `docs/screenshots/01-health.png` | `GET /health` en Swagger o Postman | Estado de API y conexión a base de datos |
-| `docs/screenshots/02-swagger.png` | Swagger UI `/docs` | Endpoints que realmente expone `main.py` |
-| `docs/screenshots/03-postman-create-layer.png` | Postman — crear capa | Solicitud y respuesta 201 |
-| `docs/screenshots/04-postman-get-layer.png` | Postman — consultar capa | Recurso recuperado por ID |
-| `docs/screenshots/05-postman-not-found.png` | Postman — recurso inexistente | Respuesta 404 |
+| `DATABASE_URL` | Sí | Conexión SQLAlchemy a PostgreSQL usando `postgresql+psycopg://` |
+| `JWT_SECRET` | Sí | Secreto aleatorio de al menos 32 bytes para firmar tokens |
+| `JWT_EXPIRATION` | No | Duración del token en segundos; valor predeterminado 28800 y máximo 28800 |
 
-Cuando existan, inserta las imágenes con rutas relativas, por ejemplo:
+No publiques `backend/.env`, `.local/` ni `demo_credentials.json`. El script limita los permisos de los archivos sensibles en sistemas compatibles. Para otro entorno, crea esas variables con credenciales propias de desarrollo; nunca uses secretos reales en documentación o control de versiones.
+
+### Paso 5. Levantar el backend
+
+Desde `S09_A1/codigo/`, con el entorno virtual activo y PostgreSQL iniciado:
+
+```bash
+uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+URLs locales:
+
+- API: `http://127.0.0.1:8000`
+- Salud: `http://127.0.0.1:8000/api/salud`
+- Swagger UI: `http://127.0.0.1:8000/docs`
+- ReDoc: `http://127.0.0.1:8000/redoc`
+
+No hay instrucciones de arranque para frontend porque no se encontró un proyecto frontend en el repositorio revisado.
+
+## 6. Ejecución de pruebas
+
+La suite está ubicada en `S09_A1/codigo/backend/tests/`. La evidencia almacenada en `S09_A1/evidencias/despues/pytest.txt` registra **84 passed, 1 warning** en 7.65 segundos. El test de integración `test_all_46_operations_and_persistence` recorre las 46 operaciones del contrato y valida los esquemas de respuesta y la persistencia. También existen pruebas de integración de calidad y reglas de valores.
+
+Ejecuta desde `S09_A1/codigo/`:
+
+```bash
+python -m pytest backend/tests -q
+```
+
+Para generar un reporte JUnit:
+
+```bash
+python -m pytest backend/tests -q --junitxml=pytest-report.xml
+```
+
+La reproducción documentada recomienda ejecutar la suite y la medición de consultas secuencialmente, porque ambas usan la misma base aislada. Consulta `S09_A1/REPRODUCCION.md` para repetir exactamente la auditoría, configurar PostgreSQL y ejecutar `backend/scripts/medir_consultas_s09.py` y `backend/scripts/auditar_calidad.py`.
+
+**Resultado registrado:** 84 pruebas aprobadas. La evidencia incluye una advertencia de deprecación relacionada con `httpx` y `starlette.testclient`; no equivale a una ejecución sin advertencias.
+
+## 7. Variables de entorno
+
+| Variable | Ejemplo de formato (sin secreto real) | Uso |
+|---|---|---|
+| `DATABASE_URL` | `postgresql+psycopg://<usuario>:<password>@<host>:<puerto>/<base>` | Conexión a PostgreSQL |
+| `JWT_SECRET` | `<secreto_aleatorio_de_32_bytes_o_mas>` | Firma de tokens JWT |
+| `JWT_EXPIRATION` | `28800` | Expiración del token en segundos |
+
+El script de preparación local genera valores de desarrollo. La aplicación valida que `DATABASE_URL` use el driver `postgresql+psycopg`, que `JWT_SECRET` tenga al menos 32 bytes y que `JWT_EXPIRATION` esté entre 1 y 28800 segundos.
+
+## 8. URL de producción
+
+**No se encontró una URL de producción publicada o verificable** en el repositorio revisado. La dirección `http://127.0.0.1:8000` corresponde únicamente a ejecución local y no debe presentarse como despliegue público.
+
+## 9. Capturas de pantalla
+
+No se localizaron capturas de la interfaz web en el repositorio revisado. Para completar esta sección con evidencia auténtica, se recomienda capturar:
+
+1. Swagger UI (`/docs`) con el contrato de la API.
+2. Respuesta del endpoint de salud.
+3. Flujo de autenticación y consulta del perfil.
+4. Creación y consulta de una capa.
+5. Registro y búsqueda de elementos.
+6. Propuesta y aprobación/rechazo de una relación.
+7. Consulta de mapa y bitácora, cuando se demuestren desde una interfaz o cliente API.
+
+Inserta únicamente capturas reales de una ejecución del proyecto. Ejemplo de inclusión cuando existan:
 
 ```markdown
-![Health check](docs/screenshots/01-health.png)
+![Documentación Swagger](docs/screenshots/swagger.png)
 ```
-
-No se agregan imágenes ficticias ni marcadores que aparenten ser capturas reales.
-
-## 9. Documentación complementaria
-
-- `openapi_equipo.yaml`: contrato API consolidado, versión 1.2.0.
-- `arquitectura_equipo.md`: decisión y descripción de arquitectura.
-- `diagrama_clases_equipo.puml`: diagrama de clases.
-- `diagrama_er.puml`: diagrama entidad-relación.
-- `esquema_bd.sql`: esquema relacional.
-- `postman_collection.json`: colección de pruebas manuales.
-- `revision_sql.md`: revisión de diferencias/pendientes de implementación.
-- `matriz_trazabilidad.md`: trazabilidad requisito–historia–endpoint–prueba.
-- `retrospectiva_proyecto.md`: retrospectiva y consistencia problema–solución.
 
 ## 10. Limitaciones conocidas
 
-1. El contrato OpenAPI contiene más operaciones que las rutas observadas en `main.py`.
-2. No se incluye frontend, configuración de Nginx ni URL productiva verificable.
-3. No se encontró una suite automatizada de backend.
-4. El paquete documenta que la seguridad se dejó fuera de esta entrega CRUD; no hay que asumir autenticación/autorización funcional.
-5. La integración completa con PostgreSQL y la persistencia entre ejecuciones requieren validación en un entorno local real.
-6. La aplicación documentada corresponde a arquitectura empresarial; no debe afirmarse que implementa directamente una solución de acceso a educación STEM sin una conexión funcional demostrable.
+- La versión del repositorio revisada contiene backend y pruebas, pero no un frontend web verificable.
+- No se identificó un despliegue productivo ni una URL pública.
+- Las pruebas registradas validan las operaciones del backend; no acreditan usabilidad ni comportamiento de una interfaz no incluida.
+- El resultado de Pylint de Semana 9 conserva observaciones de convención, advertencia y refactorización, documentadas en la auditoría.
+- El sistema debe demostrarse con datos ficticios, de acuerdo con el SRS.
