@@ -1,0 +1,49 @@
+$kind: http-example
+name: Recurso o referencia solicitada inexistente.
+request:
+  url: "{{baseUrl}}/v1/propuestas-relacion/:propuestaId"
+  method: PATCH
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: propuestaId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: json
+    content: |-
+      {
+        "origenId": "b4016cf0-2170-524e-d042-9c98fd7bb1a3",
+        "tipoRelacionId": "ba8866dd-cb6e-6db0-3885-af7136f2eb0a",
+        "destinoId": "8d905eb4-2d7a-7260-7c22-66b87bb15edf",
+        "justificacion": "stringstring",
+        "versionBase": 631
+      }
+response:
+  statusCode: 404
+  statusText: Not Found
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "codigo": "string",
+        "mensaje": "string",
+        "detalles": [
+          {
+            "campo": "string",
+            "motivo": "string"
+          },
+          {
+            "campo": "string",
+            "motivo": "string"
+          }
+        ]
+      }
+order: 5000

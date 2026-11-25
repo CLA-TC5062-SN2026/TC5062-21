@@ -1,0 +1,4598 @@
+# S04_A2 — Contrato revisado en Parte 2; no implica backend implementado.
+openapi: 3.0.3
+info:
+  title: Plataforma de Arquitectura Empresarial — API del equipo 21
+  version: 1.1.0
+  description: |
+    Contrato spec-first de S04_A2, revisado en Parte 2. Autor: Jean Paul Lozano Gámiz (A01840432), con apoyo del agente.
+    Línea base: SRS_equipo v1.0 (1 de octubre de 2026), 19 RF y 56 criterios canónicos; diagramas revisados S04_A1. La implementación FastAPI/PostgreSQL y sus pruebas deberán derivarse de este contrato. No es una API implementada ni certifica pruebas de rendimiento, persistencia o interfaz.
+    Las contraseñas se almacenarán con hash resistente y sal, nunca en texto legible ni en registros. JWT autentica una sesión persistida: verificar firma, sid/sub, cuenta activa, revocación, expiración absoluta de 8 h e inactividad de 30 min; nunca autorizar solo con claims de rol. Los permisos se consultan en el servidor por solicitud. Una respuesta 403 no cambia datos; un cambio de rol, desactivación o restablecimiento revoca todas las sesiones de esa cuenta; el cierre revoca solo la sesión actual. HTTPS obligatorio en despliegue.
+    Todos los usuarios autenticados consultan datos activos. ADMINISTRADOR configura y administra; EDITOR escribe elementos en sus capas y propone relaciones desde un origen editable; CONSULTA no escribe. EDITOR sin capas solo consulta. Cuenta y Sesion conservan autoría histórica aunque la cuenta se desactive. El primer administrador y las cuatro capas base se provisionan durante instalación.
+    Toda escritura y su bitácora se confirman en la misma transacción. Comprobar restricciones bajo concurrencia (unicidad, último administrador, estructura bloqueada, propuesta pendiente/decisión única) con bloqueo y restricciones persistentes; los rechazos no dejan cambios parciales. La API devuelve 409 por conflicto y 422 por valores inválidos; 400 por sintaxis malformada. La relación y su bitácora solo cambian al aprobar una propuesta revalidada.
+    Convenciones: recursos en español, minúsculas/plural, /api/v1; JSON con propiedades camelCase, UUID y fecha ISO 8601/UTC. Enumeraciones estables mayúsculas, mensajes en español. Páginas de 25; elementos por nombre normalizado e ID (búsqueda distingue acentos), otras colecciones por ID salvo bitácora por fecha descendente e ID. GET no muta datos de negocio; puede actualizar actividad de sesión. PUT sustituye el subrecurso indicado; PATCH aplica solo propiedades enviadas. DELETE de sesión revoca y de campo retira lógicamente; no hay borrados físicos.
+    Las extensiones x-acceptance-criteria indican contribución a escenarios de aceptación, no que un endpoint aislado pruebe todo el Given-When-Then. RF-08-AC-3 exige además impedir la petición vacía en el frontend; RF-13/RF-14/RF-15 requieren representación e interacción; RF-19 exige pruebas entre sesiones y RNF-04 medición en navegador. Se conserva esta distinción para la tabla de Parte 4.
+    Se excluyen SSO, permisos de lectura por objeto, roles configurables, IA, importación/exportación masiva, borrado físico, migraciones de campos con datos y edición concurrente en tiempo real. Las entidades de dominio no se convierten todas en CRUD: relaciones y bitácora son lectura; su escritura pasa por los casos de uso permitidos.
+    Referencia normativa: https://spec.openapis.org/oas/v3.0.3
+    Revisión REST aplicada: POST procesa restablecimiento de credenciales; POST crea la preparación de demostración y GET consulta su estado sin crearla. Los 201 identifican un URI consultable mediante Location. Cuerpos JSON requieren Content-Type: application/json; otro tipo recibe 415. PATCH usa un documento parcial propio descrito por sus esquemas, no JSON Merge Patch ni JSON Patch: propiedades omitidas se conservan, null es inválido, y ElementoActualizar aplica entradas por campoId, con eliminar=true solo para un opcional. Accept-Patch: application/json anuncia ese formato en las consultas de recursos editables.
+    Las extensiones x-idempotency y x-retry-policy describen efectos y reintentos. No se promete idempotencia general para POST/PATCH; decisiones repetidas devuelven 409. Los PUT conservados sustituyen estado, asignaciones o definición completa; repetir la misma representación, sin otra modificación intermedia, no produce transición de negocio adicional. Cambios concurrentes siguen sujetos a las reglas y transacciones del dominio; esta versión no incluye control optimista con ETag/If-Match.
+  contact:
+    name: Jean Paul Lozano Gámiz — A01840432
+servers:
+- url: /api/v1
+  description: Ruta relativa detrás de Nginx en el mismo origen HTTPS del frontend; sin inventar un dominio de producción.
+security:
+- bearerAuth: []
+tags:
+- name: Sesiones
+  description: Autenticación local y cierre individual.
+- name: Cuentas
+  description: Roles fijos, credenciales y edición por capa.
+- name: Capas
+  description: Catálogo configurable de capas.
+- name: Tipos de elemento
+  description: Tipos y campos configurables.
+- name: Elementos
+  description: Captura, validación y baja lógica.
+- name: Tipos de relación
+  description: Compatibilidad dirigida de extremos.
+- name: Propuestas
+  description: Solicitudes pendientes, correcciones y decisión humana.
+- name: Relaciones
+  description: Lectura de vínculos validados; sin escritura directa.
+- name: Mapas
+  description: Vista derivada de vecinos directos, nunca relaciones inferidas.
+- name: Bitácora
+  description: Auditoría inmutable sin secretos.
+- name: Demostración
+  description: Muestra ficticia de carga repetible.
+x-sources:
+  srs: https://github.com/CLA-TC5062-SN2026/TC5062-21/blob/86dbddca2b3e55d62ab775bf2dc57717520b748c/S03_A1/SRS_equipo.md
+  arquitectura: https://github.com/CLA-TC5062-SN2026/TC5062-A01840432/tree/547956211c1cfa470898c6f0b2acc8cb6b26cdc2/S04_A1
+  norma: https://spec.openapis.org/oas/v3.0.3
+  contexto: 'Síntesis local SWEBOK v4.0a: separación de interfaces, consistencia estructural/comportamiento, persistencia,
+    concurrencia y evidencia de validación.'
+x-acceptance-criteria-catalog:
+- id: RF-01-AC-1
+  titulo: Acceso válido
+  criterio: Dado que existe una cuenta activa con credenciales válidas, cuando inicia sesión, entonces se crea una
+    sesión vinculada a esa cuenta y se informa su rol.
+- id: RF-01-AC-2
+  titulo: Acceso inválido o sin sesión
+  criterio: Dado que existe un elemento registrado, cuando se intenta iniciar sesión con una contraseña incorrecta
+    o solicitar directamente el elemento sin sesión válida, en ejecuciones separadas, entonces no se crea una sesión
+    ni se entregan datos protegidos.
+- id: RF-01-AC-3
+  titulo: Cierre individual
+  criterio: Dado que una cuenta tiene dos sesiones válidas A y B, cuando cierra A, entonces A deja de autorizar
+    solicitudes y B continúa autorizándolas.
+- id: RF-02-AC-1
+  titulo: Alta y asignación
+  criterio: Dado que hay un administrador y una capa Aplicaciones, cuando crea una cuenta de Editor y le asigna
+    esa capa, entonces la cuenta puede iniciar sesión y crear un elemento en Aplicaciones, pero no en Negocio.
+- id: RF-02-AC-2
+  titulo: Cambio de rol y sesiones
+  criterio: Dado que un editor tiene dos sesiones abiertas, cuando el administrador cambia su rol a Consulta, entonces
+    ambas sesiones anteriores se invalidan; al iniciar una nueva, puede leer pero no modificar datos.
+- id: RF-02-AC-3
+  titulo: Último administrador
+  criterio: Dado que solo existe un administrador activo, cuando se intenta desactivarlo o asignarle otro rol, entonces
+    se rechaza la operación y permanece un administrador activo.
+- id: RF-02-AC-4
+  titulo: Restablecimiento y desactivación
+  criterio: Dado que una cuenta tiene una sesión abierta, cuando un administrador restablece sus credenciales o
+    la desactiva, en ejecuciones separadas, entonces su sesión anterior se invalida; las credenciales anteriores
+    no autorizan acceso y la cuenta desactivada no puede iniciar sesión.
+- id: RF-03-AC-1
+  titulo: Capas iniciales y nueva capa
+  criterio: Dado que la instalación acaba de prepararse, cuando el administrador consulta las capas y agrega `Seguridad`,
+    entonces encuentra Negocio, Datos, Aplicaciones y Tecnología, y la nueva capa queda disponible sin reiniciar
+    la aplicación.
+- id: RF-03-AC-2
+  titulo: Nombre repetido
+  criterio: Dado que existe la capa `Seguridad`, cuando se intenta crear ` seguridad `, entonces se rechaza el duplicado
+    y permanece una sola capa con ese nombre normalizado.
+- id: RF-03-AC-3
+  titulo: Protección por rol
+  criterio: Dado que hay una sesión de Editor o Consulta, cuando solicita crear o renombrar una capa, entonces la
+    operación se rechaza y las capas permanecen sin cambios.
+- id: RF-04-AC-1
+  titulo: Asociación
+  criterio: Dado que existe la capa Negocio, cuando el administrador crea el tipo `Proyecto` en ella, entonces el
+    tipo aparece asociado a Negocio y puede elegirse al registrar un elemento.
+- id: RF-04-AC-2
+  titulo: Identidad al renombrar
+  criterio: Dado que un tipo tiene elementos, cuando el administrador renombra ese tipo, entonces conserva su identificador,
+    sus campos y la asociación de los elementos existentes.
+- id: RF-04-AC-3
+  titulo: Asociación inválida
+  criterio: Dado que no existe una capa de destino, cuando se intenta crear un tipo en ella, entonces se rechaza
+    la operación y no aparece un tipo huérfano.
+- id: RF-05-AC-1
+  titulo: Cuatro tipos
+  criterio: Dado que existe un tipo sin elementos, cuando el administrador guarda campos de texto, número, fecha
+    y selección con opciones A y B, entonces se recuperan los cuatro tipos, sus opciones y su obligatoriedad configurada.
+- id: RF-05-AC-2
+  titulo: Configuración usada
+  criterio: Dado que un tipo tiene al menos un elemento, cuando se intenta agregar un campo o cambiar el tipo u
+    obligatoriedad de otro, entonces se rechaza el cambio y se conservan la definición y los elementos.
+- id: RF-05-AC-3
+  titulo: Nombres y permisos
+  criterio: Dado que un tipo contiene el campo base `Nombre` y un campo `Descripción`, cuando el administrador intenta
+    agregar ` nombre ` o `DESCRIPCIÓN`, o un Editor intenta configurar un campo, entonces se rechaza cada operación
+    y la definición no cambia.
+- id: RF-06-AC-1
+  titulo: Registro
+  criterio: Dado que un Editor puede editar Negocio y existe el tipo Proyecto, cuando registra `Proyecto Alfa` con
+    valores válidos, entonces el sistema asigna un identificador único y recupera los valores y el tipo guardados.
+- id: RF-06-AC-2
+  titulo: Modificación
+  criterio: Dado que existe un elemento con descripción `Inicial`, cuando un editor autorizado guarda `Actualizada`,
+    entonces el mismo identificador conserva el nuevo valor y los demás campos no cambian.
+- id: RF-06-AC-3
+  titulo: Rechazo por permisos
+  criterio: Dado que hay un Editor sin permiso sobre Negocio y una cuenta de Consulta, cuando cada uno intenta modificar
+    un elemento de esa capa, entonces se rechazan ambos intentos y se conservan los valores originales.
+- id: RF-07-AC-1
+  titulo: Obligatorios
+  criterio: Dado que un tipo exige Nombre y Descripción, cuando se intenta crear un elemento con cualquiera de esos
+    campos vacío o compuesto solo por espacios, entonces se identifica el campo inválido y no se crea el elemento.
+- id: RF-07-AC-2
+  titulo: Tipos incorrectos
+  criterio: Dado que un tipo tiene número, fecha y selección entre A y B, cuando se intenta guardar `abc` como número,
+    30 de febrero como fecha o C como opción, en pruebas separadas, entonces se identifica el campo incorrecto y
+    no se guarda ningún cambio de esa operación.
+- id: RF-07-AC-3
+  titulo: Campo opcional
+  criterio: Dado que un campo está configurado como opcional, cuando se guarda un elemento sin valor en ese campo
+    y los obligatorios son válidos, entonces el elemento se guarda y el campo opcional permanece vacío.
+- id: RF-08-AC-1
+  titulo: Listado paginado
+  criterio: Dado que existen 30 elementos activos, cuando se abre el listado sin filtros, entonces la primera página
+    contiene 25 y la segunda 5, ordenados por Nombre y luego por identificador.
+- id: RF-08-AC-2
+  titulo: Búsqueda parcial y duplicados
+  criterio: Dado que existen dos elementos llamados `Proyecto Alfa` con IDs distintos y uno llamado `Proyecto Beta`,
+    cuando se busca ` alfa `, entonces aparecen los dos primeros con identificador, nombre, tipo y capa, y cada
+    selección abre su registro correspondiente.
+- id: RF-08-AC-3
+  titulo: Sin coincidencias o texto vacío
+  criterio: Dado que hay un listado disponible, cuando se busca un nombre inexistente o un texto vacío, en pruebas
+    separadas, entonces el primer caso informa cero resultados y el segundo pide escribir un nombre sin ejecutar
+    la búsqueda.
+- id: RF-09-AC-1
+  titulo: Definición dirigida
+  criterio: Dado que existen los tipos Proyecto y Capacidad, cuando el administrador crea `mejora` con origen Proyecto
+    y destino Capacidad, entonces esa definición aparece al proponer Proyecto → Capacidad y no se ofrece para Capacidad
+    → Proyecto.
+- id: RF-09-AC-2
+  titulo: Extremos inválidos
+  criterio: Dado que no existe un tipo de elemento destino indicado, cuando se intenta guardar un tipo de relación
+    que lo referencia, entonces se rechaza la definición y no se guarda una referencia inválida.
+- id: RF-09-AC-3
+  titulo: Protección por rol
+  criterio: Dado que hay una sesión de Editor o Consulta, cuando solicita crear o renombrar un tipo de relación,
+    entonces se rechaza la operación y el catálogo permanece igual.
+- id: RF-10-AC-1
+  titulo: Propuesta válida
+  criterio: Dado que existen un Proyecto, una Capacidad y el tipo Proyecto → Capacidad `mejora`, cuando un editor
+    autorizado propone el vínculo con una justificación válida, entonces queda una propuesta pendiente con origen,
+    tipo, destino, justificación y autor, y el mapa ordinario aún no muestra ese vínculo.
+- id: RF-10-AC-2
+  titulo: Reglas de extremos
+  criterio: Dado que existe el tipo Proyecto → Capacidad, cuando se propone un destino inexistente, un tipo de destino
+    incompatible o un elemento consigo mismo, en pruebas separadas, entonces cada intento se rechaza sin crear propuesta
+    ni vínculo.
+- id: RF-10-AC-3
+  titulo: Duplicado y justificación
+  criterio: Dado que ya existe un vínculo validado no retirado o una propuesta pendiente con la misma combinación
+    de origen, tipo y destino, cuando se intenta repetirla, o se envía una justificación fuera de 10 a 500 caracteres,
+    entonces se rechaza la nueva propuesta y se conserva el estado previo.
+- id: RF-11-AC-1
+  titulo: Aprobar alta
+  criterio: Dado que existe una propuesta de alta pendiente y sus dos elementos siguen activos, cuando el administrador
+    la aprueba, entonces se crea una relación validada vigente, se registra decisor y fecha y el mapa ordinario
+    puede mostrarla.
+- id: RF-11-AC-2
+  titulo: Rechazar alta
+  criterio: Dado que existe una propuesta de alta pendiente, cuando el administrador la rechaza, entonces queda
+    registrada la decisión y no se crea una relación validada.
+- id: RF-11-AC-3
+  titulo: Aprobación no autorizada
+  criterio: Dado que existe una propuesta pendiente, cuando un Editor o usuario de Consulta intenta aprobarla mediante
+    una petición directa, entonces la decisión se rechaza y la propuesta sigue pendiente.
+- id: RF-12-AC-1
+  titulo: Cambio pendiente
+  criterio: Dado que existe una relación vigente R de Proyecto → Capacidad, cuando un editor autorizado propone
+    cambiar su justificación o sus extremos a valores válidos, entonces la propuesta queda pendiente y R conserva
+    su identificador y valores vigentes en las consultas ordinarias.
+- id: RF-12-AC-2
+  titulo: Aprobar o rechazar cambio
+  criterio: Dado que existe una propuesta de cambio de R, cuando el administrador la aprueba, entonces R conserva
+    su identificador y adopta los nuevos valores; cuando la rechaza en una ejecución independiente, entonces R conserva
+    exactamente su versión anterior.
+- id: RF-12-AC-3
+  titulo: Propuesta simultánea y retiro
+  criterio: Dado que R tiene una propuesta de cambio pendiente, cuando se intenta registrar otra propuesta para
+    R, entonces se rechaza. Si la propuesta pendiente solicita retirar R y se aprueba, R queda `retirada`, se conserva
+    para historial y desaparece del mapa ordinario.
+- id: RF-12-AC-4
+  titulo: Revalidación antes de aplicar
+  criterio: Dado que una propuesta pendiente cambia el origen de R y su nuevo origen fue dado de baja antes de la
+    decisión, cuando el administrador intenta aprobarla, entonces la aprobación se rechaza, la propuesta sigue pendiente
+    para corrección o rechazo y R conserva sus valores vigentes. Se aplica la misma regla si la propuesta produciría
+    un duplicado o extremos incompatibles.
+- id: RF-13-AC-1
+  titulo: Vista de conexiones
+  criterio: Dado que E1 tiene vínculos validados vigentes con E2 y E3, cuando se abre el mapa de E1 sin filtros,
+    entonces se muestran E1, E2, E3 y esos dos vínculos con su dirección, sin inventar otros.
+- id: RF-13-AC-2
+  titulo: Sin conexiones y recorrido
+  criterio: Dado que E4 no tiene relaciones vigentes y existe una cadena E1 → E2 → E3, cuando se explora E4, entonces
+    se muestra E4 sin aristas; cuando se explora E1 y después E2, entonces se puede ver E2 → E3 sin atribuir una
+    relación directa E1 → E3.
+- id: RF-13-AC-3
+  titulo: Límite visible
+  criterio: Dado que un elemento tiene más de 99 vecinos directos vigentes, cuando se abre su mapa, entonces se
+    muestran como máximo 100 nodos contando el origen, en orden estable por identificador, y se informa que la vista
+    fue truncada.
+- id: RF-14-AC-1
+  titulo: Cruce por capa
+  criterio: Dado que E1 se relaciona con elementos de Negocio y Aplicaciones, cuando se selecciona Aplicaciones
+    como capa de destino, entonces permanecen E1 y los vecinos directos de Aplicaciones con sus vínculos; los demás
+    se ocultan sin borrar datos.
+- id: RF-14-AC-2
+  titulo: Combinación de filtros
+  criterio: Dado que el mapa contiene varios tipos de elemento y relación, cuando se aplican simultáneamente filtros
+    de capa, tipo de elemento y tipo de relación, entonces se muestran solo vecinos y vínculos que cumplen todos;
+    E1 permanece como contexto aunque no cumpla el filtro.
+- id: RF-14-AC-3
+  titulo: Quitar filtros
+  criterio: Dado que hay filtros activos y no cambiaron los datos ni el elemento de partida, cuando se quitan, entonces
+    reaparece la vista ordinaria anterior al filtrado con sus vínculos intactos.
+- id: RF-15-AC-1
+  titulo: Detalle de elemento
+  criterio: Dado que existe un elemento con valores configurados, cuando se selecciona su resultado de búsqueda
+    o su nodo, entonces se muestran su identificador, capa, tipo, campos y valores guardados.
+- id: RF-15-AC-2
+  titulo: Detalle de relación
+  criterio: Dado que existe un vínculo validado de A hacia B, cuando se selecciona su arista o se abre desde el
+    detalle de A, entonces se muestran origen, tipo, destino, justificación, estado, autor y fechas, y se puede
+    abrir la información de ambos extremos.
+- id: RF-16-AC-1
+  titulo: Baja conservadora
+  criterio: Dado que E está activo y tiene relaciones, cuando un editor autorizado lo da de baja, entonces E conserva
+    campos, relaciones e historial, y deja de aparecer en el listado y mapa ordinarios.
+- id: RF-16-AC-2
+  titulo: Consulta histórica y reactivación
+  criterio: Dado que E está de baja, cuando un usuario activa `Incluir dados de baja`, entonces puede consultarlo
+    con esa etiqueta; cuando un editor autorizado lo reactiva, entonces E vuelve a los resultados ordinarios.
+- id: RF-16-AC-3
+  titulo: Extremo dado de baja
+  criterio: Dado que E está de baja, cuando se intenta usarlo como origen o destino de una nueva propuesta, entonces
+    se rechaza la propuesta y no se modifica ninguna relación existente.
+- id: RF-17-AC-1
+  titulo: Carga completa
+  criterio: Dado que la instalación no contiene la muestra, cuando el administrador ejecuta la carga, entonces existen
+    registros ficticios de objetivos, proyectos, capacidades, procesos y aplicaciones, una capa adicional y relaciones
+    entre al menos dos capas.
+- id: RF-17-AC-2
+  titulo: Carga repetida
+  criterio: Dado que la muestra ya fue cargada, cuando se ejecuta otra vez, entonces no se duplican capas, elementos
+    ni relaciones y se informa que la muestra ya existe.
+- id: RF-18-AC-1
+  titulo: Autoría
+  criterio: Dado que Ana crea un elemento y Luis lo modifica después, cuando se consulta el detalle, entonces Ana
+    permanece como creadora con su fecha y Luis aparece como último modificador con la fecha del cambio.
+- id: RF-18-AC-2
+  titulo: Cambio auditable
+  criterio: Dado que un elemento tiene `Criticidad = Media`, cuando se actualiza a `Alta`, entonces la bitácora
+    registra actor, fecha, objeto, acción, valor anterior `Media` y valor nuevo `Alta`.
+- id: RF-18-AC-3
+  titulo: Protección y secretos
+  criterio: Dado que existe una entrada y ocurre un restablecimiento de contraseña, cuando cualquier usuario intenta
+    editar la entrada o consulta el evento de restablecimiento, entonces no puede alterar la bitácora y esta no
+    revela la contraseña anterior ni la nueva.
+- id: RF-19-AC-1
+  titulo: Configuración y registros
+  criterio: Dado que se guardaron una capa, un tipo con campos, dos elementos y un vínculo validado, cuando se abre
+    una sesión nueva sin estado local anterior, entonces se recuperan sus identificadores, valores y asociaciones
+    sin volver a capturarlos.
+- id: RF-19-AC-2
+  titulo: Decisiones y permisos
+  criterio: Dado que se guardaron una asignación de capa y una decisión sobre propuesta, cuando se inicia una sesión
+    nueva, entonces se recuperan la asignación, el estado de la propuesta, el decisor y la fecha.
+x-nonfunctional-requirements:
+- RNF-01
+- RNF-02
+- RNF-03
+- RNF-04
+- RNF-05
+- RNF-06
+- RNF-07
+- RNF-08
+- RNF-09
+- RNF-10
+paths:
+  /sesiones:
+    post:
+      tags:
+      - Sesiones
+      operationId: crearSesion
+      summary: Iniciar sesión
+      description: Credenciales locales de una cuenta activa. Error genérico idéntico para usuario inexistente,
+        contraseña incorrecta o cuenta inactiva. No autorregistro. JWT y metadatos no deben almacenarse en caché.
+      x-acceptance-criteria:
+      - RF-01-AC-1
+      - RF-01-AC-2
+      - RF-02-AC-1
+      - RF-02-AC-2
+      - RF-02-AC-4
+      x-roles: []
+      responses:
+        '201':
+          description: Iniciar sesión. Recurso creado y persistido.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Location:
+              description: 'Location: /api/v1/sesiones/actual, consultable con el JWT devuelto. Es una referencia
+                a la sesión recién creada, relativa al actor autenticado.'
+              schema:
+                type: string
+                format: uri-reference
+              x-resource-path: /sesiones/actual
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SesionCreada'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SesionCrear'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /sesiones/actual:
+    get:
+      tags:
+      - Sesiones
+      operationId: consultarSesionActual
+      summary: Consultar la sesión actual
+      description: Devuelve rol y asignaciones vigentes de la cuenta y metadatos de sesión persistida.
+      x-acceptance-criteria:
+      - RF-01-AC-1
+      - RF-01-AC-3
+      - RF-02-AC-2
+      - RF-02-AC-4
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar la sesión actual. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sesion'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    delete:
+      tags:
+      - Sesiones
+      operationId: cerrarSesionActual
+      summary: Cerrar solo la sesión actual
+      description: 'Revoca sid de este JWT; otras sesiones siguen vigentes. No borra historial. Efecto idempotente:
+        después de cerrar, repetir con el token revocado recibe 401 sin otro cambio.'
+      x-acceptance-criteria:
+      - RF-01-AC-3
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Cerrar solo la sesión actual. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SesionCerrada'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      x-idempotency: Idempotente respecto al efecto de revocar o retirar; no borra físicamente y una repetición
+        no crea otra transición. Puede devolver 200, 401 o 409 según sesión y estado actual.
+      x-retry-policy: Si se perdió respuesta del cierre, un 401 indica que el token ya no autoriza; no implica un
+        segundo cierre sobre otra sesión. En retiro de campo, consultar su estado con GET ante duda.
+  /cuentas:
+    get:
+      tags:
+      - Cuentas
+      operationId: listarCuentas
+      summary: Listar cuentas
+      description: Solo Administrador. Incluye cuentas activas e inactivas, sin contraseña ni hash.
+      x-acceptance-criteria:
+      - RF-02-AC-1
+      - RF-02-AC-2
+      - RF-02-AC-3
+      - RF-02-AC-4
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Listar cuentas. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaCuentas'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - $ref: '#/components/parameters/Pagina'
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    post:
+      tags:
+      - Cuentas
+      operationId: crearCuenta
+      summary: Crear cuenta activa
+      description: Solo Administrador. Usuario único; asignaciones se validan y guardan atómicamente con la cuenta.
+        La contraseña enviada inicialmente no se recupera por GET. No permite roles configurables.
+      x-acceptance-criteria:
+      - RF-02-AC-1
+      - RF-18-AC-3
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '201':
+          description: Crear cuenta activa. Recurso creado y persistido.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Location:
+              description: 'Location: /api/v1/cuentas/{id}; id proviene de Cuenta.id del cuerpo.'
+              schema:
+                type: string
+                format: uri-reference
+              x-resource-path: /cuentas/{cuentaId}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cuenta'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CuentaCrear'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /cuentas/{cuentaId}:
+    get:
+      tags:
+      - Cuentas
+      operationId: consultarCuenta
+      summary: Consultar una cuenta
+      description: Solo Administrador; conserva ID y asignaciones entre sesiones, incluso cuentas inactivas.
+      x-acceptance-criteria:
+      - RF-02-AC-1
+      - RF-02-AC-2
+      - RF-02-AC-3
+      - RF-02-AC-4
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Consultar una cuenta. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Accept-Patch:
+              description: Formato aceptado para el documento parcial propio; la semántica está definida por los
+                esquemas de este contrato.
+              schema:
+                type: string
+                enum:
+                - application/json
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cuenta'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: cuentaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    patch:
+      tags:
+      - Cuentas
+      operationId: actualizarCuenta
+      summary: Cambiar rol o activación
+      description: 'Solo Administrador. Cuenta activa de último Administrador no puede desactivarse ni cambiar a
+        otro rol: 409 ULTIMO_ADMINISTRADOR. Cambio efectivo de rol o desactivación revoca todas las sesiones; la
+        reactivación no restaura sesiones anteriores. Los permisos nuevos rigen en el siguiente inicio. Registra
+        evento sin secretos. Omisiones conservan el valor vigente; null y propiedades desconocidas producen 422.
+        El documento completo se aplica atómicamente.'
+      x-acceptance-criteria:
+      - RF-02-AC-2
+      - RF-02-AC-3
+      - RF-02-AC-4
+      - RF-18-AC-3
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Cambiar rol o activación. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cuenta'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: cuentaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CuentaActualizar'
+        description: 'Documento parcial propio en application/json definido por el esquema: omisiones conservan
+          valores; null no está permitido. No es application/merge-patch+json ni application/json-patch+json.'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /cuentas/{cuentaId}/capas-editables:
+    get:
+      tags:
+      - Cuentas
+      operationId: consultarCapasEditables
+      summary: Consultar asignaciones de edición
+      description: Solo Administrador. No equivale a permisos de lectura; una cuenta autenticada lee los elementos
+        activos de todas las capas.
+      x-acceptance-criteria:
+      - RF-02-AC-1
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Consultar asignaciones de edición. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asignaciones'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: cuentaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    put:
+      tags:
+      - Cuentas
+      operationId: sustituirCapasEditables
+      summary: Sustituir capas editables
+      description: Solo Administrador sobre cuenta EDITOR. Asignación completa, [] significa sin capas. Cada capa
+        debe existir (422). Repetir la misma lista no crea asignaciones ni eventos de cambio adicionales. La autorización
+        se consulta en servidor en cada escritura.
+      x-acceptance-criteria:
+      - RF-02-AC-1
+      - RF-06-AC-3
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Sustituir capas editables. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asignaciones'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: cuentaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Asignaciones'
+      x-idempotency: 'Idempotente al repetir la misma representación sin otra escritura intermedia: conserva identidad
+        y no genera otra transición de negocio. Las respuestas pueden variar.'
+      x-retry-policy: Puede repetirse tras fallo de transporte con sesión válida; un conflicto de estado requiere
+        consultar/revisar antes de cambiar la solicitud.
+  /cuentas/{cuentaId}/credenciales:
+    post:
+      tags:
+      - Cuentas
+      operationId: restablecerCredenciales
+      summary: Restablecer contraseña y revocar sesiones
+      description: 'Solo Administrador. POST procesa un restablecimiento: establece la contraseña recibida y revoca
+        todas las sesiones actuales de la cuenta en la misma transacción. No promete idempotencia ni admite reintento
+        automático: repetirlo representa otro restablecimiento y puede revocar sesiones iniciadas después. Nunca
+        devuelve contraseña/hash ni los guarda en bitácora. Las credenciales anteriores dejan de autenticar; no
+        hay GET de credenciales. Devuelve 200 porque confirma el resultado del procesamiento, sin crear un recurso
+        de credenciales consultable.'
+      x-acceptance-criteria:
+      - RF-02-AC-4
+      - RF-18-AC-3
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Restablecer contraseña y revocar sesiones. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultadoCredenciales'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: cuentaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credenciales'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /capas:
+    get:
+      tags:
+      - Capas
+      operationId: listarCapas
+      summary: Listar capas
+      description: Incluye las cuatro capas iniciales Negocio, Datos, Aplicaciones y Tecnología y las nuevas sin
+        reinicio.
+      x-acceptance-criteria:
+      - RF-03-AC-1
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Listar capas. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaCapas'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - $ref: '#/components/parameters/Pagina'
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    post:
+      tags:
+      - Capas
+      operationId: crearCapa
+      summary: Crear capa
+      description: Solo Administrador. Nombre único globalmente sin mayúsculas/espacios extremos; 409 NOMBRE_DUPLICADO.
+        Configuración persistida, sin cambiar código o esquema.
+      x-acceptance-criteria:
+      - RF-03-AC-1
+      - RF-03-AC-2
+      - RF-03-AC-3
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '201':
+          description: Crear capa. Recurso creado y persistido.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Location:
+              description: 'Location: /api/v1/capas/{id}; id proviene de Capa.id.'
+              schema:
+                type: string
+                format: uri-reference
+              x-resource-path: /capas/{capaId}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Capa'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapaCrear'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /capas/{capaId}:
+    get:
+      tags:
+      - Capas
+      operationId: consultarCapa
+      summary: Consultar capa
+      description: Consulta de una definición conservando identidad.
+      x-acceptance-criteria:
+      - RF-03-AC-1
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar capa. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Accept-Patch:
+              description: Formato aceptado para el documento parcial propio; la semántica está definida por los
+                esquemas de este contrato.
+              schema:
+                type: string
+                enum:
+                - application/json
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Capa'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: capaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    patch:
+      tags:
+      - Capas
+      operationId: actualizarCapa
+      summary: Renombrar capa
+      description: Solo Administrador; mantiene ID, tipos y asignaciones. No admite nombre normalizado de otra capa.
+        Omisiones conservan el valor vigente; null y propiedades desconocidas producen 422. El documento completo
+        se aplica atómicamente.
+      x-acceptance-criteria:
+      - RF-03-AC-2
+      - RF-03-AC-3
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Renombrar capa. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Capa'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: capaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapaActualizar'
+        description: 'Documento parcial propio en application/json definido por el esquema: omisiones conservan
+          valores; null no está permitido. No es application/merge-patch+json ni application/json-patch+json.'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /tipos-elemento:
+    get:
+      tags:
+      - Tipos de elemento
+      operationId: listarTiposElemento
+      summary: Listar tipos de elemento
+      description: Filtra por capaId si se envía. Referencia inexistente del filtro produce 422.
+      x-acceptance-criteria:
+      - RF-04-AC-1
+      - RF-04-AC-2
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Listar tipos de elemento. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaTiposElemento'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - $ref: '#/components/parameters/Pagina'
+      - name: capa-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Tipos de esta capa.
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    post:
+      tags:
+      - Tipos de elemento
+      operationId: crearTipoElemento
+      summary: Crear tipo en una capa
+      description: 'Solo Administrador. Capa inexistente en cuerpo: 422. Nombre único dentro de capa; crea campo
+        Nombre texto obligatorio e inalterable. Sin migración física por definición.'
+      x-acceptance-criteria:
+      - RF-04-AC-1
+      - RF-04-AC-3
+      - RF-05-AC-3
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '201':
+          description: Crear tipo en una capa. Recurso creado y persistido.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Location:
+              description: 'Location: /api/v1/tipos-elemento/{id}; id proviene de TipoElemento.id.'
+              schema:
+                type: string
+                format: uri-reference
+              x-resource-path: /tipos-elemento/{tipoElementoId}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoElemento'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TipoElementoCrear'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /tipos-elemento/{tipoElementoId}:
+    get:
+      tags:
+      - Tipos de elemento
+      operationId: consultarTipoElemento
+      summary: Consultar tipo de elemento
+      description: Recupera pertenencia y si su estructura de campos está bloqueada.
+      x-acceptance-criteria:
+      - RF-04-AC-1
+      - RF-04-AC-2
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar tipo de elemento. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Accept-Patch:
+              description: Formato aceptado para el documento parcial propio; la semántica está definida por los
+                esquemas de este contrato.
+              schema:
+                type: string
+                enum:
+                - application/json
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoElemento'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: tipoElementoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    patch:
+      tags:
+      - Tipos de elemento
+      operationId: actualizarTipoElemento
+      summary: Renombrar tipo de elemento
+      description: Solo Administrador. Renombrar es permitido con elementos; no cambia ID, capa, campos ni asociaciones.
+        409 si otro tipo de la capa tiene ese nombre normalizado. Omisiones conservan el valor vigente; null y propiedades
+        desconocidas producen 422. El documento completo se aplica atómicamente.
+      x-acceptance-criteria:
+      - RF-04-AC-2
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Renombrar tipo de elemento. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoElemento'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: tipoElementoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TipoElementoActualizar'
+        description: 'Documento parcial propio en application/json definido por el esquema: omisiones conservan
+          valores; null no está permitido. No es application/merge-patch+json ni application/json-patch+json.'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /tipos-elemento/{tipoElementoId}/campos:
+    get:
+      tags:
+      - Tipos de elemento
+      operationId: listarCampos
+      summary: Consultar definición de campos
+      description: Incluye Nombre. Por defecto excluye retirados; incluir-retirados permite recuperar historial
+        antes de captura. Nombre único considera también definiciones retiradas conservadas.
+      x-acceptance-criteria:
+      - RF-05-AC-1
+      - RF-05-AC-2
+      - RF-05-AC-3
+      - RF-07-AC-1
+      - RF-07-AC-2
+      - RF-07-AC-3
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar definición de campos. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaCampos'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - $ref: '#/components/parameters/Pagina'
+      - name: tipoElementoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: incluir-retirados
+        in: query
+        schema:
+          type: boolean
+          default: false
+        description: Incluye definiciones retiradas lógicamente.
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    post:
+      tags:
+      - Tipos de elemento
+      operationId: crearCampo
+      summary: Agregar campo configurable
+      description: Solo Administrador, tipo sin elementos. 409 ESTRUCTURA_BLOQUEADA si existe cualquier elemento,
+        incluso de baja; 409 NOMBRE_DUPLICADO para nombre normalizado ya definido, incluido Nombre. SELECCION requiere
+        opciones; todo el campo y sus opciones se guardan juntos.
+      x-acceptance-criteria:
+      - RF-05-AC-1
+      - RF-05-AC-2
+      - RF-05-AC-3
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '201':
+          description: Agregar campo configurable. Recurso creado y persistido.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Location:
+              description: 'Location: /api/v1/tipos-elemento/{tipoElementoId}/campos/{id}; el tipo es el de la ruta
+                y el id es Campo.id.'
+              schema:
+                type: string
+                format: uri-reference
+              x-resource-path: /tipos-elemento/{tipoElementoId}/campos/{campoId}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campo'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: tipoElementoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampoGuardar'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /tipos-elemento/{tipoElementoId}/campos/{campoId}:
+    get:
+      tags:
+      - Tipos de elemento
+      operationId: consultarCampo
+      summary: Consultar campo
+      description: Debe pertenecer al tipo de la ruta; incluye definición retirada etiquetada.
+      x-acceptance-criteria:
+      - RF-05-AC-1
+      - RF-05-AC-2
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar campo. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campo'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: tipoElementoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: campoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    put:
+      tags:
+      - Tipos de elemento
+      operationId: sustituirCampo
+      summary: Sustituir definición de campo
+      description: Solo Administrador y tipo sin elementos, definición no retirada y distinta de Nombre. Mantiene
+        campoId. Sustituye nombre, tipo, obligatoriedad y opciones; conserva opciones anteriores en historial sin
+        borrado físico, nuevas opciones reciben ID. Repetición idéntica reutiliza los mismos IDs activos de opciones.
+        409 ESTRUCTURA_BLOQUEADA, CAMPO_BASE_INALTERABLE, CAMPO_RETIRADO o NOMBRE_DUPLICADO.
+      x-acceptance-criteria:
+      - RF-05-AC-1
+      - RF-05-AC-2
+      - RF-05-AC-3
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Sustituir definición de campo. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campo'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: tipoElementoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: campoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampoGuardar'
+      x-idempotency: 'Idempotente al repetir la misma representación sin otra escritura intermedia: conserva identidad
+        y no genera otra transición de negocio. Las respuestas pueden variar.'
+      x-retry-policy: Puede repetirse tras fallo de transporte con sesión válida; un conflicto de estado requiere
+        consultar/revisar antes de cambiar la solicitud.
+    delete:
+      tags:
+      - Tipos de elemento
+      operationId: retirarCampo
+      summary: Retirar campo sin eliminarlo físicamente
+      description: Solo Administrador, tipo sin elementos y campo distinto de Nombre. Marca retirado y conserva
+        definición/opciones/historial; deja de usarse en captura. Repetir sobre uno ya retirado devuelve su mismo
+        estado 200 sin nuevo evento, si el tipo sigue sin elementos. 409 ESTRUCTURA_BLOQUEADA o CAMPO_BASE_INALTERABLE.
+        No se elimina Nombre ni ningún dato capturado.
+      x-acceptance-criteria:
+      - RF-05-AC-2
+      - RF-05-AC-3
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Retirar campo sin eliminarlo físicamente. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campo'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: tipoElementoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: campoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-idempotency: Idempotente respecto al efecto de revocar o retirar; no borra físicamente y una repetición
+        no crea otra transición. Puede devolver 200, 401 o 409 según sesión y estado actual.
+      x-retry-policy: Si se perdió respuesta del cierre, un 401 indica que el token ya no autoriza; no implica un
+        segundo cierre sobre otra sesión. En retiro de campo, consultar su estado con GET ante duda.
+  /elementos:
+    get:
+      tags:
+      - Elementos
+      operationId: listarElementos
+      summary: Listar o buscar elementos
+      description: '25 por página, orden nombre recortado/ignorando mayúsculas/conservando acentos y luego UUID.
+        Nombres repetidos permanecen como registros independientes. Sin nombre es listado; nombre presente vacío
+        o blanco: 422 y el frontend debe pedir texto antes de enviar. Sin coincidencias devuelve 200 items=[], total=0.
+        Elementos de baja solo con incluir-bajas=true; filtros intersectan.'
+      x-acceptance-criteria:
+      - RF-08-AC-1
+      - RF-08-AC-2
+      - RF-08-AC-3
+      - RF-16-AC-1
+      - RF-16-AC-2
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Listar o buscar elementos. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaElementos'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - $ref: '#/components/parameters/Pagina'
+      - $ref: '#/components/parameters/NombreBusqueda'
+      - name: capa-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Filtra por capa existente.
+      - name: tipo-elemento-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Filtra por tipo existente; incompatible con capa-id produce 422.
+      - $ref: '#/components/parameters/IncluirBajas'
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    post:
+      tags:
+      - Elementos
+      operationId: crearElemento
+      summary: Crear elemento con valores válidos
+      description: 'Administrador o Editor con capa del tipo asignada; Consulta o Editor sin capa: 403. Comprueba
+        todos los obligatorios, tipos, fecha real, opción perteneciente, campos del tipo y ausencia de campoId repetido.
+        Rechazo 422 detalla campo y no guarda nada. Permite nombres repetidos. Genera ID inmutable, autoría y bitácora.'
+      x-acceptance-criteria:
+      - RF-02-AC-1
+      - RF-06-AC-1
+      - RF-06-AC-3
+      - RF-07-AC-1
+      - RF-07-AC-2
+      - RF-07-AC-3
+      - RF-18-AC-1
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      responses:
+        '201':
+          description: Crear elemento con valores válidos. Recurso creado y persistido.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Location:
+              description: 'Location: /api/v1/elementos/{id}; id proviene de Elemento.id.'
+              schema:
+                type: string
+                format: uri-reference
+              x-resource-path: /elementos/{elementoId}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Elemento'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ElementoCrear'
+            example:
+              tipoElementoId: 00000000-0000-4000-8000-000000000001
+              valores:
+              - campoId: 00000000-0000-4000-8000-000000000002
+                tipoDato: TEXTO
+                valor: Proyecto ficticio Alfa
+              - campoId: 00000000-0000-4000-8000-000000000004
+                tipoDato: NUMERO
+                valor: 42.5
+              - campoId: 00000000-0000-4000-8000-000000000005
+                tipoDato: FECHA
+                valor: '2026-10-07'
+              - campoId: 00000000-0000-4000-8000-000000000006
+                tipoDato: SELECCION
+                opcionId: 00000000-0000-4000-8000-000000000007
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /elementos/{elementoId}:
+    get:
+      tags:
+      - Elementos
+      operationId: consultarElemento
+      summary: Consultar detalle de elemento
+      description: 'ID, nombre, capa, tipo, todos los valores presentes y autoría. Opcionales vacíos no tienen objeto
+        ValorCampo. De baja sin incluir-bajas=true: 404; con true, activo=false visible para cualquier sesión válida.'
+      x-acceptance-criteria:
+      - RF-06-AC-1
+      - RF-06-AC-2
+      - RF-08-AC-2
+      - RF-15-AC-1
+      - RF-16-AC-1
+      - RF-16-AC-2
+      - RF-18-AC-1
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar detalle de elemento. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Accept-Patch:
+              description: Formato aceptado para el documento parcial propio; la semántica está definida por los
+                esquemas de este contrato.
+              schema:
+                type: string
+                enum:
+                - application/json
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Elemento'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: elementoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/IncluirBajas'
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    patch:
+      tags:
+      - Elementos
+      operationId: actualizarElemento
+      summary: Modificar valores del elemento
+      description: 'Administrador o Editor de su capa. Solo activo; de baja: 409 ELEMENTO_INACTIVO, reactivar primero.
+        Cada valor enviado sustituye el de ese campo; eliminar=true vacía opcional. No cambia campos omitidos, ID
+        ni tipo. Valida conjunto final y guarda valores, último modificador y bitácora atómicamente; cualquier error
+        conserva el conjunto previo. Omisiones conservan el valor vigente; null y propiedades desconocidas producen
+        422. El documento completo se aplica atómicamente.'
+      x-acceptance-criteria:
+      - RF-06-AC-2
+      - RF-06-AC-3
+      - RF-07-AC-1
+      - RF-07-AC-2
+      - RF-07-AC-3
+      - RF-18-AC-1
+      - RF-18-AC-2
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      responses:
+        '200':
+          description: Modificar valores del elemento. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Elemento'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: elementoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ElementoActualizar'
+        description: 'Documento parcial propio en application/json definido por el esquema: omisiones conservan
+          valores; null no está permitido. No es application/merge-patch+json ni application/json-patch+json.'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /elementos/{elementoId}/estado:
+    put:
+      tags:
+      - Elementos
+      operationId: establecerEstadoElemento
+      summary: Dar de baja o reactivar elemento
+      description: Administrador o Editor de su capa. Baja conserva campos y relaciones, las oculta de vistas ordinarias
+        y prohíbe nuevas propuestas con ese extremo. Reactivar no recrea registros ni restaura vínculos retirados;
+        vínculos aún vigentes con ambos extremos activos vuelven a ser visibles. Repetir estado no genera otro cambio.
+      x-acceptance-criteria:
+      - RF-16-AC-1
+      - RF-16-AC-2
+      - RF-16-AC-3
+      - RF-18-AC-2
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      responses:
+        '200':
+          description: Dar de baja o reactivar elemento. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Elemento'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: elementoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EstadoElemento'
+      x-idempotency: 'Idempotente al repetir la misma representación sin otra escritura intermedia: conserva identidad
+        y no genera otra transición de negocio. Las respuestas pueden variar.'
+      x-retry-policy: Puede repetirse tras fallo de transporte con sesión válida; un conflicto de estado requiere
+        consultar/revisar antes de cambiar la solicitud.
+  /tipos-relacion:
+    get:
+      tags:
+      - Tipos de relación
+      operationId: listarTiposRelacion
+      summary: Listar tipos de relación dirigidos
+      description: 'Filtros tipo-origen-id y tipo-destino-id por intersección permiten ofrecer solo la dirección
+        compatible. Tipos inexistentes en filtros: 422.'
+      x-acceptance-criteria:
+      - RF-09-AC-1
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Listar tipos de relación dirigidos. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaTiposRelacion'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - $ref: '#/components/parameters/Pagina'
+      - name: tipo-origen-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Tipo origen permitido.
+      - name: tipo-destino-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Tipo destino permitido.
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    post:
+      tags:
+      - Tipos de relación
+      operationId: crearTipoRelacion
+      summary: Crear tipo de relación dirigido
+      description: Solo Administrador. Ambos tipos deben existir, incluso si pertenecen a capas distintas. Definición
+        almacenada, no relación concreta; los permisos de captura se comprueban al proponer.
+      x-acceptance-criteria:
+      - RF-09-AC-1
+      - RF-09-AC-2
+      - RF-09-AC-3
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '201':
+          description: Crear tipo de relación dirigido. Recurso creado y persistido.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Location:
+              description: 'Location: /api/v1/tipos-relacion/{id}; id proviene de TipoRelacion.id.'
+              schema:
+                type: string
+                format: uri-reference
+              x-resource-path: /tipos-relacion/{tipoRelacionId}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoRelacion'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TipoRelacionGuardar'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /tipos-relacion/{tipoRelacionId}:
+    get:
+      tags:
+      - Tipos de relación
+      operationId: consultarTipoRelacion
+      summary: Consultar compatibilidad dirigida
+      description: Devuelve definición y sus dos tipos de extremo.
+      x-acceptance-criteria:
+      - RF-09-AC-1
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar compatibilidad dirigida. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Accept-Patch:
+              description: Formato aceptado para el documento parcial propio; la semántica está definida por los
+                esquemas de este contrato.
+              schema:
+                type: string
+                enum:
+                - application/json
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoRelacion'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: tipoRelacionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    patch:
+      tags:
+      - Tipos de relación
+      operationId: actualizarTipoRelacion
+      summary: Renombrar tipo de relación
+      description: Solo Administrador. No modifica tipos de los extremos ni rompe la compatibilidad de relaciones/propuestas
+        existentes. Omisiones conservan el valor vigente; null y propiedades desconocidas producen 422. El documento
+        completo se aplica atómicamente.
+      x-acceptance-criteria:
+      - RF-09-AC-3
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Renombrar tipo de relación. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TipoRelacion'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: tipoRelacionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TipoRelacionActualizar'
+        description: 'Documento parcial propio en application/json definido por el esquema: omisiones conservan
+          valores; null no está permitido. No es application/merge-patch+json ni application/json-patch+json.'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /propuestas:
+    get:
+      tags:
+      - Propuestas
+      operationId: listarPropuestas
+      summary: Listar propuestas e historial de decisiones
+      description: Cualquier usuario autenticado consulta; no incluye propuestas en el mapa. Sin estado devuelve
+        todos los estados para historial, por ID. La consulta no concede facultad de decidir.
+      x-acceptance-criteria:
+      - RF-10-AC-1
+      - RF-11-AC-1
+      - RF-11-AC-2
+      - RF-12-AC-1
+      - RF-12-AC-2
+      - RF-12-AC-3
+      - RF-12-AC-4
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Listar propuestas e historial de decisiones. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaPropuestas'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - $ref: '#/components/parameters/Pagina'
+      - name: estado
+        in: query
+        schema:
+          type: string
+          enum:
+          - PENDIENTE
+          - APROBADA
+          - RECHAZADA
+        description: Estado derivado de su decisión.
+      - name: relacion-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Historial de propuestas asociadas a una relación; referencia inexistente produce 422.
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    post:
+      tags:
+      - Propuestas
+      operationId: crearPropuesta
+      summary: Proponer alta, cambio o retiro de vínculo
+      description: Administrador o Editor autorizado en capa del origen; para cambiar origen exige además permiso
+        en capa vigente y nueva. Ambos extremos activos, existentes, distintos y compatibles con la dirección del
+        tipo; justificación 10–500. 422 para extremos, justificación o referencia del cuerpo inválidos. 409 DUPLICADO
+        para combinación origen-tipo-destino o PROPUESTA_PENDIENTE para otra sobre la misma relación. Excluye el
+        propio vínculo objetivo de la comparación; CAMBIO/RETIRO solo sobre vínculo VIGENTE. Guarda pendiente y
+        bitácora sin alterar relación/mapa. Un Administrador autor debe decidir en otra solicitud.
+      x-acceptance-criteria:
+      - RF-10-AC-1
+      - RF-10-AC-2
+      - RF-10-AC-3
+      - RF-12-AC-1
+      - RF-12-AC-3
+      - RF-16-AC-3
+      - RF-18-AC-2
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      responses:
+        '201':
+          description: Proponer alta, cambio o retiro de vínculo. Recurso creado y persistido.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Location:
+              description: 'Location: /api/v1/propuestas/{id}; id proviene de Propuesta.id.'
+              schema:
+                type: string
+                format: uri-reference
+              x-resource-path: /propuestas/{propuestaId}
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Propuesta'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PropuestaCrear'
+            examples:
+              alta:
+                summary: Vínculo ficticio nuevo, pendiente de revisión
+                value:
+                  operacion: ALTA
+                  origenId: 00000000-0000-4000-8000-000000000008
+                  destinoId: 00000000-0000-4000-8000-000000000009
+                  tipoRelacionId: 00000000-0000-4000-8000-000000000011
+                  justificacion: Proyecto ficticio que mejora la capacidad de prueba.
+              cambio:
+                summary: Sustituye valores solo al aprobar
+                value:
+                  operacion: CAMBIO
+                  relacionId: 00000000-0000-4000-8000-000000000010
+                  origenId: 00000000-0000-4000-8000-000000000008
+                  destinoId: 00000000-0000-4000-8000-000000000009
+                  tipoRelacionId: 00000000-0000-4000-8000-000000000011
+                  justificacion: Nueva justificación ficticia sometida a revisión.
+              retiro:
+                summary: Conserva vínculo e historial
+                value:
+                  operacion: RETIRO
+                  relacionId: 00000000-0000-4000-8000-000000000010
+                  justificacion: Vínculo ficticio que debe retirarse de la vista ordinaria.
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /propuestas/{propuestaId}:
+    get:
+      tags:
+      - Propuestas
+      operationId: consultarPropuesta
+      summary: Consultar propuesta y decisión
+      description: Recupera estado derivado, autor y decisión si existe; la ausencia de decisión es null y PENDIENTE.
+        Una ALTA aprobada referencia el nuevo vínculo.
+      x-acceptance-criteria:
+      - RF-10-AC-1
+      - RF-11-AC-1
+      - RF-11-AC-2
+      - RF-12-AC-1
+      - RF-12-AC-2
+      - RF-12-AC-4
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar propuesta y decisión. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Accept-Patch:
+              description: Formato aceptado para el documento parcial propio; la semántica está definida por los
+                esquemas de este contrato.
+              schema:
+                type: string
+                enum:
+                - application/json
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Propuesta'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: propuestaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+    patch:
+      tags:
+      - Propuestas
+      operationId: corregirPropuesta
+      summary: Corregir una propuesta pendiente
+      description: Administrador o Editor con permisos sobre origen propuesto y nuevo; en CAMBIO/RETIRO también
+        origen vigente. No restringe a autor porque el SRS autoriza por capa. No cambia operación, relaciónId, autor
+        ni fecha original. Revalida todo antes de guardar; 409 si ya decidida o produce duplicado. RETIRO solo acepta
+        justificación. Puede corregirse después de revalidación fallida de aprobación; nunca altera la relación
+        vigente. Omisiones conservan el valor vigente; null y propiedades desconocidas producen 422. El documento
+        completo se aplica atómicamente.
+      x-acceptance-criteria:
+      - RF-10-AC-2
+      - RF-10-AC-3
+      - RF-12-AC-1
+      - RF-12-AC-4
+      - RF-16-AC-3
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      responses:
+        '200':
+          description: Corregir una propuesta pendiente. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Propuesta'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: propuestaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PropuestaCorregir'
+        description: 'Documento parcial propio en application/json definido por el esquema: omisiones conservan
+          valores; null no está permitido. No es application/merge-patch+json ni application/json-patch+json.'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+  /propuestas/{propuestaId}/decisiones:
+    post:
+      tags:
+      - Propuestas
+      operationId: decidirPropuesta
+      summary: Aprobar o rechazar una propuesta
+      description: 'Solo Administrador; Editor/Consulta: 403. Máximo una DecisionPropuesta inmutable; concurrente
+        o segunda decisión: 409 PROPUESTA_RESUELTA. APROBADA revalida extremos activos/compatibles, justificación
+        y duplicados dentro de transacción. Fallo por valores/extremos: 422; duplicado: 409. No crea decisión, conserva
+        pendiente y vínculo anterior. RECHAZADA no exige que extremos sigan activos y no cambia vínculo. ALTA aprobada
+        crea vínculo VIGENTE; CAMBIO conserva su ID y sustituye valores; RETIRO cambia a RETIRADA. Guarda decisión/actor/fecha,
+        relación y bitácora de forma atómica; el autor Administrador puede decidir en acción separada. Respuesta
+        devuelve la propuesta resuelta; Location apunta a su colección de una decisión.'
+      x-acceptance-criteria:
+      - RF-11-AC-1
+      - RF-11-AC-2
+      - RF-11-AC-3
+      - RF-12-AC-2
+      - RF-12-AC-3
+      - RF-12-AC-4
+      - RF-17-AC-1
+      - RF-18-AC-2
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '201':
+          description: Aprobar o rechazar una propuesta. Recurso creado y persistido.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Location:
+              description: 'Location: /api/v1/propuestas/{propuestaId}/decisiones; colección de máximo una decisión
+                recién creada. El cuerpo devuelve la propuesta resuelta, incluida la decisión.'
+              schema:
+                type: string
+                format: uri-reference
+              x-resource-path: /propuestas/{propuestaId}/decisiones
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Propuesta'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      parameters:
+      - name: propuestaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionCrear'
+      x-idempotency: No se promete idempotencia. POST puede crear/procesar otra operación; PATCH puede generar nueva
+        modificación o efectos de acceso. Duplicados y decisiones ya resueltas se comprueban en el dominio.
+      x-retry-policy: No reintentar automáticamente tras pérdida de respuesta; consultar el recurso, historial o
+        bitácora para conocer el resultado antes de actuar de nuevo.
+    get:
+      tags:
+      - Propuestas
+      operationId: consultarDecisiones
+      summary: Consultar la decisión inmutable
+      description: 'Devuelve items=[] mientras pendiente, o exactamente una decisión. No permite editar/eliminar.
+        Propuesta inexistente: 404.'
+      x-acceptance-criteria:
+      - RF-11-AC-1
+      - RF-11-AC-2
+      - RF-12-AC-2
+      - RF-12-AC-4
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar la decisión inmutable. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionesPropuesta'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: propuestaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+  /relaciones:
+    get:
+      tags:
+      - Relaciones
+      operationId: listarRelaciones
+      summary: Consultar vínculos validados
+      description: Solo lectura. Por defecto VIGENTE y ambos extremos activos; incluir-historicas=true añade RETIRADA
+        y/o extremos dados de baja. Filtro elemento-id incluye entrantes y salientes; nunca propuestas ni transitivas.
+        El historial de cambios/decisiones se consulta en propuestas y bitácora.
+      x-acceptance-criteria:
+      - RF-12-AC-1
+      - RF-12-AC-2
+      - RF-12-AC-3
+      - RF-15-AC-2
+      - RF-16-AC-1
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar vínculos validados. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaRelaciones'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - $ref: '#/components/parameters/Pagina'
+      - name: elemento-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Extremo incidente existente.
+      - name: tipo-relacion-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Tipo dirigido existente.
+      - name: incluir-historicas
+        in: query
+        schema:
+          type: boolean
+          default: false
+        description: Incluye vínculos retirados y con extremos inactivos, etiquetados.
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+  /relaciones/{relacionId}:
+    get:
+      tags:
+      - Relaciones
+      operationId: consultarRelacion
+      summary: Consultar detalle de vínculo
+      description: Lee origen, destino, tipo, justificación, estado y autoría; permite abrir ambos extremos por
+        GET elementos (incluir-bajas si procede). Vínculo retirado sigue consultable por ID. No existe POST/PUT/PATCH/DELETE
+        de relaciones; las modificaciones pasan por propuestas aprobadas.
+      x-acceptance-criteria:
+      - RF-12-AC-1
+      - RF-12-AC-2
+      - RF-12-AC-3
+      - RF-12-AC-4
+      - RF-15-AC-2
+      - RF-18-AC-1
+      - RF-19-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar detalle de vínculo. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Relacion'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: relacionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+  /elementos/{elementoId}/mapas:
+    get:
+      tags:
+      - Mapas
+      operationId: consultarMapa
+      summary: Obtener mapa de conexiones directas
+      description: 'Raíz activa o 404. Incluye vínculos VIGENTES incidentes entrantes/salientes, con ambos extremos
+        activos; sin propuestas, retiros ni inferencias. Filtros capa-destino-id (capa del vecino, también en vínculos
+        entrantes), tipo-elemento-id (vecino) y tipo-relacion-id se intersectan antes de limitar; raíz siempre visible.
+        Máximo raíz+99 vecinos distintos ordenados por UUID, truncado explícito y total antes del límite; solo aristas
+        con extremos visibles. Sin conexiones: raíz sola, aristas=[], truncado=false. El frontend renderiza dirección,
+        selección y aviso; para recorrer otro nodo hace otra solicitud con ese ID y para quitar filtros los omite.
+        RNF-04 exige medir la interacción completa, no se certifica aquí.'
+      x-acceptance-criteria:
+      - RF-10-AC-1
+      - RF-11-AC-1
+      - RF-12-AC-3
+      - RF-13-AC-1
+      - RF-13-AC-2
+      - RF-13-AC-3
+      - RF-14-AC-1
+      - RF-14-AC-2
+      - RF-14-AC-3
+      - RF-16-AC-1
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Obtener mapa de conexiones directas. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mapa'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: elementoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: capa-destino-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Capa del vecino/cruce; no filtra la raíz.
+      - name: tipo-elemento-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Tipo del vecino; no filtra la raíz.
+      - name: tipo-relacion-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Tipo del vínculo incidente.
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+  /bitacora:
+    get:
+      tags:
+      - Bitácora
+      operationId: listarBitacora
+      summary: Consultar bitácora inmutable
+      description: 'Solo lectura para usuarios autenticados. Orden registradaEn descendente e ID ascendente; filtra
+        actor, objeto y acción por intersección. Escrituras solo internas a la transacción del caso de uso, jamás
+        por este recurso. No expone contraseñas, hashes, JWT o secretos ni en anterior/nuevo. Intentos de modificar
+        una entrada existente reciben 405 y Allow: GET; no se define CRUD de auditoría.'
+      x-acceptance-criteria:
+      - RF-18-AC-1
+      - RF-18-AC-2
+      - RF-18-AC-3
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar bitácora inmutable. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaBitacora'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - $ref: '#/components/parameters/Pagina'
+      - name: actor-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Actor de los eventos.
+      - name: objeto-id
+        in: query
+        schema:
+          type: string
+          format: uuid
+        description: Identificador del objeto.
+      - name: accion
+        in: query
+        schema:
+          type: string
+          minLength: 1
+        description: Acción registrada (ALTA, MODIFICACION, BAJA, REACTIVACION, PROPUESTA, DECISION, CAMBIO_ACCESO).
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+  /bitacora/{entradaId}:
+    get:
+      tags:
+      - Bitácora
+      operationId: consultarEntradaBitacora
+      summary: Consultar evento de auditoría
+      description: 'Entrada inmutable, actor, fecha, objeto y cambios sin secretos. Métodos de escritura sobre este
+        URI reciben 405 con Allow: GET, sin cambiar el evento; el controlador debe aplicar esta regla aunque la
+        petición sea directa.'
+      x-acceptance-criteria:
+      - RF-18-AC-2
+      - RF-18-AC-3
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      - EDITOR
+      - CONSULTA
+      responses:
+        '200':
+          description: Consultar evento de auditoría. Resultado confirmado.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntradaBitacora'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      parameters:
+      - name: entradaId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+  /cargas-demostracion/muestra-v1:
+    get:
+      tags:
+      - Demostración
+      operationId: consultarDemostracion
+      summary: Consultar el estado de la muestra ficticia
+      description: Solo Administrador. GET lee la preparación sin cargar datos ni emitir propuestas/decisiones.
+        Si no se preparó, 404. Devuelve PREPARADA o COMPLETA, IDs conservados y decisiones reflejadas; yaExistia=true
+        porque lee un recurso existente. No admite cuerpo. Sigue la regla de GET seguro respecto a datos de negocio.
+      x-acceptance-criteria:
+      - RF-17-AC-1
+      - RF-17-AC-2
+      - RF-19-AC-1
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Estado actual persistido de la preparación.
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                enum:
+                - no-store
+              description: No almacenar datos protegidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CargaDemostracion'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+      x-idempotency: Seguro e idempotente para datos de negocio. Puede actualizar actividad de la sesión; no crea
+        ni modifica registros de dominio.
+      x-retry-policy: Puede repetirse después de un fallo de transporte con sesión válida; no reintentar automáticamente
+        errores funcionales 4xx.
+  /cargas-demostracion:
+    post:
+      tags:
+      - Demostración
+      operationId: prepararDemostracion
+      summary: Preparar la muestra ficticia sin duplicados
+      description: 'Solo Administrador. POST con clave muestra-v1 crea una preparación persistida y la configuración,
+        objetivos, proyectos, capacidades, procesos, aplicaciones, capa adicional y propuestas de vínculos intercapas
+        en una transacción. Primera preparación: 201, yaExistia=false y estado PREPARADA. Repetir la misma clave:
+        200, yaExistia=true y los mismos IDs, sin duplicados ni nuevas decisiones; la clave única persistida serializa
+        llamadas concurrentes. No usa scripts ni datos externos. La interfaz guía al Administrador para revisar/aprobar
+        cada propuesta mediante POST /propuestas/{propuestaId}/decisiones en acciones separadas. GET /cargas-demostracion/muestra-v1
+        consulta el estado: COMPLETA solo cuando todas sus propuestas están aprobadas; RF-17-AC-1 se verifica al
+        completar ese recorrido. Si alguna se rechaza la muestra sigue PREPARADA y se informa el motivo; no se autoaprueban
+        vínculos. La configuración se administra desde la interfaz sin cambiar código. Colisión con una configuración
+        incompatible: 409, sin preparación parcial.'
+      x-acceptance-criteria:
+      - RF-17-AC-1
+      - RF-17-AC-2
+      - RF-19-AC-1
+      - RF-19-AC-2
+      - RF-01-AC-2
+      x-roles:
+      - ADMINISTRADOR
+      responses:
+        '200':
+          description: Preparación ya existente; yaExistia=true. No duplica registros ni genera nuevas decisiones.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CargaDemostracion'
+        '400':
+          $ref: '#/components/responses/SolicitudMalformada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/NoAutorizado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '500':
+          $ref: '#/components/responses/ErrorInterno'
+        '201':
+          description: Preparación creada y persistida; yaExistia=false. Estado inicial PREPARADA; las relaciones
+            necesitan decisiones separadas.
+          headers:
+            Cache-Control:
+              description: No almacenar datos protegidos ni tokens.
+              schema:
+                type: string
+                enum:
+                - no-store
+            Location:
+              description: 'Location: /api/v1/cargas-demostracion/muestra-v1; preparación recién creada, consultable
+                por GET.'
+              schema:
+                type: string
+                format: uri-reference
+              x-resource-path: /cargas-demostracion/muestra-v1
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CargaDemostracion'
+        '422':
+          $ref: '#/components/responses/Validacion'
+        '415':
+          $ref: '#/components/responses/TipoContenidoNoSoportado'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CargaDemostracionCrear'
+            example:
+              clave: muestra-v1
+      x-idempotency: 'POST con garantía específica por clave única muestra-v1: repetir/concurrir reutiliza la preparación
+        persistida, sin duplicar configuración, elementos, propuestas ni decisiones.'
+      x-retry-policy: Consultar GET /cargas-demostracion/muestra-v1 tras respuesta perdida; repetir la misma clave
+        es seguro por la restricción persistida. No reaprueba ni recrea una muestra modificada después.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT de sesión local persistida; sid/sub vinculados. Comprobar estado, expiración, inactividad
+        y permisos actuales en cada operación.
+  parameters:
+    Pagina:
+      name: pagina
+      in: query
+      description: Página de 25 registros; una página fuera del total devuelve items vacíos.
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    IncluirBajas:
+      name: incluir-bajas
+      in: query
+      description: Incluye elementos dados de baja, etiquetados activo=false; no modifica el mapa ordinario.
+      schema:
+        type: boolean
+        default: false
+    NombreBusqueda:
+      name: nombre
+      in: query
+      description: 'Omitido: listado. Presente: búsqueda parcial por nombre, recorta espacios, ignora mayúsculas
+        y distingue acentos. Vacío/blanco: 422; la interfaz debe detectarlo antes de enviar la petición.'
+      schema:
+        type: string
+        minLength: 1
+        pattern: \S
+  responses:
+    SolicitudMalformada:
+      description: JSON malformado o sintaxis de consulta inválida. Código MALFORMADO; no altera datos.
+      headers:
+        Cache-Control:
+          description: No almacenar datos protegidos ni tokens.
+          schema:
+            type: string
+            enum:
+            - no-store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoAutenticado:
+      description: Credenciales inválidas, cuenta inactiva o Bearer ausente, inválido, expirado o revocado. Código
+        NO_AUTENTICADO; no entrega datos protegidos.
+      headers:
+        Cache-Control:
+          description: No almacenar datos protegidos ni tokens.
+          schema:
+            type: string
+            enum:
+            - no-store
+        WWW-Authenticate:
+          description: Desafío Bearer; para credenciales de inicio fallidas también se utiliza el mismo tipo de
+            desafío.
+          schema:
+            type: string
+          example: Bearer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoAutorizado:
+      description: Sesión válida sin rol o permiso de capa requerido. Código NO_AUTORIZADO; no altera datos.
+      headers:
+        Cache-Control:
+          description: No almacenar datos protegidos ni tokens.
+          schema:
+            type: string
+            enum:
+            - no-store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoEncontrado:
+      description: Recurso solicitado inexistente o elemento dado de baja oculto por defecto. Código NO_ENCONTRADO.
+      headers:
+        Cache-Control:
+          description: No almacenar datos protegidos ni tokens.
+          schema:
+            type: string
+            enum:
+            - no-store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflicto:
+      description: 'Conflicto con el estado persistido: duplicado, estructura bloqueada, último administrador o
+        propuesta ya resuelta/pendiente. Código específico en el cuerpo. No altera estado.'
+      headers:
+        Cache-Control:
+          description: No almacenar datos protegidos ni tokens.
+          schema:
+            type: string
+            enum:
+            - no-store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Validacion:
+      description: JSON bien formado con valores inválidos, campo requerido vacío, fecha imposible, referencia del
+        cuerpo inexistente, extremos inactivos/incompatibles o filtro incoherente. Código VALIDACION con detalles
+        por campo. Operación atómica.
+      headers:
+        Cache-Control:
+          description: No almacenar datos protegidos ni tokens.
+          schema:
+            type: string
+            enum:
+            - no-store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ErrorInterno:
+      description: Error interno; código ERROR_INTERNO sin trazas ni secretos. Una operación no confirmada se revierte
+        por completo.
+      headers:
+        Cache-Control:
+          description: No almacenar datos protegidos ni tokens.
+          schema:
+            type: string
+            enum:
+            - no-store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    TipoContenidoNoSoportado:
+      description: 'Content-Type distinto de application/json para una operación con cuerpo. Código TIPO_CONTENIDO_NO_SOPORTADO;
+        devuelve 415 sin aplicar cambios. Cuerpo ausente con tipo esperado o JSON malformado se distingue: 422 para
+        cuerpo requerido ausente, 400 para JSON malformado.'
+      headers:
+        Cache-Control:
+          schema:
+            type: string
+            enum:
+            - no-store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    ErrorDetalle:
+      type: object
+      additionalProperties: false
+      properties:
+        campo:
+          type: string
+        codigo:
+          type: string
+        mensaje:
+          type: string
+      required:
+      - codigo
+      - mensaje
+    Error:
+      type: object
+      additionalProperties: false
+      properties:
+        codigo:
+          type: string
+        mensaje:
+          type: string
+          description: Mensaje en español, sin secretos ni detalles internos.
+        detalles:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetalle'
+      required:
+      - codigo
+      - mensaje
+      - detalles
+    MetadatosPagina:
+      type: object
+      additionalProperties: false
+      properties:
+        pagina:
+          type: integer
+          minimum: 1
+        tamanoPagina:
+          type: integer
+          enum:
+          - 25
+        total:
+          type: integer
+          minimum: 0
+        totalPaginas:
+          type: integer
+          minimum: 0
+      required:
+      - pagina
+      - tamanoPagina
+      - total
+      - totalPaginas
+    ReferenciaCuenta:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        usuario:
+          type: string
+      required:
+      - id
+      - usuario
+    Autoria:
+      type: object
+      additionalProperties: false
+      properties:
+        creador:
+          $ref: '#/components/schemas/ReferenciaCuenta'
+        creadoEn:
+          type: string
+          format: date-time
+        ultimoModificador:
+          $ref: '#/components/schemas/ReferenciaCuenta'
+        modificadoEn:
+          type: string
+          format: date-time
+      required:
+      - creador
+      - creadoEn
+      - ultimoModificador
+      - modificadoEn
+    Cuenta:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        usuario:
+          type: string
+        rol:
+          type: string
+          enum:
+          - ADMINISTRADOR
+          - EDITOR
+          - CONSULTA
+        activa:
+          type: boolean
+        capasEditables:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+          description: Vacía para roles distintos de EDITOR; ADMINISTRADOR tiene facultad global sin asignaciones.
+      required:
+      - id
+      - usuario
+      - rol
+      - activa
+      - capasEditables
+    CuentaCrear:
+      type: object
+      additionalProperties: false
+      properties:
+        usuario:
+          type: string
+          minLength: 1
+          pattern: \S
+          description: Se recortan espacios extremos; unicidad sin distinguir mayúsculas en el ámbito del SRS. Los
+            nombres de elementos sí pueden repetirse.
+        contrasena:
+          type: string
+          minLength: 1
+          writeOnly: true
+          description: Se recibe por HTTPS; nunca se devuelve ni se registra en la bitácora. La política de fortaleza
+            es una decisión pendiente del equipo, no un requisito agregado al SRS.
+        rol:
+          type: string
+          enum:
+          - ADMINISTRADOR
+          - EDITOR
+          - CONSULTA
+        capasEditables:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+          default: []
+      description: Cuenta activa inicialmente. Usuario único sin mayúsculas/espacios extremos. Capas solo para EDITOR,
+        existentes y sin duplicados; no se provisiona el primer administrador con esta operación.
+      required:
+      - usuario
+      - contrasena
+      - rol
+    CuentaActualizar:
+      type: object
+      additionalProperties: false
+      properties:
+        rol:
+          type: string
+          enum:
+          - ADMINISTRADOR
+          - EDITOR
+          - CONSULTA
+        activa:
+          type: boolean
+      minProperties: 1
+      description: PATCH parcial. Rol distinto de EDITOR limpia asignaciones. Un cambio efectivo de rol o desactivación
+        revoca todas sus sesiones. No permite dejar cero administradores activos.
+    Asignaciones:
+      type: object
+      additionalProperties: false
+      properties:
+        capasEditables:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+      description: Sustitución completa, solo para cuentas EDITOR; [] retira todas. Las autorizaciones leen las
+        asignaciones vigentes en cada solicitud.
+      required:
+      - capasEditables
+    Credenciales:
+      type: object
+      additionalProperties: false
+      properties:
+        contrasena:
+          type: string
+          minLength: 1
+          writeOnly: true
+          description: Se recibe por HTTPS; nunca se devuelve ni se registra en la bitácora. La política de fortaleza
+            es una decisión pendiente del equipo, no un requisito agregado al SRS.
+      required:
+      - contrasena
+    SesionCrear:
+      type: object
+      additionalProperties: false
+      properties:
+        usuario:
+          type: string
+          minLength: 1
+        contrasena:
+          type: string
+          minLength: 1
+          writeOnly: true
+          description: Se recibe por HTTPS; nunca se devuelve ni se registra en la bitácora. La política de fortaleza
+            es una decisión pendiente del equipo, no un requisito agregado al SRS.
+      required:
+      - usuario
+      - contrasena
+    Sesion:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        cuenta:
+          $ref: '#/components/schemas/Cuenta'
+        iniciadaEn:
+          type: string
+          format: date-time
+        ultimaActividadEn:
+          type: string
+          format: date-time
+        expiraEn:
+          type: string
+          format: date-time
+      description: Expiración absoluta de 8 horas; inactividad de 30 minutos. Todo acceso protegido válido actualiza
+        ultimaActividadEn sin extender expiraEn.
+      required:
+      - id
+      - cuenta
+      - iniciadaEn
+      - ultimaActividadEn
+      - expiraEn
+    SesionCreada:
+      type: object
+      additionalProperties: false
+      properties:
+        accessToken:
+          type: string
+          description: JWT firmado con sub=cuenta.id, sid=sesion.id, iat y exp. Verificar firma, sesión persistida,
+            cuenta activa y permisos vigentes en cada solicitud.
+        tokenType:
+          type: string
+          enum:
+          - Bearer
+        sesion:
+          $ref: '#/components/schemas/Sesion'
+      required:
+      - accessToken
+      - tokenType
+      - sesion
+    SesionCerrada:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        revocada:
+          type: boolean
+          enum:
+          - true
+      required:
+      - id
+      - revocada
+    ResultadoCredenciales:
+      type: object
+      additionalProperties: false
+      properties:
+        cuentaId:
+          type: string
+          format: uuid
+        sesionesRevocadas:
+          type: boolean
+          enum:
+          - true
+      required:
+      - cuentaId
+      - sesionesRevocadas
+    CapaCrear:
+      type: object
+      additionalProperties: false
+      properties:
+        nombre:
+          type: string
+          minLength: 1
+          pattern: \S
+          description: Se recortan espacios extremos; unicidad sin distinguir mayúsculas en el ámbito del SRS. Los
+            nombres de elementos sí pueden repetirse.
+        descripcion:
+          type: string
+          default: ''
+      required:
+      - nombre
+    CapaActualizar:
+      type: object
+      additionalProperties: false
+      properties:
+        nombre:
+          type: string
+          minLength: 1
+          pattern: \S
+          description: Se recortan espacios extremos; unicidad sin distinguir mayúsculas en el ámbito del SRS. Los
+            nombres de elementos sí pueden repetirse.
+        descripcion:
+          type: string
+      minProperties: 1
+    Capa:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        descripcion:
+          type: string
+      required:
+      - id
+      - nombre
+      - descripcion
+    TipoElementoCrear:
+      type: object
+      additionalProperties: false
+      properties:
+        capaId:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+          minLength: 1
+          pattern: \S
+          description: Se recortan espacios extremos; unicidad sin distinguir mayúsculas en el ámbito del SRS. Los
+            nombres de elementos sí pueden repetirse.
+        descripcion:
+          type: string
+          default: ''
+      description: Nombre único dentro de la capa. Crea automáticamente un campo Nombre, texto, obligatorio e inalterable.
+      required:
+      - capaId
+      - nombre
+    TipoElementoActualizar:
+      type: object
+      additionalProperties: false
+      properties:
+        nombre:
+          type: string
+          minLength: 1
+          pattern: \S
+          description: Se recortan espacios extremos; unicidad sin distinguir mayúsculas en el ámbito del SRS. Los
+            nombres de elementos sí pueden repetirse.
+        descripcion:
+          type: string
+      minProperties: 1
+      description: No cambia capaId, campos, identificador ni asociaciones de elementos.
+    TipoElemento:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        capaId:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        estructuraBloqueada:
+          type: boolean
+          description: Verdadero si tiene cualquier elemento, incluso dado de baja.
+      required:
+      - id
+      - capaId
+      - nombre
+      - descripcion
+      - estructuraBloqueada
+    OpcionSeleccion:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        etiqueta:
+          type: string
+          minLength: 1
+          pattern: \S
+          description: Se recortan espacios extremos; unicidad sin distinguir mayúsculas en el ámbito del SRS. Los
+            nombres de elementos sí pueden repetirse.
+      required:
+      - id
+      - etiqueta
+    CampoGuardar:
+      type: object
+      additionalProperties: false
+      properties:
+        nombre:
+          type: string
+          minLength: 1
+          pattern: \S
+          description: Se recortan espacios extremos; unicidad sin distinguir mayúsculas en el ámbito del SRS. Los
+            nombres de elementos sí pueden repetirse.
+        tipoDato:
+          type: string
+          enum:
+          - TEXTO
+          - NUMERO
+          - FECHA
+          - SELECCION
+        obligatorio:
+          type: boolean
+        opciones:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            pattern: \S
+            description: Se recortan espacios extremos; unicidad sin distinguir mayúsculas en el ámbito del SRS.
+              Los nombres de elementos sí pueden repetirse.
+          uniqueItems: true
+          default: []
+      description: SELECCION requiere al menos una opción distinta al normalizar; otros tipos requieren opciones
+        vacías. El servidor asigna UUID a las opciones. No se altera Nombre ni una estructura bloqueada.
+      required:
+      - nombre
+      - tipoDato
+      - obligatorio
+    Campo:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        tipoElementoId:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        tipoDato:
+          type: string
+          enum:
+          - TEXTO
+          - NUMERO
+          - FECHA
+          - SELECCION
+        obligatorio:
+          type: boolean
+        esNombreBase:
+          type: boolean
+        retirado:
+          type: boolean
+          description: Retiro lógico solo antes de que exista un elemento; conserva identidad e historial de la
+            definición.
+        opciones:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpcionSeleccion'
+      required:
+      - id
+      - tipoElementoId
+      - nombre
+      - tipoDato
+      - obligatorio
+      - esNombreBase
+      - retirado
+      - opciones
+    ValorTexto:
+      type: object
+      additionalProperties: false
+      properties:
+        campoId:
+          type: string
+          format: uuid
+        tipoDato:
+          type: string
+          enum:
+          - TEXTO
+        valor:
+          type: string
+      description: La definición debe pertenecer al tipo del elemento y coincidir con tipoDato. La opción debe pertenecer
+        al campo; las fechas deben existir en el calendario.
+      required:
+      - campoId
+      - tipoDato
+      - valor
+    ValorNumero:
+      type: object
+      additionalProperties: false
+      properties:
+        campoId:
+          type: string
+          format: uuid
+        tipoDato:
+          type: string
+          enum:
+          - NUMERO
+        valor:
+          type: number
+      description: La definición debe pertenecer al tipo del elemento y coincidir con tipoDato. La opción debe pertenecer
+        al campo; las fechas deben existir en el calendario.
+      required:
+      - campoId
+      - tipoDato
+      - valor
+    ValorFecha:
+      type: object
+      additionalProperties: false
+      properties:
+        campoId:
+          type: string
+          format: uuid
+        tipoDato:
+          type: string
+          enum:
+          - FECHA
+        valor:
+          type: string
+          format: date
+      description: La definición debe pertenecer al tipo del elemento y coincidir con tipoDato. La opción debe pertenecer
+        al campo; las fechas deben existir en el calendario.
+      required:
+      - campoId
+      - tipoDato
+      - valor
+    ValorSeleccion:
+      type: object
+      additionalProperties: false
+      properties:
+        campoId:
+          type: string
+          format: uuid
+        tipoDato:
+          type: string
+          enum:
+          - SELECCION
+        opcionId:
+          type: string
+          format: uuid
+      description: La definición debe pertenecer al tipo del elemento y coincidir con tipoDato. La opción debe pertenecer
+        al campo; las fechas deben existir en el calendario.
+      required:
+      - campoId
+      - tipoDato
+      - opcionId
+    ValorCampo:
+      oneOf:
+      - $ref: '#/components/schemas/ValorTexto'
+      - $ref: '#/components/schemas/ValorNumero'
+      - $ref: '#/components/schemas/ValorFecha'
+      - $ref: '#/components/schemas/ValorSeleccion'
+      discriminator:
+        propertyName: tipoDato
+        mapping:
+          TEXTO: '#/components/schemas/ValorTexto'
+          NUMERO: '#/components/schemas/ValorNumero'
+          FECHA: '#/components/schemas/ValorFecha'
+          SELECCION: '#/components/schemas/ValorSeleccion'
+      description: Representación de las cuatro subclases del modelo S04_A1. No admite null ni pares campoId duplicados;
+        un opcional vacío no tiene entrada. Los obligatorios se comprueban con la definición dinámica en el servidor.
+    EliminarValor:
+      type: object
+      additionalProperties: false
+      properties:
+        campoId:
+          type: string
+          format: uuid
+        eliminar:
+          type: boolean
+          enum:
+          - true
+      description: Solo en PATCH y para campos opcionales. Retira su valor sin retirar la definición.
+      required:
+      - campoId
+      - eliminar
+    ElementoCrear:
+      type: object
+      additionalProperties: false
+      properties:
+        tipoElementoId:
+          type: string
+          format: uuid
+        valores:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValorCampo'
+          minItems: 1
+      description: Incluye todos los obligatorios y solo los opcionales con valor. Nombre se obtiene del campo base;
+        texto obligatorio vacío o de espacios produce 422. Escritura y bitácora atómicas.
+      required:
+      - tipoElementoId
+      - valores
+    ElementoActualizar:
+      type: object
+      additionalProperties: false
+      properties:
+        valores:
+          type: array
+          items:
+            oneOf:
+            - $ref: '#/components/schemas/ValorCampo'
+            - $ref: '#/components/schemas/EliminarValor'
+          minItems: 1
+      description: Solo modifica los campos enviados; los omitidos se conservan. Un campo no puede repetirse. Valida
+        el conjunto final completo antes de confirmar; no cambia identidad ni tipo/capa.
+      required:
+      - valores
+    ElementoResumen:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        tipoElementoId:
+          type: string
+          format: uuid
+        tipoElementoNombre:
+          type: string
+        capaId:
+          type: string
+          format: uuid
+        capaNombre:
+          type: string
+        activo:
+          type: boolean
+      required:
+      - id
+      - nombre
+      - tipoElementoId
+      - tipoElementoNombre
+      - capaId
+      - capaNombre
+      - activo
+    Elemento:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+          description: Derivado del valor del campo base Nombre, no se escribe por separado.
+        tipoElementoId:
+          type: string
+          format: uuid
+        tipoElementoNombre:
+          type: string
+        capaId:
+          type: string
+          format: uuid
+        capaNombre:
+          type: string
+        activo:
+          type: boolean
+        valores:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValorCampo'
+        autoria:
+          $ref: '#/components/schemas/Autoria'
+      required:
+      - id
+      - nombre
+      - tipoElementoId
+      - tipoElementoNombre
+      - capaId
+      - capaNombre
+      - activo
+      - valores
+      - autoria
+    EstadoElemento:
+      type: object
+      additionalProperties: false
+      properties:
+        activo:
+          type: boolean
+      description: PUT completo del subrecurso estado. false da de baja, true reactiva; no elimina campos, relaciones
+        ni historial. Repetir el mismo estado no genera otra transición ni bitácora de cambio.
+      required:
+      - activo
+    TipoRelacionGuardar:
+      type: object
+      additionalProperties: false
+      properties:
+        nombre:
+          type: string
+          minLength: 1
+          pattern: \S
+          description: Se recortan espacios extremos; unicidad sin distinguir mayúsculas en el ámbito del SRS. Los
+            nombres de elementos sí pueden repetirse.
+        descripcion:
+          type: string
+        tipoOrigenId:
+          type: string
+          format: uuid
+        tipoDestinoId:
+          type: string
+          format: uuid
+      required:
+      - nombre
+      - descripcion
+      - tipoOrigenId
+      - tipoDestinoId
+    TipoRelacionActualizar:
+      type: object
+      additionalProperties: false
+      properties:
+        nombre:
+          type: string
+          minLength: 1
+          pattern: \S
+          description: Se recortan espacios extremos; unicidad sin distinguir mayúsculas en el ámbito del SRS. Los
+            nombres de elementos sí pueden repetirse.
+        descripcion:
+          type: string
+      minProperties: 1
+      description: Los tipos de los extremos son inmutables en esta versión para conservar compatibilidad de relaciones
+        existentes. Para otra combinación se crea una definición nueva.
+    TipoRelacion:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        tipoOrigenId:
+          type: string
+          format: uuid
+        tipoDestinoId:
+          type: string
+          format: uuid
+      required:
+      - id
+      - nombre
+      - descripcion
+      - tipoOrigenId
+      - tipoDestinoId
+    Relacion:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        origenId:
+          type: string
+          format: uuid
+        destinoId:
+          type: string
+          format: uuid
+        tipoRelacionId:
+          type: string
+          format: uuid
+        justificacion:
+          type: string
+          minLength: 10
+          maxLength: 500
+          description: Longitud después de recortar espacios extremos. Justificación para revisión humana.
+        estado:
+          type: string
+          enum:
+          - VIGENTE
+          - RETIRADA
+        autoria:
+          $ref: '#/components/schemas/Autoria'
+      required:
+      - id
+      - origenId
+      - destinoId
+      - tipoRelacionId
+      - justificacion
+      - estado
+      - autoria
+    PropuestaAlta:
+      type: object
+      additionalProperties: false
+      properties:
+        operacion:
+          type: string
+          enum:
+          - ALTA
+        origenId:
+          type: string
+          format: uuid
+        destinoId:
+          type: string
+          format: uuid
+        tipoRelacionId:
+          type: string
+          format: uuid
+        justificacion:
+          type: string
+          minLength: 10
+          maxLength: 500
+          description: Longitud después de recortar espacios extremos. Justificación para revisión humana.
+      required:
+      - operacion
+      - origenId
+      - destinoId
+      - tipoRelacionId
+      - justificacion
+    PropuestaCambio:
+      type: object
+      additionalProperties: false
+      properties:
+        operacion:
+          type: string
+          enum:
+          - CAMBIO
+        relacionId:
+          type: string
+          format: uuid
+        origenId:
+          type: string
+          format: uuid
+        destinoId:
+          type: string
+          format: uuid
+        tipoRelacionId:
+          type: string
+          format: uuid
+        justificacion:
+          type: string
+          minLength: 10
+          maxLength: 500
+          description: Longitud después de recortar espacios extremos. Justificación para revisión humana.
+      description: Instantánea completa deseada sobre una relación VIGENTE. Conserva relacionId; no altera el vínculo
+        hasta aprobar. Comprueba permiso de capa de origen vigente y propuesto.
+      required:
+      - operacion
+      - relacionId
+      - origenId
+      - destinoId
+      - tipoRelacionId
+      - justificacion
+    PropuestaRetiro:
+      type: object
+      additionalProperties: false
+      properties:
+        operacion:
+          type: string
+          enum:
+          - RETIRO
+        relacionId:
+          type: string
+          format: uuid
+        justificacion:
+          type: string
+          minLength: 10
+          maxLength: 500
+          description: Longitud después de recortar espacios extremos. Justificación para revisión humana.
+      description: Origen, destino y tipo se copian de la relación VIGENTE; estado propuesto RETIRADA. No retira
+        el vínculo hasta aprobar.
+      required:
+      - operacion
+      - relacionId
+      - justificacion
+    PropuestaCrear:
+      oneOf:
+      - $ref: '#/components/schemas/PropuestaAlta'
+      - $ref: '#/components/schemas/PropuestaCambio'
+      - $ref: '#/components/schemas/PropuestaRetiro'
+      discriminator:
+        propertyName: operacion
+        mapping:
+          ALTA: '#/components/schemas/PropuestaAlta'
+          CAMBIO: '#/components/schemas/PropuestaCambio'
+          RETIRO: '#/components/schemas/PropuestaRetiro'
+      description: Una sola propuesta pendiente por relación. Sin autorrelaciones, extremos inactivos o incompatibles
+        ni duplicado origen-tipo-destino entre vínculos vigentes y propuestas pendientes. En CAMBIO/RETIRO se excluye
+        de duplicados el propio vínculo objetivo.
+    PropuestaCorregir:
+      type: object
+      additionalProperties: false
+      properties:
+        origenId:
+          type: string
+          format: uuid
+        destinoId:
+          type: string
+          format: uuid
+        tipoRelacionId:
+          type: string
+          format: uuid
+        justificacion:
+          type: string
+          minLength: 10
+          maxLength: 500
+          description: Longitud después de recortar espacios extremos. Justificación para revisión humana.
+      minProperties: 1
+      description: Solo PENDIENTE. Mantiene autor, fecha, operación y relación objetivo. RETIRO permite modificar
+        únicamente justificación. ALTA/CAMBIO revalidan los extremos y permisos; en cambio de origen se comprueban
+        capa vigente y nueva.
+    DecisionCrear:
+      type: object
+      additionalProperties: false
+      properties:
+        resultado:
+          type: string
+          enum:
+          - APROBADA
+          - RECHAZADA
+      description: Solo Administrador; acción separada incluso si es autor. No exige dos personas distintas. El
+        cliente no establece actor ni fecha.
+      required:
+      - resultado
+    Decision:
+      type: object
+      additionalProperties: false
+      properties:
+        resultado:
+          type: string
+          enum:
+          - APROBADA
+          - RECHAZADA
+        decisor:
+          $ref: '#/components/schemas/ReferenciaCuenta'
+        decididaEn:
+          type: string
+          format: date-time
+      required:
+      - resultado
+      - decisor
+      - decididaEn
+    DecisionOpcional:
+      type: object
+      nullable: true
+      additionalProperties: false
+      properties:
+        resultado:
+          type: string
+          enum:
+          - APROBADA
+          - RECHAZADA
+        decisor:
+          $ref: '#/components/schemas/ReferenciaCuenta'
+        decididaEn:
+          type: string
+          format: date-time
+      required:
+      - resultado
+      - decisor
+      - decididaEn
+      description: null solo mientras la propuesta permanece PENDIENTE.
+    Propuesta:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        operacion:
+          type: string
+          enum:
+          - ALTA
+          - CAMBIO
+          - RETIRO
+        origenId:
+          type: string
+          format: uuid
+        destinoId:
+          type: string
+          format: uuid
+        tipoRelacionId:
+          type: string
+          format: uuid
+        justificacion:
+          type: string
+          minLength: 10
+          maxLength: 500
+          description: Longitud después de recortar espacios extremos. Justificación para revisión humana.
+        estadoPropuesto:
+          type: string
+          enum:
+          - VIGENTE
+          - RETIRADA
+        relacionId:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'ALTA pendiente/rechazada: null; ALTA aprobada: ID creado; CAMBIO/RETIRO: ID objetivo.'
+        estado:
+          type: string
+          enum:
+          - PENDIENTE
+          - APROBADA
+          - RECHAZADA
+        autor:
+          $ref: '#/components/schemas/ReferenciaCuenta'
+        propuestaEn:
+          type: string
+          format: date-time
+        decision:
+          $ref: '#/components/schemas/DecisionOpcional'
+      description: Estado derivado de la ausencia o resultado de DecisionPropuesta; no es editable directamente.
+      required:
+      - id
+      - operacion
+      - origenId
+      - destinoId
+      - tipoRelacionId
+      - justificacion
+      - estadoPropuesto
+      - relacionId
+      - estado
+      - autor
+      - propuestaEn
+      - decision
+    NodoMapa:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        nombre:
+          type: string
+        capaId:
+          type: string
+          format: uuid
+        tipoElementoId:
+          type: string
+          format: uuid
+        esRaiz:
+          type: boolean
+      required:
+      - id
+      - nombre
+      - capaId
+      - tipoElementoId
+      - esRaiz
+    AristaMapa:
+      type: object
+      additionalProperties: false
+      properties:
+        relacionId:
+          type: string
+          format: uuid
+        origenId:
+          type: string
+          format: uuid
+        destinoId:
+          type: string
+          format: uuid
+        tipoRelacionId:
+          type: string
+          format: uuid
+      required:
+      - relacionId
+      - origenId
+      - destinoId
+      - tipoRelacionId
+    FiltrosMapa:
+      type: object
+      additionalProperties: false
+      properties:
+        capaDestinoId:
+          type: string
+          format: uuid
+          nullable: true
+        tipoElementoId:
+          type: string
+          format: uuid
+          nullable: true
+        tipoRelacionId:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - capaDestinoId
+      - tipoElementoId
+      - tipoRelacionId
+    Mapa:
+      type: object
+      additionalProperties: false
+      properties:
+        raizId:
+          type: string
+          format: uuid
+        nodos:
+          type: array
+          items:
+            $ref: '#/components/schemas/NodoMapa'
+          minItems: 1
+          maxItems: 100
+        aristas:
+          type: array
+          items:
+            $ref: '#/components/schemas/AristaMapa'
+        filtros:
+          $ref: '#/components/schemas/FiltrosMapa'
+        limiteNodos:
+          type: integer
+          enum:
+          - 100
+        totalVecinosFiltrados:
+          type: integer
+          minimum: 0
+        truncado:
+          type: boolean
+      description: 'Raíz activa siempre visible. Solo vecinos directos activos y relaciones VIGENTES incidentes
+        a la raíz, entrantes o salientes, con dirección original. Orden: raíz y hasta 99 vecinos distintos ordenados
+        por UUID; después de filtros. Incluye todas las aristas incidentes cuyos extremos estén visibles; no añade
+        aristas entre vecinos ni transitivas. truncado=true cuando totalVecinosFiltrados>99.'
+      required:
+      - raizId
+      - nodos
+      - aristas
+      - filtros
+      - limiteNodos
+      - totalVecinosFiltrados
+      - truncado
+    EntradaBitacora:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        actor:
+          $ref: '#/components/schemas/ReferenciaCuenta'
+        registradaEn:
+          type: string
+          format: date-time
+        tipoObjeto:
+          type: string
+        idObjeto:
+          type: string
+          format: uuid
+        accion:
+          type: string
+        anterior:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Valores de negocio anteriores; nunca contraseña, hash, JWT u otro secreto.
+        nuevo:
+          type: object
+          nullable: true
+          additionalProperties: true
+          description: Valores nuevos con el mismo filtrado obligatorio de secretos.
+      description: 'Inmutable. No se exponen operaciones de escritura; intentos PUT/PATCH/POST/DELETE sobre bitácora
+        existente devuelven 405 y Allow: GET. Los eventos de acceso indican acción, actor y objeto sin credenciales.'
+      required:
+      - id
+      - actor
+      - registradaEn
+      - tipoObjeto
+      - idObjeto
+      - accion
+      - anterior
+      - nuevo
+    CargaDemostracion:
+      type: object
+      additionalProperties: false
+      properties:
+        clave:
+          type: string
+          enum:
+          - muestra-v1
+        estado:
+          type: string
+          enum:
+          - PREPARADA
+          - COMPLETA
+        propuestas:
+          type: array
+          items:
+            type: string
+            format: uuid
+        yaExistia:
+          type: boolean
+        mensaje:
+          type: string
+        capas:
+          type: array
+          items:
+            type: string
+            format: uuid
+        elementos:
+          type: array
+          items:
+            type: string
+            format: uuid
+        relaciones:
+          type: array
+          items:
+            type: string
+            format: uuid
+      description: Carga guiada con clave estable. Primera preparación crea configuración, elementos y propuestas
+        pendientes atómicamente (PREPARADA). El Administrador revisa y decide cada propuesta en solicitudes separadas;
+        cuando todas se aprueban, COMPLETA incluye sus relaciones. La repetición no duplica registros. Si una propuesta
+        es rechazada la muestra permanece PREPARADA, se informa la limitación y no se inventa una relación. Datos
+        y etiquetas exclusivamente ficticios.
+      required:
+      - clave
+      - estado
+      - propuestas
+      - yaExistia
+      - mensaje
+      - capas
+      - elementos
+      - relaciones
+    PaginaCuentas:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cuenta'
+          maxItems: 25
+        paginacion:
+          $ref: '#/components/schemas/MetadatosPagina'
+      required:
+      - items
+      - paginacion
+    PaginaCapas:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Capa'
+          maxItems: 25
+        paginacion:
+          $ref: '#/components/schemas/MetadatosPagina'
+      required:
+      - items
+      - paginacion
+    PaginaTiposElemento:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TipoElemento'
+          maxItems: 25
+        paginacion:
+          $ref: '#/components/schemas/MetadatosPagina'
+      required:
+      - items
+      - paginacion
+    PaginaCampos:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Campo'
+          maxItems: 25
+        paginacion:
+          $ref: '#/components/schemas/MetadatosPagina'
+      required:
+      - items
+      - paginacion
+    PaginaTiposRelacion:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TipoRelacion'
+          maxItems: 25
+        paginacion:
+          $ref: '#/components/schemas/MetadatosPagina'
+      required:
+      - items
+      - paginacion
+    PaginaElementos:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ElementoResumen'
+          maxItems: 25
+        paginacion:
+          $ref: '#/components/schemas/MetadatosPagina'
+      required:
+      - items
+      - paginacion
+    PaginaRelaciones:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relacion'
+          maxItems: 25
+        paginacion:
+          $ref: '#/components/schemas/MetadatosPagina'
+      required:
+      - items
+      - paginacion
+    PaginaPropuestas:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Propuesta'
+          maxItems: 25
+        paginacion:
+          $ref: '#/components/schemas/MetadatosPagina'
+      required:
+      - items
+      - paginacion
+    PaginaBitacora:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntradaBitacora'
+          maxItems: 25
+        paginacion:
+          $ref: '#/components/schemas/MetadatosPagina'
+      required:
+      - items
+      - paginacion
+    DecisionesPropuesta:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Decision'
+          maxItems: 1
+      required:
+      - items
+    CargaDemostracionCrear:
+      type: object
+      additionalProperties: false
+      required:
+      - clave
+      properties:
+        clave:
+          type: string
+          enum:
+          - muestra-v1
+      description: Identificador estable de la muestra ficticia; no admite otros conjuntos ni instrucciones ejecutables.
+x-coverage-boundaries:
+- criterio: RF-17-AC-1
+  api: POST /cargas-demostracion prepara datos y propuestas; POST de decisiones separadas crea vínculos validados;
+    GET /cargas-demostracion/muestra-v1 consulta si quedó COMPLETA.
+  complemento: Recorrido guiado de interfaz con revisión del Administrador. Preparar la muestra por sí solo no satisface
+    la carga completa; no se autoaprueban vínculos.
+- criterio: RF-08-AC-3
+  api: 200 vacío sin coincidencias; 422 para búsqueda vacía enviada directamente.
+  complemento: Frontend pide nombre y no envía solicitud vacía. Comprobar con prueba de interfaz.
+- criterios:
+  - RF-13-AC-1
+  - RF-13-AC-2
+  - RF-13-AC-3
+  - RF-14-AC-1
+  - RF-14-AC-2
+  - RF-14-AC-3
+  - RF-15-AC-1
+  - RF-15-AC-2
+  api: Datos de mapas y detalles coherentes con filtros, dirección y límite.
+  complemento: Frontend renderiza, avisa truncamiento, selecciona nodo/arista y conserva contexto. Pruebas de integración
+    e interfaz.
+- criterios:
+  - RF-19-AC-1
+  - RF-19-AC-2
+  api: Lectura de datos persistidos y decisiones/asignaciones.
+  complemento: Pruebas de sesión nueva sin estado local y de recuperación; referencias de criterios no acreditan
+    persistencia ejecutada.
+x-rest-review:
+  documento: revision_rest.md
+  observaciones:
+  - REST-01
+  - REST-02
+  - REST-03
+  - REST-04
+  - REST-05
+  estado: Correcciones aplicadas al contrato; comportamiento pendiente de implementación y pruebas.

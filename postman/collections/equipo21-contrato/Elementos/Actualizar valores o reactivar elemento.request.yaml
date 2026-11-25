@@ -1,0 +1,31 @@
+$kind: http-request
+description: Administrador o Editor autorizado en la capa. Modifica solo propiedades enviadas y conserva ID, tipo y valores omitidos. estado=activo reactiva una baja conservando campos, relaciones e historial; ya activo no produce otra transición. Se pueden enviar valores y estado juntos, con validación atómica. Editar valores de una baja requiere estado=activo en la misma petición o reactivación previa; en otro caso devuelve 409. Registra autoría y cambios. Repetir una asignación idéntica no vuelve a modificar datos, fechas ni autoría. Este PATCH usa asignaciones de valores, no incrementos ni anexos; repetir el mismo cuerpo sin cambios externos conserva el mismo estado de negocio.
+url: "{{baseUrl}}/v1/elementos/:elementoId"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: elementoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+body:
+  type: json
+  content: |-
+    {
+      "valores": [
+        {
+          "campoId": "968dc06b-d8a9-1f3d-a0ff-4a42d7d00643",
+          "texto": "string"
+        }
+      ],
+      "estado": "activo"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Actualizar valores o reactivar elemento.resources/examples
+order: 4000

@@ -1,0 +1,48 @@
+$kind: http-example
+name: Solicitud mal formada (por ejemplo JSON ilegible). No se aplican cambios.
+request:
+  url: "{{baseUrl}}/v1/usuarios/:usuarioId/capas-editables"
+  method: PUT
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: usuarioId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: json
+    content: |-
+      {
+        "capaIds": [
+          "cd693f85-4b8b-e245-83c0-5869f9059716",
+          "afa14a32-ae27-97c6-644e-66099b4d5da1"
+        ]
+      }
+response:
+  statusCode: 400
+  statusText: Bad Request
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "codigo": "string",
+        "mensaje": "string",
+        "detalles": [
+          {
+            "campo": "string",
+            "motivo": "string"
+          },
+          {
+            "campo": "string",
+            "motivo": "string"
+          }
+        ]
+      }
+order: 2000

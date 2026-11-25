@@ -1,0 +1,13 @@
+$kind: http-request
+description: Devuelve capas iniciales y agregadas, ordenadas por nombre e ID. Lectura disponible para toda cuenta autenticada.
+url: "{{baseUrl}}/v1/capas"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar capas disponibles.resources/examples
+order: 1000

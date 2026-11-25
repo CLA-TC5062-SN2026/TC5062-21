@@ -1,0 +1,52 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/propuestas-relacion/:propuestaId"
+  method: PATCH
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: propuestaId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: json
+    content: |-
+      {
+        "origenId": "b4016cf0-2170-524e-d042-9c98fd7bb1a3",
+        "tipoRelacionId": "ba8866dd-cb6e-6db0-3885-af7136f2eb0a",
+        "destinoId": "8d905eb4-2d7a-7260-7c22-66b87bb15edf",
+        "justificacion": "stringstring",
+        "versionBase": 631
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "110cb636-5e0b-f2a3-b32d-f5556e835ef1",
+        "operacion": "cambio",
+        "estado": "pendiente",
+        "origenId": "12adf563-d0fa-a5cd-1696-8775e3125769",
+        "tipoRelacionId": "c0f3ca3a-057a-a8f0-6f72-bc167cb39df3",
+        "destinoId": "76de6e56-616b-0a5d-9176-58b7d0ae99e3",
+        "justificacion": "stringstring",
+        "estadoSolicitado": "vigente",
+        "relacionId": "f9a3efe7-1c75-7b65-50e6-ef5195b9bd8d",
+        "relacionResultadoId": "5a020578-b12f-26e7-8aaa-f5ef093411f2",
+        "versionBase": 7552,
+        "autorId": "3b6aa04d-0d12-808a-5546-5acb20dad6de",
+        "creadaEn": "1949-01-20T22:55:47.236Z",
+        "decisorId": "12011428-8523-65d2-d0e5-748ac8e17f4d",
+        "decididaEn": "1998-05-28T12:55:50.997Z"
+      }
+order: 1000

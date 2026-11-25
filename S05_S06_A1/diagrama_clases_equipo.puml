@@ -1,0 +1,182 @@
+@startuml
+hide methods
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+title Equipo 21 — Modelo consolidado y persistencia PostgreSQL
+left to right direction
+class Capa <<capas>> {
+  +nombre : String(120)
+  +id : UUID {PK}
+}
+class CargaDemostracion <<cargas_demostracion>> {
+  +id : String(60) {PK}
+  +creadaEn : DATETIME
+  +resultado : JSONB
+}
+class Usuario <<usuarios>> {
+  +correo : String(254)
+  +nombre : String(120)
+  -hashContrasena : String(60)
+  +rol : String(20)
+  +activo : Boolean
+  +creadoEn : DATETIME
+  +id : UUID {PK}
+}
+class Bitacora <<entradas_bitacora>> {
+  +actorId : UUID
+  +fecha : DATETIME
+  +tipoObjeto : String(50)
+  +objetoId : UUID
+  +accion : String(50)
+  +valoresAntes : JSONB [0..1]
+  +valoresDespues : JSONB [0..1]
+  +id : UUID {PK}
+}
+class Permiso <<permisos_edicion_capa>> {
+  +usuarioId : UUID
+  +capaId : UUID
+  +asignadoPor : UUID
+  +asignadoEn : DATETIME
+  +id : UUID {PK}
+}
+class Sesion <<sesiones>> {
+  +usuarioId : UUID
+  +jti : UUID
+  -hashToken : String(64)
+  +creadaEn : DATETIME
+  +ultimaActividadEn : DATETIME
+  +expiraEn : DATETIME
+  +revocadaEn : DATETIME [0..1]
+  +id : UUID {PK}
+}
+class TipoElemento <<tipos_elemento>> {
+  +nombre : String(120)
+  +capaId : UUID
+  +id : UUID {PK}
+}
+class Campo <<definiciones_campo>> {
+  +tipoElementoId : UUID
+  +nombre : String(120)
+  +tipoDato : String(15)
+  +obligatorio : Boolean
+  +esBaseNombre : Boolean
+  +id : UUID {PK}
+}
+class Elemento <<elementos>> {
+  +tipoElementoId : UUID
+  +nombre : String(500)
+  +estado : String(10)
+  +id : UUID {PK}
+  +creadorId : UUID
+  +ultimoModificadorId : UUID
+  +creadoEn : DATETIME
+  +modificadoEn : DATETIME
+}
+class TipoRelacion <<tipos_relacion>> {
+  +nombre : String(120)
+  +descripcion : TEXT
+  +tipoOrigenId : UUID
+  +tipoDestinoId : UUID
+  +id : UUID {PK}
+}
+class Opcion <<opciones_campo>> {
+  +campoId : UUID
+  +etiqueta : String(120)
+  +orden : INTEGER
+  +activa : Boolean
+  +id : UUID {PK}
+}
+class Relacion <<relaciones_validadas>> {
+  +origenId : UUID
+  +destinoId : UUID
+  +tipoRelacionId : UUID
+  +justificacion : String(500)
+  +estado : String(10)
+  +version : INTEGER
+  +id : UUID {PK}
+  +creadorId : UUID
+  +ultimoModificadorId : UUID
+  +creadoEn : DATETIME
+  +modificadoEn : DATETIME
+}
+class Propuesta <<propuestas_relacion>> {
+  +operacion : String(10)
+  +estado : String(10)
+  +origenId : UUID
+  +destinoId : UUID
+  +tipoRelacionId : UUID
+  +justificacion : String(500)
+  +estadoSolicitado : String(10)
+  +relacionId : UUID [0..1]
+  +relacionResultadoId : UUID [0..1]
+  +versionBase : INTEGER [0..1]
+  +autorId : UUID
+  +creadaEn : DATETIME
+  +id : UUID {PK}
+}
+class Valor <<valores_campo>> {
+  +elementoId : UUID
+  +campoId : UUID
+  +texto : TEXT [0..1]
+  +numero : FLOAT [0..1]
+  +fecha : DATE [0..1]
+  +opcionId : UUID [0..1]
+  +id : UUID {PK}
+}
+class Decision <<decisiones_propuesta>> {
+  +propuestaId : UUID
+  +resultado : String(10)
+  +decisorId : UUID
+  +decididaEn : DATETIME
+  +id : UUID {PK}
+}
+Bitacora "0..*" --> "1" Usuario : actorId
+Permiso "0..*" --> "1" Capa : capaId
+Permiso "0..*" --> "1" Usuario : usuarioId
+Permiso "0..*" --> "1" Usuario : asignadoPor
+Sesion "0..*" --> "1" Usuario : usuarioId
+TipoElemento "0..*" --> "1" Capa : capaId
+Campo "0..*" --> "1" TipoElemento : tipoElementoId
+Elemento "0..*" --> "1" TipoElemento : tipoElementoId
+Elemento "0..*" --> "1" Usuario : creadorId
+Elemento "0..*" --> "1" Usuario : ultimoModificadorId
+TipoRelacion "0..*" --> "1" TipoElemento : tipoDestinoId
+TipoRelacion "0..*" --> "1" TipoElemento : tipoOrigenId
+Opcion "0..*" --> "1" Campo : campoId
+Relacion "0..*" --> "1" Elemento : destinoId
+Relacion "0..*" --> "1" TipoRelacion : tipoRelacionId
+Relacion "0..*" --> "1" Usuario : ultimoModificadorId
+Relacion "0..*" --> "1" Usuario : creadorId
+Relacion "0..*" --> "1" Elemento : origenId
+Propuesta "0..*" --> "1" TipoRelacion : tipoRelacionId
+Propuesta "0..*" --> "1" Usuario : autorId
+Propuesta "0..*" --> "0..1" Relacion : relacionResultadoId
+Propuesta "0..*" --> "1" Elemento : origenId
+Propuesta "0..*" --> "1" Elemento : destinoId
+Propuesta "0..*" --> "0..1" Relacion : relacionId
+Valor "0..*" --> "1" Elemento : elementoId
+Valor "0..*" --> "1" Campo : campoId
+Valor "0..*" --> "0..1" Opcion : opcionId
+Decision "0..*" --> "1" Usuario : decisorId
+Decision "0..*" --> "1" Propuesta : propuestaId
+note bottom of Usuario
+  correo único normalizado; hash bcrypt interno.
+  Administrador / Editor / Consulta.
+end note
+note bottom of Valor
+  Un único valor tipado por (elemento, campo).
+  ValorTexto/Numero/Fecha/Seleccion de Jean Paul se concretan
+  en una tabla con CHECK de exclusión y trigger de compatibilidad.
+end note
+note bottom of Bitacora
+  Solo lectura por API; UPDATE/DELETE rechazados en PostgreSQL.
+  Instantáneas públicas sin contraseñas, hashes ni JWT.
+end note
+note bottom of Propuesta
+  Alta: sin relación objetivo. Cambio/retiro: relación y versión obligatorias.
+  Una decisión por propuesta; aprobar revalida extremos y duplicados.
+end note
+note bottom of Opcion
+  Reemplazo de opciones conserva las anteriores como inactivas.
+end note
+@enduml

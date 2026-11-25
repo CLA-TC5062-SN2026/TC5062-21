@@ -1,0 +1,46 @@
+$kind: http-example
+name: Sesión válida sin rol o capa de edición requeridos. No se aplican cambios.
+request:
+  url: "{{baseUrl}}/v1/elementos"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "tipoElementoId": "cd4c4235-4dfd-dd3d-414a-bbe575a5700a",
+        "valores": [
+          {
+            "campoId": "1679401e-e7d3-d6b6-daf0-f42e5446cfe5",
+            "texto": "string"
+          }
+        ]
+      }
+response:
+  statusCode: 403
+  statusText: Forbidden
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "codigo": "string",
+        "mensaje": "string",
+        "detalles": [
+          {
+            "campo": "string",
+            "motivo": "string"
+          },
+          {
+            "campo": "string",
+            "motivo": "string"
+          }
+        ]
+      }
+order: 4000

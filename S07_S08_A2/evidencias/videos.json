@@ -1,0 +1,23 @@
+{
+  "fecha": "2026-11-03",
+  "grabacion": "Google Vids, captura real de pantalla",
+  "documento": "https://docs.google.com/videos/d/1kWCPZAMd6jfKKABcZQJSEFGtHJjsycs3KbGNl8R2ElM/edit",
+  "edicion": "Extracción de tramos a velocidad normal; audio retirado; sin fabricar estados de interfaz.",
+  "clips": [
+    {
+      "archivo": "S07_S08_A1/scaffolding.mp4",
+      "inicio_fuente_s": 54.5,
+      "duracion_solicitada_s": 4.0
+    },
+    {
+      "archivo": "S07_S08_A2/flujo_auth.mp4",
+      "inicio_fuente_s": 37.5,
+      "duracion_solicitada_s": 9.4
+    },
+    {
+      "archivo": "S07_S08_A2/flujo_e2e.mp4",
+      "inicio_fuente_s": 46.9,
+      "duracion_solicitada_s": 7.5
+    }
+  ]
+}

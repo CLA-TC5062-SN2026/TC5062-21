@@ -1,0 +1,38 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/auth/register"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "correo": "4KA7RU2RNE-Os@ZVIiXmbSZJflspuDBe.nl",
+        "nombre": "+",
+        "contrasena": "stringstring"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "3cf5aa13-c7ec-7192-5ff3-7194602b31b1",
+        "correo": "NFkl@ygqNnin.np",
+        "nombre": "string",
+        "rol": "Editor",
+        "activo": false,
+        "capasEditables": [
+          "e09ba405-e4ae-c5c1-3e74-e96ec20a4a6c",
+          "e8dc6642-bd25-1180-a782-e4ab20879d63"
+        ]
+      }
+order: 1000

@@ -1,0 +1,66 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/entradas-bitacora?pagina=1&objetoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&tipoObjeto=string&actorId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  queryParams:
+    pagina: "1"
+    objetoId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    tipoObjeto: string
+    actorId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "items": [
+          {
+            "id": "c403733e-4594-2a50-355a-006cea2da4f1",
+            "actorId": "dc2808bb-0a81-8eaa-f80a-c87b6e33b1b2",
+            "fecha": "1955-07-28T08:17:52.339Z",
+            "tipoObjeto": "string",
+            "objetoId": "ebe097e6-410e-8f4b-53fc-f03f2afbca28",
+            "accion": "string",
+            "valoresAntes": {
+              "key_0": 7424
+            },
+            "valoresDespues": {
+              "key_0": false
+            }
+          },
+          {
+            "id": "583d7dad-8419-37a0-101a-17d0e45a3b3c",
+            "actorId": "15535ec1-fa41-5650-0e23-ef265e072c63",
+            "fecha": "2008-10-16T02:15:18.520Z",
+            "tipoObjeto": "string",
+            "objetoId": "d9a5f2ef-94ed-99f5-86cb-7181404c448a",
+            "accion": "string",
+            "valoresAntes": {
+              "key_0": true,
+              "key_1": false
+            },
+            "valoresDespues": {
+              "key_0": "string",
+              "key_1": 4565,
+              "key_2": false
+            }
+          }
+        ],
+        "total": 6693,
+        "pagina": 1302,
+        "tamanoPagina": 25
+      }
+order: 1000

@@ -1,0 +1,10 @@
+{
+  "archivo": "pruebas_auth.mp4",
+  "origen": "Video proporcionado por Gregorio",
+  "duracion_segundos": 46.399979,
+  "limite_segundos": 60,
+  "cumple_duracion": true,
+  "bytes": 23200143,
+  "sha256": "ae3bccbc20d73619ce308c3c708b22a6f41d0626a90fc7be757fa9c9025b3233",
+  "metodo_duracion": "Cabecera mvhd del contenedor MP4"
+}

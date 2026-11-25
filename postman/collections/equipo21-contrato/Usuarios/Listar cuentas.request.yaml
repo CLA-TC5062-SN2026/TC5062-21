@@ -1,0 +1,18 @@
+$kind: http-request
+description: Lista cuentas activas e inactivas sin contraseñas ni hashes. Orden estable por identificador de acceso e ID. Solo Administrador.
+url: "{{baseUrl}}/v1/usuarios?pagina=1"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: pagina
+    value: "1"
+    disabled: false
+    description: Página desde 1; tamaño fijo de 25.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Listar cuentas.resources/examples
+order: 1000

@@ -1,0 +1,18 @@
+$kind: http-request
+description: DELETE realiza baja lógica, nunca borrado físico. Conserva valores, relaciones y bitácora; excluye el elemento de listado/mapa ordinarios. Repetir la baja conserva estado y no genera otra transición. Devuelve el registro con estado baja. Administrador o Editor autorizado sobre la capa afectada; Consulta no puede escribir.
+url: "{{baseUrl}}/v1/elementos/:elementoId"
+method: DELETE
+headers:
+  Accept: application/json
+pathVariables:
+  - key: elementoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Dar de baja lógica al elemento.resources/examples
+order: 5000

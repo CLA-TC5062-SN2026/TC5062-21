@@ -1,0 +1,73 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/tipos-elemento/:tipoId/campos"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: tipoId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "items": [
+          {
+            "id": "9e1a37a1-1a70-5609-7a7c-910df002e3ec",
+            "tipoElementoId": "310ebd84-3621-3892-4d06-912cffd460e5",
+            "nombre": "string",
+            "tipoDato": "fecha",
+            "obligatorio": true,
+            "esBaseNombre": false,
+            "opciones": [
+              {
+                "id": "058d1a43-bc86-7372-1119-7be650c8fb16",
+                "etiqueta": "string",
+                "orden": 9997
+              },
+              {
+                "id": "19a6736d-2814-af59-bab5-be9c7638f9be",
+                "etiqueta": "string",
+                "orden": 2770
+              }
+            ]
+          },
+          {
+            "id": "688dae8d-05f0-efc9-3669-7fe0bb9a5b36",
+            "tipoElementoId": "1837f99c-d3a9-b22e-b2d0-99e7cdcf5160",
+            "nombre": "string",
+            "tipoDato": "texto",
+            "obligatorio": false,
+            "esBaseNombre": true,
+            "opciones": [
+              {
+                "id": "09936826-c317-4f88-a4b9-5dc0c2d74fe2",
+                "etiqueta": "string",
+                "orden": 6175
+              },
+              {
+                "id": "f412ce38-c18c-9e20-95c9-45fd49ac16cb",
+                "etiqueta": "string",
+                "orden": 9235
+              }
+            ]
+          }
+        ],
+        "total": 5642
+      }
+order: 1000

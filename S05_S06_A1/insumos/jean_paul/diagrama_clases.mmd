@@ -1,0 +1,144 @@
+---
+config:
+  layout: elk
+  theme: neutral
+  fontSize: 16
+  class:
+    useMaxWidth: false
+    hideEmptyMembersBox: true
+---
+%% S04_A1. Modelo revisado con las dos modificaciones seleccionadas por el estudiante.
+%% Línea base: SRS_equipo v1.0. Tipos enumerados y restricciones: modelo_dominio.md.
+classDiagram
+direction LR
+%% Acceso
+  class Cuenta {
+    +UUID id
+    +String usuario
+    -String hashContrasena
+    +Rol rol
+    +Boolean activa
+  }
+  class Sesion {
+    +UUID id
+    +Instant iniciadaEn
+    +Instant ultimaActividadEn
+    +Instant expiraEn
+    +Instant revocadaEn_opcional
+  }
+  class AsignacionEdicion {
+    +Instant asignadaEn
+  }
+%% Configuracion
+  class Capa {
+    +UUID id
+    +String nombre
+    +String descripcion
+  }
+  class TipoElemento {
+    +UUID id
+    +String nombre
+    +String descripcion
+  }
+  class DefinicionCampo {
+    +UUID id
+    +String nombre
+    +TipoDato tipoDato
+    +Boolean obligatorio
+    +Boolean esNombreBase
+  }
+  class OpcionSeleccion {
+    +UUID id
+    +String etiqueta
+  }
+%% Elementos
+  class Elemento {
+    +UUID id
+    +String nombre_derivado
+    +Boolean activo
+    +Cuenta creador
+    +Instant creadoEn
+    +Cuenta ultimoModificador
+    +Instant modificadoEn
+  }
+  class ValorCampo {
+    <<abstract>>
+  }
+  class ValorTexto {
+    +String valor
+  }
+  class ValorNumero {
+    +Decimal valor
+  }
+  class ValorFecha {
+    +LocalDate valor
+  }
+  class ValorSeleccion {
+    +OpcionSeleccion opcion
+  }
+%% Relaciones
+  class TipoRelacion {
+    +UUID id
+    +String nombre
+    +String descripcion
+  }
+  class RelacionValidada {
+    +UUID id
+    +String justificacion
+    +EstadoRelacion estado
+    +Cuenta creador
+    +Instant creadoEn
+    +Cuenta ultimoModificador
+    +Instant modificadoEn
+  }
+  class PropuestaRelacion {
+    +UUID id
+    +OperacionPropuesta operacion
+    +String justificacionPropuesta
+    +EstadoRelacion estadoPropuesto
+    +EstadoPropuesta estado_derivado
+    +Cuenta autor
+    +Instant propuestaEn
+  }
+  class DecisionPropuesta {
+    +ResultadoDecision resultado
+    +Cuenta decisor
+    +Instant decididaEn
+  }
+%% Auditoria
+  class EntradaBitacora {
+    +UUID id
+    +Instant registradaEn
+    +String tipoObjeto
+    +UUID idObjeto
+    +String accion
+    +JSON anterior_opcional
+    +JSON nuevo_opcional
+  }
+
+Cuenta "1" -- "0..*" Sesion : autentica
+Cuenta "1" -- "0..*" AsignacionEdicion : recibe
+Capa "1" -- "0..*" AsignacionEdicion : permite editar
+Capa "1" -- "0..*" TipoElemento : agrupa
+TipoElemento "1" *-- "1..*" DefinicionCampo : define
+DefinicionCampo "1" *-- "0..*" OpcionSeleccion : ofrece
+TipoElemento "1" -- "0..*" Elemento : clasifica
+Elemento "1" *-- "1..*" ValorCampo : conserva
+DefinicionCampo "1" -- "0..*" ValorCampo : describe
+ValorSeleccion "0..*" --> "1" OpcionSeleccion : selecciona
+ValorCampo <|-- ValorTexto
+ValorCampo <|-- ValorNumero
+ValorCampo <|-- ValorFecha
+ValorCampo <|-- ValorSeleccion
+TipoRelacion "0..*" --> "1" TipoElemento : tipoOrigen
+TipoRelacion "0..*" --> "1" TipoElemento : tipoDestino
+RelacionValidada "0..*" --> "1" TipoRelacion : tipo vigente
+RelacionValidada "0..*" --> "1" Elemento : origen vigente
+RelacionValidada "0..*" --> "1" Elemento : destino vigente
+PropuestaRelacion "0..*" --> "1" TipoRelacion : tipo propuesto
+PropuestaRelacion "0..*" --> "1" Elemento : origen propuesto
+PropuestaRelacion "0..*" --> "1" Elemento : destino propuesto
+PropuestaRelacion "0..*" --> "0..1" RelacionValidada : relacion asociada
+Cuenta "1" -- "0..*" EntradaBitacora : actor
+PropuestaRelacion "1" *-- "0..1" DecisionPropuesta : resolucion
+Cuenta "1" -- "0..*" DecisionPropuesta : decisor

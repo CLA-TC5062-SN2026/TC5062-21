@@ -1,0 +1,43 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/v1/propuestas-relacion"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "operacion": "alta",
+        "origenId": "84e06b1a-e1b4-05c2-408a-77e7cd4c0f7a",
+        "tipoRelacionId": "678eae1b-f2df-3e5d-2191-ee8e0fde6229",
+        "destinoId": "d649949a-e20e-54fe-905e-a8db21a5a3fd",
+        "justificacion": "stringstring"
+      }
+response:
+  statusCode: 503
+  statusText: Service Unavailable
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "codigo": "string",
+        "mensaje": "string",
+        "detalles": [
+          {
+            "campo": "string",
+            "motivo": "string"
+          },
+          {
+            "campo": "string",
+            "motivo": "string"
+          }
+        ]
+      }
+order: 11000

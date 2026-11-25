@@ -1,0 +1,43 @@
+{
+  "criterios_canonicos": 56,
+  "criterios_referenciados": 56,
+  "faltantes": [],
+  "ajenos": [],
+  "fuentes": [
+    {
+      "integrante": "gregorio",
+      "version": "1.1.0",
+      "operaciones": 41
+    },
+    {
+      "integrante": "jean_paul",
+      "version": "1.1.0",
+      "operaciones": 45
+    },
+    {
+      "integrante": "liciel",
+      "version": "1.0.0",
+      "operaciones": 39
+    }
+  ],
+  "tablas": [
+    "capas",
+    "cargas_demostracion",
+    "decisiones_propuesta",
+    "definiciones_campo",
+    "elementos",
+    "entradas_bitacora",
+    "opciones_campo",
+    "permisos_edicion_capa",
+    "propuestas_relacion",
+    "relaciones_validadas",
+    "sesiones",
+    "tipos_elemento",
+    "tipos_relacion",
+    "usuarios",
+    "valores_campo"
+  ],
+  "claves_primarias": 15,
+  "claves_foraneas": 29,
+  "indices": 45
+}

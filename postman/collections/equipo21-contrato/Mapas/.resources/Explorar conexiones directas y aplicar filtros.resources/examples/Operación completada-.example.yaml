@@ -1,0 +1,68 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/mapas/:elementoId?capaDestinoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&tipoElementoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&tipoRelacionId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  queryParams:
+    capaDestinoId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    tipoElementoId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    tipoRelacionId: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+  pathVariables:
+    - key: elementoId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "elementoPartidaId": "6b448724-e752-9d73-db48-4fbadbf4aaf6",
+        "nodos": [
+          {
+            "id": "590d57c8-a12c-06fe-4aea-93dbf7ca8fe1",
+            "nombre": "string",
+            "tipoElemento": {
+              "id": "ec0fe065-5437-f625-3936-a0407a86afb8",
+              "nombre": "string"
+            },
+            "capa": {
+              "id": "553fef02-84fb-d6a1-2928-23a8250f0d02",
+              "nombre": "string"
+            },
+            "estado": "baja"
+          }
+        ],
+        "aristas": [
+          {
+            "relacionId": "b5e453b6-228e-890b-20d3-4bdaf514bc5e",
+            "origenId": "bb01f414-7419-b53d-4ddf-5c5b0728dce3",
+            "destinoId": "cf7d579f-bc5b-b635-246a-25e1c4615bf2",
+            "tipoRelacionId": "daba23fb-6bcf-ae9e-fae4-b6748a10e339",
+            "tipoRelacionNombre": "string"
+          },
+          {
+            "relacionId": "4ec7455f-bee6-1845-b364-c649eba54651",
+            "origenId": "58e65808-323d-8644-dc11-22e007a3db39",
+            "destinoId": "0f0f4268-0576-25a7-e309-e63fa91d884a",
+            "tipoRelacionId": "f57cc792-59e4-7c0e-ef63-0cde6fd9e966",
+            "tipoRelacionNombre": "string"
+          }
+        ],
+        "truncado": true,
+        "totalNodosElegibles": 9652
+      }
+order: 1000

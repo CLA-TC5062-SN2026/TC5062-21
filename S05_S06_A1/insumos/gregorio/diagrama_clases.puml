@@ -1,0 +1,164 @@
+@startuml
+top to bottom direction
+skinparam shadowing false
+skinparam backgroundColor white
+skinparam defaultFontName SansSerif
+skinparam defaultFontSize 13
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam nodesep 65
+skinparam ranksep 90
+skinparam classBackgroundColor #EFF6FF
+skinparam classBorderColor #2563EB
+skinparam ArrowColor #475569
+title
+Plataforma de Arquitectura Empresarial
+UML — Clases del dominio (versión revisada)
+end title
+package "Identidad y acceso" {
+  class Usuario {
+    id: UUID {inmutable}
+    identificadorAcceso: String {unico}
+    hashContrasena: String
+    activo: Boolean
+    rol: Administrador / Editor / Consulta [1]
+  }
+  class Sesion {
+    id: UUID
+    hashToken: String
+    creadaEn: DateTime
+    ultimaActividadEn: DateTime
+    expiraEn: DateTime
+    revocadaEn: DateTime [0..1]
+  }
+  class PermisoEdicionCapa {
+    id: UUID
+    asignadoEn: DateTime
+    asignadoPor: Usuario [1]
+  }
+}
+package "Metamodelo configurable" {
+  class Capa {
+    id: UUID
+    nombre: String {unico global}
+  }
+  class TipoElemento {
+    id: UUID
+    nombre: String {unico en capa}
+    /estructuraBloqueada: Boolean
+  }
+  class DefinicionCampo {
+    id: UUID
+    nombre: String {unico en tipo}
+    tipoDato: texto / numero / fecha / seleccion
+    obligatorio: Boolean
+    esBaseNombre: Boolean
+  }
+  class OpcionCampo {
+    id: UUID
+    etiqueta: String
+    orden: Integer
+  }
+  class TipoRelacion {
+    id: UUID
+    nombre: String
+    descripcion: String
+  }
+}
+package "Registros, propuestas y conservación" {
+  abstract class RegistroTrazable {
+    id: UUID {inmutable}
+    creadoEn: DateTime
+    modificadoEn: DateTime
+    creador: Usuario [1]
+    ultimoModificador: Usuario [1]
+  }
+  class Elemento {
+    estado: activo / baja
+    /nombre: String {campo base obligatorio}
+  }
+  class ValorCampo {
+    id: UUID
+    texto: String [0..1]
+    numero: Decimal [0..1]
+    fecha: Date [0..1]
+  }
+  class RelacionValidada {
+    justificacion: String
+    estado: vigente / retirada
+    version: Integer
+  }
+  class PropuestaRelacion {
+    id: UUID
+    operacion: alta / cambio / retiro
+    estado: pendiente / aprobada / rechazada
+    justificacionPropuesta: String {10..500}
+    estadoSolicitado: vigente / retirada
+    creadaEn: DateTime
+    autor: Usuario [1]
+    decisor: Usuario [0..1]
+    decididaEn: DateTime [0..1]
+    versionBase: Integer [0..1]
+  }
+  class EntradaBitacora {
+    id: UUID
+    actor: Usuario [1]
+    fecha: DateTime
+    tipoObjeto: String
+    objetoId: UUID
+    accion: String
+    valoresAntes: Datos [0..1]
+    valoresDespues: Datos [0..1]
+  }
+}
+Usuario "1" -- "0..*" Sesion : tiene
+Usuario "1" -- "0..*" PermisoEdicionCapa : editor
+PermisoEdicionCapa "0..*" -- "1" Capa : capa editable
+Capa "1" -- "0..*" TipoElemento : agrupa
+TipoElemento "1" *-- "1..*" DefinicionCampo : define
+DefinicionCampo "1" *-- "0..*" OpcionCampo : opciones
+TipoElemento "1" -- "0..*" Elemento : clasifica
+Elemento "1" *-- "1..*" ValorCampo : valores presentes
+DefinicionCampo "1" -- "0..*" ValorCampo : valida
+ValorCampo "0..*" -- "0..1" OpcionCampo : seleccion
+TipoRelacion "0..*" --> "1" TipoElemento : tipo origen
+TipoRelacion "0..*" --> "1" TipoElemento : tipo destino
+RegistroTrazable <|-- Elemento
+RegistroTrazable <|-- RelacionValidada
+RelacionValidada "0..*" --> "1" Elemento : origen vigente
+RelacionValidada "0..*" --> "1" Elemento : destino vigente
+RelacionValidada "0..*" --> "1" TipoRelacion : tipo vigente
+PropuestaRelacion "0..*" --> "1" Elemento : origen propuesto
+PropuestaRelacion "0..*" --> "1" Elemento : destino propuesto
+PropuestaRelacion "0..*" --> "1" TipoRelacion : tipo propuesto
+PropuestaRelacion "0..*" --> "0..1" RelacionValidada : relacion objetivo
+PropuestaRelacion "1" --> "0..1" RelacionValidada : resultado del alta aprobada
+note bottom of PropuestaRelacion
+  Objetivo: 0 para alta; 1 para cambio/retiro.
+  Resultado: 1 solo al aprobar un alta.
+  Máximo una pendiente por relación objetivo.
+  Proponer no modifica los valores vigentes.
+end note
+note bottom of ValorCampo
+  Único por (elemento, definición).
+  Un valor usa texto, número, fecha o selección,
+  según tipoDato; exactamente una representación.
+  Campo opcional vacío: sin ValorCampo.
+end note
+note bottom of DefinicionCampo
+  Cada tipo contiene exactamente un Nombre:
+  texto, obligatorio e inalterable.
+  Opciones solo para selección simple.
+end note
+note bottom of EntradaBitacora
+  Inmutable; sin contraseñas ni tokens.
+  Referencia objetos de distintos módulos por identidad.
+  Baja y retiro conservan registros y sus referencias.
+end note
+legend bottom
+  [1] / [0..1] en atributos de referencia indican multiplicidad.
+  /atributo = derivado; *-- = composición; triángulo = herencia.
+  Composición expresa pertenencia exclusiva, no borrado SQL en cascada.
+  Modelo conceptual: RegistroTrazable no exige una tabla propia.
+endlegend
+@enduml

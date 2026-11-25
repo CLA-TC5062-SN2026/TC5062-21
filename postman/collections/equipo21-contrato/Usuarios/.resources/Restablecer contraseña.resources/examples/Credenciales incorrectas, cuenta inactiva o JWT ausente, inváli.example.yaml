@@ -1,0 +1,50 @@
+$kind: http-example
+name: Credenciales incorrectas, cuenta inactiva o JWT ausente, inválido, expirado o sesión revocada/inactiva. No se entregan datos privados.
+request:
+  url: "{{baseUrl}}/v1/usuarios/:usuarioId/restablecimientos-contrasena"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: usuarioId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: json
+    content: |-
+      {
+        "nuevaContrasena": "stringstring"
+      }
+response:
+  statusCode: 401
+  statusText: Unauthorized
+  headers:
+    - key: WWW-Authenticate
+      value: Bearer realm="arquitectura"
+      disabled: false
+      description: Obligatorio en toda respuesta 401. Challenge Bearer; un JWT presentado pero inválido puede añadir error="invalid_token".
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "codigo": "string",
+        "mensaje": "string",
+        "detalles": [
+          {
+            "campo": "string",
+            "motivo": "string"
+          },
+          {
+            "campo": "string",
+            "motivo": "string"
+          }
+        ]
+      }
+order: 3000

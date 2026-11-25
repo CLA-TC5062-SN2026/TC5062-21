@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="14" failures="0" errors="0" time="0.203548375">
+    <testsuite name="src/components/accessibility.test.tsx" timestamp="2026-11-04T02:02:04.389Z" hostname="MacBook-Air-de-Paul.local" tests="3" failures="0" errors="0" skipped="0" time="0.0611055">
+        <testcase classname="src/components/accessibility.test.tsx" name="un campo inválido conserva etiqueta, estado y explicación asociados" time="0.048679792">
+        </testcase>
+        <testcase classname="src/components/accessibility.test.tsx" name="dos campos sin id explícito reciben identificadores distintos" time="0.005971792">
+        </testcase>
+        <testcase classname="src/components/accessibility.test.tsx" name="un botón cargando conserva su nombre y bloquea envíos duplicados" time="0.005834416">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/context/AuthContext.test.tsx" timestamp="2026-11-04T02:02:04.390Z" hostname="MacBook-Air-de-Paul.local" tests="2" failures="0" errors="0" skipped="0" time="0.071954917">
+        <testcase classname="src/context/AuthContext.test.tsx" name="una falla de red al recuperar la sesión permite reintentar sin borrar el token" time="0.065627083">
+        </testcase>
+        <testcase classname="src/context/AuthContext.test.tsx" name="una respuesta 401 anunciada por el cliente elimina la identidad de la interfaz" time="0.005815333">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/services/client.test.ts" timestamp="2026-11-04T02:02:04.390Z" hostname="MacBook-Air-de-Paul.local" tests="9" failures="0" errors="0" skipped="0" time="0.070487958">
+        <testcase classname="src/services/client.test.ts" name="Cliente HTTP con solicitudes reales a un servidor de prueba &gt; envía JWT y conserva el prefijo /api una sola vez" time="0.020689458">
+        </testcase>
+        <testcase classname="src/services/client.test.ts" name="Cliente HTTP con solicitudes reales a un servidor de prueba &gt; no envía JWT al login público y serializa las credenciales según contrato" time="0.009465333">
+        </testcase>
+        <testcase classname="src/services/client.test.ts" name="Cliente HTTP con solicitudes reales a un servidor de prueba &gt; notifica el 401 de una solicitud autenticada" time="0.003854666">
+        </testcase>
+        <testcase classname="src/services/client.test.ts" name="Cliente HTTP con solicitudes reales a un servidor de prueba &gt; un login rechazado no provoca un evento de sesión vencida" time="0.0016625">
+        </testcase>
+        <testcase classname="src/services/client.test.ts" name="Cliente HTTP con solicitudes reales a un servidor de prueba &gt; traduce un 503 con HTML a un mensaje útil, sin mostrar el cuerpo del servidor" time="0.001123375">
+        </testcase>
+        <testcase classname="src/services/client.test.ts" name="Cliente HTTP con solicitudes reales a un servidor de prueba &gt; rechaza una respuesta exitosa que no contiene JSON" time="0.000919166">
+        </testcase>
+        <testcase classname="src/services/client.test.ts" name="Cliente HTTP con solicitudes reales a un servidor de prueba &gt; limita una solicitud que no responde" time="0.030957042">
+        </testcase>
+        <testcase classname="src/services/client.test.ts" name="Cliente HTTP con solicitudes reales a un servidor de prueba &gt; distingue la cancelación al abandonar una vista" time="0.00060675">
+        </testcase>
+        <testcase classname="src/services/client.test.ts" name="Cliente HTTP con solicitudes reales a un servidor de prueba &gt; explica una conexión rechazada" time="0.000352167">
+        </testcase>
+    </testsuite>
+</testsuites>

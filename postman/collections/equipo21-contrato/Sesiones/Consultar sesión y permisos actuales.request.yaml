@@ -1,0 +1,13 @@
+$kind: http-request
+description: Devuelve la sesión vinculada al JWT y los permisos vigentes obtenidos del servidor. Validar firma no sustituye comprobar revocación, expiración y estado de la cuenta. Lectura disponible para toda cuenta autenticada.
+url: "{{baseUrl}}/v1/sesiones/actual"
+method: GET
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar sesión y permisos actuales.resources/examples
+order: 2000
