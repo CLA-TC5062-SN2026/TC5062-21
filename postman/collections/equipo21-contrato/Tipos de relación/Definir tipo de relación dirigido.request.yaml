@@ -1,0 +1,23 @@
+$kind: http-request
+description: Persiste nombre, descripción y tipos permitidos. Ambos tipos deben existir. No publica un vínculo al crear una definición. Solo Administrador.
+url: "{{baseUrl}}/v1/tipos-relacion"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "9",
+      "descripcion": "'",
+      "tipoOrigenId": "819a76f4-f1fc-3428-8715-e477dd593729",
+      "tipoDestinoId": "2cd426d5-4bb4-ea13-30b4-4946faac17d9"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Definir tipo de relación dirigido.resources/examples
+order: 2000

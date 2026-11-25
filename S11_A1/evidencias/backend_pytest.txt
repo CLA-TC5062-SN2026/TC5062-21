@@ -1,0 +1,6 @@
+Comando: python -m pytest backend/tests -q
+Fecha: 2026-11-25
+Resultado observado: 88 passed, 1 warning in 8.41s
+Código de salida: 0
+Advertencia: StarletteDeprecationWarning al usar httpx con starlette.testclient.
+El reporte JUnit original está en backend_pytest.xml.

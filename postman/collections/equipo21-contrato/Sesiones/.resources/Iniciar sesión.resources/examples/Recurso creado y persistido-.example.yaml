@@ -1,0 +1,50 @@
+$kind: http-example
+name: Recurso creado y persistido.
+request:
+  url: "{{baseUrl}}/v1/sesiones"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "correo": "F-3hUqynn@MivYMDysXvTLawLZmWNVGCtho.odql",
+        "contrasena": "string"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    - key: Location
+      value: /api/v1/sesiones/actual
+      disabled: false
+      description: URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1.
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "accessToken": "string",
+        "tokenType": "Bearer",
+        "expiresIn": 18211,
+        "expiraEn": "2024-05-18T05:35:13.859Z",
+        "usuario": {
+          "id": "bf7c565d-5c06-bc1c-237e-2dbe7fc23f1e",
+          "correo": "4I7mipJ5xsWNM1q@ISvXynpqyKSBUAUkOZdUyBGjMfPPv.zp",
+          "nombre": "string",
+          "rol": "Administrador",
+          "activo": false,
+          "capasEditables": [
+            "95fb48ca-0337-715c-4e26-2e91a5bbbc61",
+            "8e4bd6f3-d7c4-4beb-85a1-d7653b79ce24"
+          ]
+        },
+        "sesionId": "f03e05f4-bc13-6ce9-32a5-f1172bc680b0"
+      }
+order: 1000

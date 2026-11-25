@@ -1,0 +1,35 @@
+$kind: http-example
+name: Recurso creado y persistido.
+request:
+  url: "{{baseUrl}}/v1/capas"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "nombre": "@"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    - key: Location
+      value: /api/v1/capas/00000000-0000-4000-8000-000000000005
+      disabled: false
+      description: URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1.
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "0d91d4a5-6fcf-009a-2b5e-8ce90b5c81d4",
+        "nombre": "string"
+      }
+order: 1000

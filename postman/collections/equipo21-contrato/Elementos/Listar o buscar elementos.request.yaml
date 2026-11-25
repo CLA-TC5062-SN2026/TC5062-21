@@ -1,0 +1,34 @@
+$kind: http-request
+description: Tamaño fijo de 25, orden por Nombre y luego ID. Sin q se lista; con q se busca coincidencia parcial ignorando mayúsculas y espacios extremos, distinguiendo acentos. Nombres repetidos conservan registros separados. Sin coincidencias items=[] y total=0. Si q queda vacío se responde 422; la interfaz debe pedir un nombre sin enviar la búsqueda. Por defecto excluye bajas. Lectura disponible para toda cuenta autenticada.
+url: "{{baseUrl}}/v1/elementos?pagina=1&incluirBaja=false&q=x&capaId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f&tipoElementoId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: pagina
+    value: "1"
+    disabled: false
+    description: Página desde 1; tamaño fijo de 25.
+  - key: incluirBaja
+    value: "false"
+    disabled: false
+    description: Permite consultar elementos dados de baja con su etiqueta. No cambia el mapa ordinario.
+  - key: q
+    value: x
+    disabled: false
+    description: Texto de búsqueda no vacío; omitir para listar.
+  - key: capaId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Filtro por capa existente.
+  - key: tipoElementoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Filtro por tipo existente; combinación por intersección.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Listar o buscar elementos.resources/examples
+order: 1000

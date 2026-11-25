@@ -1,0 +1,18 @@
+$kind: http-request
+description: Recupera tipos, capas, campos, opciones y obligatoriedad para construir formularios. Filtrar por capa no modifica datos. Lectura disponible para toda cuenta autenticada.
+url: "{{baseUrl}}/v1/tipos-elemento?capaId=be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f"
+method: GET
+headers:
+  Accept: application/json
+queryParams:
+  - key: capaId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: Restringe al catálogo de una capa existente.
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Consultar tipos y formularios.resources/examples
+order: 1000

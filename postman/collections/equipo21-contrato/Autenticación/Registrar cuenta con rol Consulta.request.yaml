@@ -1,0 +1,18 @@
+$kind: http-request
+description: Registrar cuenta con rol Consulta. JSON; errores sin credenciales ni trazas internas.
+url: "{{baseUrl}}/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "correo": "4KA7RU2RNE-Os@ZVIiXmbSZJflspuDBe.nl",
+      "nombre": "+",
+      "contrasena": "stringstring"
+    }
+settings: {}
+examples: ./.resources/Registrar cuenta con rol Consulta.resources/examples
+order: 2000

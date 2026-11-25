@@ -1,0 +1,26 @@
+$kind: http-request
+description: Modifica nombre o descripción conservando identidad y tipos permitidos. Solo Administrador. Este PATCH usa asignaciones de valores, no incrementos ni anexos; repetir el mismo cuerpo sin cambios externos conserva el mismo estado de negocio.
+url: "{{baseUrl}}/v1/tipos-relacion/:tipoRelacionId"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: tipoRelacionId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "%",
+      "descripcion": "8"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Renombrar o describir tipo de relación.resources/examples
+order: 4000

@@ -1,0 +1,6 @@
+workflows:
+  syncSpecToCollection:
+    - spec: ../S05_S06_A1/openapi_equipo.yaml
+      collection: ../postman/collections/equipo21-contrato
+      options:
+        folderStrategy: Tags

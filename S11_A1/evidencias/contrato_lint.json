@@ -1,0 +1,22 @@
+{
+  "fecha": "2026-11-25",
+  "spec": {
+    "archivo": "postman/specs/openapi.yaml",
+    "codigo_salida": 0,
+    "resultado": "No issues found."
+  },
+  "colecciones": [
+    {
+      "ruta": "postman/collections/S05-S06-A1-CRUD",
+      "codigo_salida": 0,
+      "errores": 0,
+      "advertencias": 0
+    },
+    {
+      "ruta": "postman/collections/S05-S06-A2-Autenticacion",
+      "codigo_salida": 0,
+      "errores": 0,
+      "advertencias": 0
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+$kind: http-example
+name: Recurso creado y persistido.
+request:
+  url: "{{baseUrl}}/v1/tipos-relacion"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "nombre": "9",
+        "descripcion": "'",
+        "tipoOrigenId": "819a76f4-f1fc-3428-8715-e477dd593729",
+        "tipoDestinoId": "2cd426d5-4bb4-ea13-30b4-4946faac17d9"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    - key: Location
+      value: /api/v1/tipos-relacion/00000000-0000-4000-8000-000000000005
+      disabled: false
+      description: URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1.
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "8b0c32d5-4037-3bed-77f7-65716dbe5106",
+        "nombre": "7",
+        "descripcion": "9",
+        "tipoOrigenId": "5ca1ad15-534c-fa7a-83c3-d757a9886f3f",
+        "tipoDestinoId": "186e6cf5-4aea-f1eb-e37b-c4ae12e37d0f"
+      }
+order: 1000

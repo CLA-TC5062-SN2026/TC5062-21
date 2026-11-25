@@ -1,0 +1,52 @@
+[
+  {
+    "integrante": "gregorio",
+    "archivo": "insumos/gregorio/openapi.yaml",
+    "sha256": "369d909d7dbb10092f6cadf8a06f1a25846e0f4b282bc0cb5bacedef6b0fe0ec"
+  },
+  {
+    "integrante": "gregorio",
+    "archivo": "insumos/gregorio/diagrama_clases.puml",
+    "sha256": "6fee5403d2c0c0db3df4689742c28af65a5bb245f6bbae209afcb08d8aadbe27"
+  },
+  {
+    "integrante": "gregorio",
+    "archivo": "insumos/gregorio/diagrama_componentes.puml",
+    "sha256": "a2ee2ab07dbf2f60a21f2234b7f0352b5f17c8e777c67622fb93bb8351a22962"
+  },
+  {
+    "integrante": "jean_paul",
+    "archivo": "insumos/jean_paul/openapi.yml",
+    "sha256": "cdebff3de88939d2aa0d0f2fb62dcb757dd4c840650d3f97085112c3a7b4b2b2"
+  },
+  {
+    "integrante": "jean_paul",
+    "archivo": "insumos/jean_paul/diagrama_clases.mmd",
+    "sha256": "6f1ba6524ea5d922a3ea09f10aed63a6ac366b8b6621cf8b815fd77f8d0ec359"
+  },
+  {
+    "integrante": "jean_paul",
+    "archivo": "insumos/jean_paul/diagrama_componentes.mmd",
+    "sha256": "ee5fbfdaac42820a947d4ff998b3e35afdb4992953fc5b81914ae42e552cc3ca"
+  },
+  {
+    "integrante": "liciel",
+    "archivo": "insumos/liciel/openapi.yaml",
+    "sha256": "30d6e3fe6603a61e2611ee7675936b483e865f4330998e56f8e4b694de773051"
+  },
+  {
+    "integrante": "liciel",
+    "archivo": "insumos/liciel/diagrama_clases.png",
+    "sha256": "5b0e81816c7ec501f360a9f8877876c4911c06bc29b1f3832ee4d97b2e647a08"
+  },
+  {
+    "integrante": "liciel",
+    "archivo": "insumos/liciel/diagrama_componentes.png",
+    "sha256": "2cad066ab5023560d9ab760d566824fc3634327b97cd9e689b3e61eb5d60b373"
+  },
+  {
+    "integrante": "liciel",
+    "archivo": "insumos/liciel/diagrama_despliegue.png",
+    "sha256": "6d819e07fdfdfb54bed392dda3f756cdfa79411ff0d69309a8abbf9fed47c00b"
+  }
+]

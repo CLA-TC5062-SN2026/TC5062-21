@@ -1,0 +1,41 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/auth/register"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "correo": "4KA7RU2RNE-Os@ZVIiXmbSZJflspuDBe.nl",
+        "nombre": "+",
+        "contrasena": "stringstring"
+      }
+response:
+  statusCode: 503
+  statusText: Service Unavailable
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "codigo": "string",
+        "mensaje": "string",
+        "detalles": [
+          {
+            "campo": "string",
+            "motivo": "string"
+          },
+          {
+            "campo": "string",
+            "motivo": "string"
+          }
+        ]
+      }
+order: 9000

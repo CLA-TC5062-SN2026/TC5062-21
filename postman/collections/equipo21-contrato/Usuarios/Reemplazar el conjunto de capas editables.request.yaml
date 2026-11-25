@@ -1,0 +1,28 @@
+$kind: http-request
+description: PUT sustituye el conjunto completo, de forma idempotente. Solo aplica a cuentas con rol Editor. El servidor usa el nuevo conjunto en cada petición; conserva historial de asignaciones en bitácora. Solo Administrador.
+url: "{{baseUrl}}/v1/usuarios/:usuarioId/capas-editables"
+method: PUT
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: usuarioId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+body:
+  type: json
+  content: |-
+    {
+      "capaIds": [
+        "cd693f85-4b8b-e245-83c0-5869f9059716",
+        "afa14a32-ae27-97c6-644e-66099b4d5da1"
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Reemplazar el conjunto de capas editables.resources/examples
+order: 7000

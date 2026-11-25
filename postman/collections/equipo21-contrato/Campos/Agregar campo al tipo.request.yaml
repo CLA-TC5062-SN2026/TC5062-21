@@ -1,0 +1,37 @@
+$kind: http-request
+description: Se rechaza si hay elementos del tipo, si Nombre está reservado o si el nombre está repetido. Selección exige opciones; otros tipos no las admiten. Solo Administrador.
+url: "{{baseUrl}}/v1/tipos-elemento/:tipoId/campos"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: tipoId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "/",
+      "tipoDato": "texto",
+      "obligatorio": false,
+      "opciones": [
+        {
+          "etiqueta": "+",
+          "orden": 3836
+        },
+        {
+          "etiqueta": "|",
+          "orden": 8918
+        }
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Agregar campo al tipo.resources/examples
+order: 2000

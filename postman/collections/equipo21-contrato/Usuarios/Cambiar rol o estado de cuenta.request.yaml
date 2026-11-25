@@ -1,0 +1,26 @@
+$kind: http-request
+description: Cambios atómicos. Invalida todas las sesiones al cambiar rol o desactivar. No permite dejar cero administradores activos, incluso con solicitudes concurrentes. Registra cambios de acceso sin secretos. Solo Administrador. Este PATCH usa asignaciones de valores, no incrementos ni anexos; repetir el mismo cuerpo sin cambios externos conserva el mismo estado de negocio.
+url: "{{baseUrl}}/v1/usuarios/:usuarioId"
+method: PATCH
+headers:
+  Content-Type: application/json
+  Accept: application/json
+pathVariables:
+  - key: usuarioId
+    value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+    disabled: false
+    description: (Required) Identificador UUID del recurso.
+body:
+  type: json
+  content: |-
+    {
+      "rol": "Editor",
+      "activo": true
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Cambiar rol o estado de cuenta.resources/examples
+order: 4000

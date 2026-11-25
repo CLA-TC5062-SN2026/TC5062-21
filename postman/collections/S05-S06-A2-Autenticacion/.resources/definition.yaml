@@ -1,0 +1,7 @@
+$kind: collection
+name: S05-S06-A2-Autenticacion
+variables:
+- key: baseUrl
+  value: http://127.0.0.1:8000/api
+- key: runId
+  value: '{{$timestamp}}'

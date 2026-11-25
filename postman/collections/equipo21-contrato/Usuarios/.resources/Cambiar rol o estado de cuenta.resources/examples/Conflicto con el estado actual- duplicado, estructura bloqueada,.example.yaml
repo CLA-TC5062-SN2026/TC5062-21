@@ -1,0 +1,46 @@
+$kind: http-example
+name: "Conflicto con el estado actual: duplicado, estructura bloqueada, versión obsoleta, propuesta ya resuelta o pendiente simultánea, último administrador. No se altera ningún recurso. El cliente debe revisar el estado antes de intentar otra operación."
+request:
+  url: "{{baseUrl}}/v1/usuarios/:usuarioId"
+  method: PATCH
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: usuarioId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: json
+    content: |-
+      {
+        "rol": "Editor",
+        "activo": true
+      }
+response:
+  statusCode: 409
+  statusText: Conflict
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "codigo": "string",
+        "mensaje": "string",
+        "detalles": [
+          {
+            "campo": "string",
+            "motivo": "string"
+          },
+          {
+            "campo": "string",
+            "motivo": "string"
+          }
+        ]
+      }
+order: 6000

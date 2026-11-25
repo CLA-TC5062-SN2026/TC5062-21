@@ -1,0 +1,26 @@
+$kind: http-request
+description: Crea identidad UUID inmutable, valores, autoría y bitácora. Editor debe tener capa del tipo asignada. Obligatorios válidos; opcionales omitidos quedan vacíos. No crea nada si falla cualquier validación. Administrador o Editor autorizado sobre la capa afectada; Consulta no puede escribir.
+url: "{{baseUrl}}/v1/elementos"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "tipoElementoId": "cd4c4235-4dfd-dd3d-414a-bbe575a5700a",
+      "valores": [
+        {
+          "campoId": "1679401e-e7d3-d6b6-daf0-f42e5446cfe5",
+          "texto": "string"
+        }
+      ]
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{bearerToken}}"
+settings: {}
+examples: ./.resources/Registrar elemento.resources/examples
+order: 2000

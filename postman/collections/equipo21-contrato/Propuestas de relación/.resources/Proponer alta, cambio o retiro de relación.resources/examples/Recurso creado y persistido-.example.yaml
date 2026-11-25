@@ -1,0 +1,52 @@
+$kind: http-example
+name: Recurso creado y persistido.
+request:
+  url: "{{baseUrl}}/v1/propuestas-relacion"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "operacion": "alta",
+        "origenId": "84e06b1a-e1b4-05c2-408a-77e7cd4c0f7a",
+        "tipoRelacionId": "678eae1b-f2df-3e5d-2191-ee8e0fde6229",
+        "destinoId": "d649949a-e20e-54fe-905e-a8db21a5a3fd",
+        "justificacion": "stringstring"
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    - key: Location
+      value: /api/v1/propuestas-relacion/00000000-0000-4000-8000-000000000005
+      disabled: false
+      description: URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1.
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "110cb636-5e0b-f2a3-b32d-f5556e835ef1",
+        "operacion": "cambio",
+        "estado": "pendiente",
+        "origenId": "12adf563-d0fa-a5cd-1696-8775e3125769",
+        "tipoRelacionId": "c0f3ca3a-057a-a8f0-6f72-bc167cb39df3",
+        "destinoId": "76de6e56-616b-0a5d-9176-58b7d0ae99e3",
+        "justificacion": "stringstring",
+        "estadoSolicitado": "vigente",
+        "relacionId": "f9a3efe7-1c75-7b65-50e6-ef5195b9bd8d",
+        "relacionResultadoId": "5a020578-b12f-26e7-8aaa-f5ef093411f2",
+        "versionBase": 7552,
+        "autorId": "3b6aa04d-0d12-808a-5546-5acb20dad6de",
+        "creadaEn": "1949-01-20T22:55:47.236Z",
+        "decisorId": "12011428-8523-65d2-d0e5-748ac8e17f4d",
+        "decididaEn": "1998-05-28T12:55:50.997Z"
+      }
+order: 1000

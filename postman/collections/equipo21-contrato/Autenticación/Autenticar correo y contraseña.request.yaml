@@ -1,0 +1,17 @@
+$kind: http-request
+description: Autenticar correo y contraseña. JSON; errores sin credenciales ni trazas internas.
+url: "{{baseUrl}}/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "correo": "F-3hUqynn@MivYMDysXvTLawLZmWNVGCtho.odql",
+      "contrasena": "string"
+    }
+settings: {}
+examples: ./.resources/Autenticar correo y contraseña.resources/examples
+order: 3000

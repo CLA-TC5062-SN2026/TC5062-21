@@ -1,0 +1,45 @@
+$kind: http-example
+name: La muestra ya existe; no se duplicó ningún registro.
+request:
+  url: "{{baseUrl}}/v1/demostraciones/arquitectura-ficticia-v1"
+  method: PUT
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "muestraId": "arquitectura-ficticia-v1",
+        "ficticia": true
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "muestraId": "arquitectura-ficticia-v1",
+        "ficticia": true,
+        "creada": true,
+        "mensaje": "string",
+        "capaIds": [
+          "f7d1c344-6fc0-e9e3-5a2f-dfc04c0e3b3d",
+          "d848e351-954a-78b9-56a5-e672bf05167c"
+        ],
+        "elementoIds": [
+          "58106da2-252b-3dbd-97a7-24d2ae04a4f9",
+          "fd6f82de-a821-202e-43f6-b59819fe9914"
+        ],
+        "relacionIds": [
+          "53955466-1266-ddf6-5e87-30f5bfa338a1",
+          "38a4e986-f60b-9148-d424-36f30c56a99f"
+        ]
+      }
+order: 1000

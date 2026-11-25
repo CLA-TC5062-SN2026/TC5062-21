@@ -1,0 +1,38 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/v1/usuarios?pagina=1"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  queryParams:
+    pagina: "1"
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 503
+  statusText: Service Unavailable
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "codigo": "string",
+        "mensaje": "string",
+        "detalles": [
+          {
+            "campo": "string",
+            "motivo": "string"
+          },
+          {
+            "campo": "string",
+            "motivo": "string"
+          }
+        ]
+      }
+order: 7000

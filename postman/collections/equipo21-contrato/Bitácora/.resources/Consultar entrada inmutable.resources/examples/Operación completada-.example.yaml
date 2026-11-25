@@ -1,0 +1,43 @@
+$kind: http-example
+name: Operación completada.
+request:
+  url: "{{baseUrl}}/v1/entradas-bitacora/:entradaId"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: entradaId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: text
+    content: ""
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "6595f44b-a7e9-42c6-f559-a12889681cc7",
+        "actorId": "7e57d57f-b422-f392-7299-deb858aa9389",
+        "fecha": "1966-02-12T19:28:19.301Z",
+        "tipoObjeto": "string",
+        "objetoId": "add4f8ac-9b17-3443-4d1a-3988f467c8c8",
+        "accion": "string",
+        "valoresAntes": {
+          "key_0": 610.6803892180324,
+          "key_1": false
+        },
+        "valoresDespues": {
+          "key_0": 3459
+        }
+      }
+order: 1000

@@ -1,0 +1,68 @@
+$kind: http-example
+name: Recurso creado y persistido.
+request:
+  url: "{{baseUrl}}/v1/tipos-elemento/:tipoId/campos"
+  method: POST
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+      description: "Added as a part of security scheme: bearer"
+    - key: Accept
+      value: application/json
+  pathVariables:
+    - key: tipoId
+      value: be8ad9b0-8b6d-83b5-d2e0-ec5137bc856f
+      disabled: false
+      description: (Required) Identificador UUID del recurso.
+  body:
+    type: json
+    content: |-
+      {
+        "nombre": ".",
+        "tipoDato": "texto",
+        "obligatorio": true,
+        "opciones": [
+          {
+            "etiqueta": "P",
+            "orden": 9960
+          },
+          {
+            "etiqueta": "I",
+            "orden": 9272
+          }
+        ]
+      }
+response:
+  statusCode: 201
+  statusText: Created
+  headers:
+    - key: Location
+      value: /api/v1/tipos-elemento/00000000-0000-4000-8000-000000000002/campos/00000000-0000-4000-8000-000000000003
+      disabled: false
+      description: URI del recurso o evento inmutable creado; se envía en todo 201 de este contrato. Ejemplo ficticio bajo /api/v1.
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "id": "62165715-2598-cdb7-d5de-8f0415343548",
+        "tipoElementoId": "59fe6fbf-3877-6e4b-2e00-a85a623dbb6b",
+        "nombre": "string",
+        "tipoDato": "numero",
+        "obligatorio": false,
+        "esBaseNombre": false,
+        "opciones": [
+          {
+            "id": "5df95693-0e9e-a7f8-0116-b3ec90650f35",
+            "etiqueta": "string",
+            "orden": 1427
+          },
+          {
+            "id": "280240ed-bfcf-85a5-5382-8fb6456f7970",
+            "etiqueta": "string",
+            "orden": 5425
+          }
+        ]
+      }
+order: 1000
