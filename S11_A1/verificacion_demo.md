@@ -40,12 +40,25 @@ Se corrigió un problema observado con el campo fecha antes de aceptar M-03. La 
 - [x] Cuenta ficticia y datos completos cargados.
 - [x] Login, CRUD, error de validación, baja y reactivación comprobados.
 - [x] Pruebas, compilación y reportes conservados.
-- [ ] **Video continuo del equipo**, máximo cinco minutos, con los cinco segmentos.
+- [x] Video del equipo recibido e incorporado con el nombre solicitado.
+- [ ] Revisión manual de continuidad, participación del equipo y cobertura de los cinco segmentos.
 - [ ] Prueba de micrófono y revisión de claridad de narración.
-- [ ] Añadir `demo_proyecto.mp4` o un `demo_link.txt` real y accesible.
-- [ ] Generar ZIP final y subirlo a Canvas.
+- [x] Añadir [`demo_proyecto.mp4`](demo_proyecto.mp4), con pistas de imagen y audio presentes.
+- [x] Generar ZIP con documentación y video original.
+- [ ] Subir el ZIP a Canvas.
 - [ ] Alojamiento público y URL de producción; el equipo indicó que todavía no cuenta con hosting.
 
 Se mantiene el alcance parcial del producto indicado en la [matriz](matriz_trazabilidad.md): faltan pantallas administrativas, propuestas/decisiones, bitácora y mapa interactivo. Docker/Nginx se proporcionan como alternativa preparada; no se ejecutaron sus contenedores en esta revisión. No se midió el escenario completo de carga, la conformidad de accesibilidad ni la compatibilidad en Chrome/Edge.
 
-El ZIP `preparacion` permite revisar los documentos antes de grabar. Solo `--final`, con el video o enlace incorporado, genera el ZIP etiquetado como final. El script verifica presencia y metadatos, pero no puede certificar continuidad, calidad del audio, los cinco segmentos o la participación del equipo.
+El ZIP `preparacion` permite revisar los documentos antes de grabar. El modo `--final` del empaquetador exige imagen, audio y duración máxima de 300 segundos. El script verifica presencia y metadatos, pero no puede certificar continuidad, calidad del audio, los cinco segmentos o la participación del equipo.
+
+## Video recibido — 27 de noviembre de 2026
+
+El equipo proporcionó el archivo que se incluye como [`demo_proyecto.mp4`](demo_proyecto.mp4). Se cambió únicamente su nombre: su contenido se conserva íntegro, como indicó el equipo.
+
+- Tamaño: **22,170,821 bytes**, inferior a 100 MB; no se necesita `demo_link.txt`.
+- Duración del contenedor MP4: **300.315011 segundos** (**5:00.315**), obtenida de la cabecera `moov/mvhd`. Supera el máximo por 0.315011 segundos; el equipo decidió conservarlo así.
+- Pistas de imagen (`vide`) y audio (`soun`) presentes. La herramienta nativa `afinfo` reconoce audio AAC estéreo a 44.1 kHz.
+- El ZIP con el original se generó por separado: el modo estricto `--final` rechaza esta duración. No se modificó ese control.
+
+La comprobación de metadatos no certifica claridad de narración, continuidad, participación del equipo ni cobertura de los cinco segmentos. Tampoco acredita una entrega a Canvas.

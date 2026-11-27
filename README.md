@@ -8,7 +8,7 @@ La información sobre objetivos, proyectos, capacidades, procesos y aplicaciones
 
 La plataforma centraliza esa información en PostgreSQL y organiza el modelo como **capa → tipo de elemento → elementos**. La interfaz permite iniciar sesión, buscar registros y crear, editar, dar de baja y reactivar elementos según el rol y la capa asignada. La API también implementa propuestas y aprobación de relaciones, mapas de conexiones y bitácora.
 
-**Estado del producto:** frontend y backend integrados; CRUD de elementos comprobado en el navegador. La configuración administrativa, las propuestas de relación, la consulta de bitácora y los mapas todavía carecen de pantallas completas. Los estados por requerimiento están en la [matriz de trazabilidad](S11_A1/matriz_trazabilidad.md). El video del equipo y el alojamiento público siguen pendientes.
+**Estado del producto:** frontend y backend integrados; CRUD de elementos comprobado en el navegador. La configuración administrativa, las propuestas de relación, la consulta de bitácora y los mapas todavía carecen de pantallas completas. Los estados por requerimiento están en la [matriz de trazabilidad](S11_A1/matriz_trazabilidad.md). El [video de demo del equipo](S11_A1/demo_proyecto.mp4) está disponible; el alojamiento público sigue pendiente.
 
 ## Arquitectura
 
@@ -62,7 +62,7 @@ git clone https://github.com/CLA-TC5062-SN2026/TC5062-21.git
 cd TC5062-21
 ```
 
-Mientras las correcciones se revisan en su rama, después de clonar utiliza `git switch codex/s11-correcciones-demo`. Tras integrarlas a `main`, ese paso deja de ser necesario.
+Las correcciones se integraron a `main` mediante el Pull Request #22; el clonado anterior obtiene la versión integrada.
 
 ### 2. Configurar las variables de entorno
 
@@ -217,7 +217,10 @@ Capturas auténticas del recorrido local S11 con datos ficticios; los identifica
 - [Retrospectiva y consistencia problema–solución](S11_A1/retrospectiva_proyecto.md).
 - [Guion y preparación del video de máximo cinco minutos](S11_A1/guion_demo.md).
 - [Verificación y pendientes de la demo](S11_A1/verificacion_demo.md).
+- [Video de demo del equipo](S11_A1/demo_proyecto.mp4).
 
 Genera un ZIP de preparación con `python3 scripts/empaquetar_s11.py`. Después de grabar en equipo, coloca `demo_proyecto.mp4` en `S11_A1/`. Si supera 100 MB, comparte el video y agrega su URL real en `S11_A1/demo_link.txt`. Ejecuta `python3 scripts/empaquetar_s11.py --final` para generar el ZIP final de Canvas. El verificador exige imagen, audio y duración máxima de 300 segundos cuando se entrega un MP4 local; la narración, continuidad y participación del equipo deben revisarse manualmente.
 
-La entrega final debe subirse a Canvas y al repositorio del equipo **24 horas antes de la presentación**. El video todavía no se ha grabado y este repositorio no acredita una entrega a Canvas.
+El video se incorporó el **27 de noviembre de 2026**, con su contenido original: dura **5:00.315** y pesa **22,170,821 bytes**. El equipo indicó conservarlo completo. El modo estricto `--final` exige un máximo de 300 segundos y rechaza esta duración; el ZIP con el archivo original se preparó por separado.
+
+La entrega final debe subirse a Canvas y al repositorio del equipo **24 horas antes de la presentación**. Este repositorio no acredita una entrega a Canvas.

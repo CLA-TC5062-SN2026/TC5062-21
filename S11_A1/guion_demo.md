@@ -2,6 +2,8 @@
 
 **Equipo 21 · S11-A1.** Meta: terminar en **4:45**, dejando 15 segundos de margen. Un integrante maneja el teclado y los demás narran por turnos. Asignen nombres reales antes del ensayo; este documento no atribuye intervenciones que aún no se han grabado.
 
+**Estado al 27 de noviembre de 2026:** el equipo proporcionó el [video grabado](demo_proyecto.mp4), que se conserva completo por su indicación. Este documento conserva el guion propuesto antes de grabar; no es una transcripción ni certifica el contenido de la grabación. Los metadatos están registrados en [la verificación de demo](verificacion_demo.md).
+
 ## Preparación
 
 1. Seguir el README para levantar PostgreSQL, backend y frontend. Ejecutar `prepare_frontend_demo.py` antes de grabar.
@@ -48,4 +50,4 @@ Los cinco segmentos están cubiertos sin sumar seis minutos: la demo ocupa 2:50 
 - Ejecutar `python3 scripts/empaquetar_s11.py --final`. Para MP4 local se necesita `ffprobe` en PATH para validar duración y pistas de audio/video.
 - Subir el ZIP final a Canvas y los documentos y video/enlace al repo del equipo 24 horas antes de la presentación.
 
-**Pendiente humano:** grabar el video, comprobar el micrófono, revisar la narración y efectuar la entrega en Canvas. Este guion y las capturas no sustituyen el video.
+**Pendiente humano:** revisar claridad de narración, continuidad y participación del equipo, y efectuar la entrega en Canvas. El archivo de video ya está incorporado al repositorio.
