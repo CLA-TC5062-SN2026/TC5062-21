@@ -1,6 +1,6 @@
 # Plataforma de Arquitectura Empresarial — Equipo 21
 
-Proyecto colaborativo de **TC5062 · Análisis, diseño y construcción de software**. Documentación final S11-A1, revisada el **25 de noviembre de 2026**.
+Proyecto colaborativo de **TC5062 · Análisis, diseño y construcción de software**. Documentación final S11-A1, actualizada el **27 de noviembre de 2026**.
 
 ## Descripción y valor
 
@@ -30,7 +30,7 @@ La interfaz utiliza un cliente Fetch común que adjunta el JWT, gestiona errores
 
 FastAPI registra las operaciones del [contrato canónico](S05_S06_A1/openapi_equipo.yaml), valida las entradas y comprueba sesión, rol y permisos por capa en el servidor. Los servicios aplican reglas de negocio y guardan cambios y bitácora en la misma transacción. La baja es lógica: conserva campos, relaciones e historial.
 
-Se integró el frontend de `codex/s07-s08-frontend-integracion` y se trasladó a `backend/` la refactorización auditada de S09. `S09_A1/codigo/` se conserva como evidencia histórica; **el código ejecutable actual está en `backend/` y `frontend/`**. `postman/specs/openapi.yaml` enlaza al contrato canónico y no debe editarse como una segunda especificación.
+**El código ejecutable está en `backend/` y `frontend/`**. El backend incorpora la refactorización auditada en S09; `S09_A1/codigo/` conserva esa versión como evidencia histórica. `postman/specs/openapi.yaml` enlaza al contrato canónico para mantener una sola especificación.
 
 ## Stack tecnológico
 
@@ -62,7 +62,7 @@ git clone https://github.com/CLA-TC5062-SN2026/TC5062-21.git
 cd TC5062-21
 ```
 
-Las correcciones se integraron a `main` mediante el Pull Request #22; el clonado anterior obtiene la versión integrada.
+La rama `main` contiene la versión integrada del frontend y el backend.
 
 ### 2. Configurar las variables de entorno
 
@@ -185,9 +185,9 @@ También se ejecutó la colección local de autenticación de Postman: **6 solic
 
 ## URL de producción
 
-**Pendiente: el equipo confirmó que todavía no dispone de hosting.** Las direcciones `127.0.0.1` son exclusivamente locales. La demo de esta actividad utiliza el stack local, como permiten las especificaciones de entrega.
+**Despliegue público pendiente.** La aplicación se ejecuta en local y aún no tiene una URL de producción. Las direcciones `127.0.0.1` corresponden al entorno utilizado en la demo.
 
-Antes de publicar, se debe provisionar PostgreSQL, configurar secretos propios del alojamiento, servir el frontend y `/api` bajo un origen HTTPS y comprobar autenticación y persistencia. Después se debe reemplazar este estado por la URL pública verificada. La configuración Compose incluida no acredita un despliegue público.
+El despliegue requiere PostgreSQL, secretos propios del alojamiento y un origen HTTPS compartido por el frontend y `/api`. La URL pública se incorporará después de comprobar autenticación y persistencia en ese entorno. La configuración Compose incluida permite preparar los contenedores, pero todavía no se ha verificado en un alojamiento público.
 
 ## Capturas de las vistas principales
 
@@ -219,8 +219,8 @@ Capturas auténticas del recorrido local S11 con datos ficticios; los identifica
 - [Verificación y pendientes de la demo](S11_A1/verificacion_demo.md).
 - [Video de demo del equipo](S11_A1/demo_proyecto.mp4).
 
-Genera un ZIP de preparación con `python3 scripts/empaquetar_s11.py`. Después de grabar en equipo, coloca `demo_proyecto.mp4` en `S11_A1/`. Si supera 100 MB, comparte el video y agrega su URL real en `S11_A1/demo_link.txt`. Ejecuta `python3 scripts/empaquetar_s11.py --final` para generar el ZIP final de Canvas. El verificador exige imagen, audio y duración máxima de 300 segundos cuando se entrega un MP4 local; la narración, continuidad y participación del equipo deben revisarse manualmente.
+La entrega reúne este README, `matriz_trazabilidad.md`, `retrospectiva_proyecto.md` y `demo_proyecto.mp4`. Los tres últimos archivos se encuentran en `S11_A1/`.
 
-El video se incorporó el **27 de noviembre de 2026**, con su contenido original: dura **5:00.315** y pesa **22,170,821 bytes**. El equipo indicó conservarlo completo. El modo estricto `--final` exige un máximo de 300 segundos y rechaza esta duración; el ZIP con el archivo original se preparó por separado.
+La grabación se incorporó el **27 de noviembre de 2026**. Su duración es de **5:00.315** y su tamaño es de **22,170,821 bytes**. Se incluye el archivo original completo. Los metadatos y el alcance de la revisión están en [verificación de demo](S11_A1/verificacion_demo.md).
 
-La entrega final debe subirse a Canvas y al repositorio del equipo **24 horas antes de la presentación**. Este repositorio no acredita una entrega a Canvas.
+El script `python3 scripts/empaquetar_s11.py` genera un paquete de preparación. La opción `--final` requiere `ffprobe` y una duración máxima de 300 segundos; la grabación actual excede ese umbral por 0.315 segundos. El ZIP de entrega con el original se preparó por separado.

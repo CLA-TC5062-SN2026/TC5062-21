@@ -2,7 +2,7 @@
 
 **Plataforma de Arquitectura Empresarial · Equipo 21 · S11-A1 · 25 de noviembre de 2026**
 
-Fuentes: [SRS del equipo](../S03_A1/SRS_equipo.md), [backlog completo](../S03_A1/backlog_completo.md), [reflexión de S03](../S03_A1/reflexion.md), [auditoría de S09](../S09_A1/code_review.md), código integrado y [verificación S11](verificacion_demo.md). Las observaciones del proceso se apoyan en estas fuentes y no atribuyen participación o decisiones personales que no estén registradas.
+Fuentes: [SRS del equipo](../S03_A1/SRS_equipo.md), [backlog completo](../S03_A1/backlog_completo.md), [reflexión de S03](../S03_A1/reflexion.md), [auditoría de S09](../S09_A1/code_review.md), código integrado y [verificación S11](verificacion_demo.md).
 
 ## Sección A — Retrospectiva SCRUM
 
@@ -65,7 +65,7 @@ Las capturas proceden de la ejecución local S11. Los nombres y presupuestos son
 
 - **Pantallas administrativas, propuestas y mapas:** estaban dentro del alcance del producto, pero no se completó su interfaz. Son brechas de implementación e integración, no exclusiones originales del SRS.
 - **Truncado del mapa:** la implementación ordena vecinos por nombre/ID; el criterio RF-13-AC-3 exige orden por ID. Sigue pendiente alinear ese detalle y comprobar un conjunto de más de 100 nodos.
-- **Alojamiento público:** el equipo confirmó que aún no cuenta con hosting. La demo se prepara sobre el stack local permitido por la consigna. La URL de producción queda pendiente, sin sustituirla por localhost.
+- **Alojamiento público:** aún no hay un despliegue público. La demo se realizó sobre el stack local. La URL de producción sigue pendiente.
 - **Validación con usuarios, accesibilidad y rendimiento completos:** el ensayo técnico y las mediciones de consultas no prueban utilidad percibida, conformidad de accesibilidad ni el escenario de diez sesiones y tiempos máximos del RNF. Tampoco se verificaron las dos últimas versiones de Chrome y Edge.
 - **Importación, sincronización empresarial, SSO, permisos por elemento y análisis automático:** se excluyeron explícitamente de la primera versión en el SRS. No se atribuyen a un obstáculo técnico que el equipo no haya documentado.
 

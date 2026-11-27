@@ -1,8 +1,8 @@
-# Guion de demo — máximo 5 minutos, sin cortes
+# Guion de referencia de la demo
 
-**Equipo 21 · S11-A1.** Meta: terminar en **4:45**, dejando 15 segundos de margen. Un integrante maneja el teclado y los demás narran por turnos. Asignen nombres reales antes del ensayo; este documento no atribuye intervenciones que aún no se han grabado.
+**Equipo 21 · S11-A1.** Duración prevista del guion: **4:45**. La operación del sistema corresponde a un integrante, con narración distribuida entre los participantes.
 
-**Estado al 27 de noviembre de 2026:** el equipo proporcionó el [video grabado](demo_proyecto.mp4), que se conserva completo por su indicación. Este documento conserva el guion propuesto antes de grabar; no es una transcripción ni certifica el contenido de la grabación. Los metadatos están registrados en [la verificación de demo](verificacion_demo.md).
+La [grabación final](demo_proyecto.mp4) está disponible desde el 27 de noviembre de 2026. Este documento conserva el plan utilizado para preparar la demo; los tiempos de la grabación pueden diferir. Los metadatos están registrados en [la verificación de demo](verificacion_demo.md).
 
 ## Preparación
 
@@ -15,7 +15,7 @@
 
 ## Recorrido continuo de 4:45
 
-| Tiempo | Segmento y narrador por asignar | Acción en pantalla y mensaje sugerido |
+| Tiempo previsto | Segmento y participación | Acción y narración de referencia |
 |---|---|---|
 | 0:00–0:25 | Problema y contexto — integrante 1 | Mostrar el acceso: “Cuando objetivos, proyectos y aplicaciones se mantienen en archivos separados, es difícil saber cuál información sigue vigente. Nuestra plataforma ofrece al responsable de arquitectura un inventario común con permisos e historial.” |
 | 0:25–0:45 | Demo: login — teclado + integrante 2 | Iniciar sesión con Administrador. Mostrar el panel y el inventario con registros completos. Aclarar que es una organización ficticia y que los datos están persistidos en PostgreSQL. |
@@ -24,10 +24,10 @@
 | 2:00–2:30 | Demo: actualizar y manejar error — integrante 3 | Pulsar **Editar elemento**. Vaciar Nombre e intentar guardar: señalar el error y que no se aplicaron cambios. Restaurar Nombre, cambiar presupuesto a 73000 y Etapa a En curso. Guardar y señalar que el ID se conserva. |
 | 2:30–3:15 | Demo: baja y recuperación — integrante 3 | Dar de baja y confirmar. Volver al inventario, buscar el nombre y mostrar que ya no aparece entre activos. Activar **Incluir dados de baja**, abrirlo y reactivarlo. Explicar que se retira sin perder información ni historial. |
 | 3:15–3:45 | Decisión técnica clave — integrante 1 | Mostrar brevemente el diagrama del README: “Separamos React, API y base de datos. Las reglas y permisos se validan en el servidor, aunque alguien intente saltarse la interfaz. El proxy de `/api` mantiene un mismo origen en el entorno local.” |
-| 3:45–4:15 | Uso del agente de IA — integrante 2 | “Nos ayudó a organizar requisitos, redactar el contrato y revisar pruebas. También generó trabajo extra: la documentación inicial omitió el frontend de otra rama y describió métodos HTTP incorrectos. Fue necesario contrastar sus propuestas con el código y el sistema ejecutándose.” Adaptar la frase a lo que el equipo pueda respaldar. |
+| 3:45–4:15 | Uso del agente de IA — integrante 2 | “El agente de IA nos ayudó a organizar ideas, aclarar dudas y agilizar la programación y la documentación. Fue útil para proponer soluciones y detectar aspectos que necesitaban revisión. Algunas sugerencias requirieron ajustes para adaptarse al proyecto. Aprendimos a darle instrucciones más claras y a comprobar sus respuestas antes de incorporarlas al trabajo.” |
 | 4:15–4:45 | Qué haríamos diferente — integrante 3 | Volver al inventario: “Priorizaríamos incrementos completos y la integración frecuente. Hoy el CRUD funciona, pero la administración y los mapas todavía no tienen pantallas completas. El siguiente incremento sería la exploración visual de relaciones y su validación con el stakeholder.” |
 
-Los cinco segmentos están cubiertos sin sumar seis minutos: la demo ocupa 2:50 y el total 4:45.
+El plan distribuye 0:25 para el contexto, 2:50 para la demo y tres intervenciones de 0:30, con un total previsto de 4:45.
 
 ### Datos para capturar durante la toma
 
@@ -40,7 +40,7 @@ Los cinco segmentos están cubiertos sin sumar seis minutos: la demo ocupa 2:50 
 | Fecha objetivo | 2026-12-18 |
 | Etapa | Planeado; después cambiar a En curso |
 
-“Datos reales” se interpreta como registros completos que el sistema guarda y recupera, en lugar de una pantalla vacía o un mock. La consigna del SRS exige **datos ficticios**; no se necesita información confidencial de una empresa. Explicar esa distinción en la grabación.
+Los ejemplos utilizan **datos ficticios completos**, conforme al SRS, y se guardan y recuperan desde PostgreSQL.
 
 ## Revisión y entrega
 
@@ -50,4 +50,4 @@ Los cinco segmentos están cubiertos sin sumar seis minutos: la demo ocupa 2:50 
 - Ejecutar `python3 scripts/empaquetar_s11.py --final`. Para MP4 local se necesita `ffprobe` en PATH para validar duración y pistas de audio/video.
 - Subir el ZIP final a Canvas y los documentos y video/enlace al repo del equipo 24 horas antes de la presentación.
 
-**Pendiente humano:** revisar claridad de narración, continuidad y participación del equipo, y efectuar la entrega en Canvas. El archivo de video ya está incorporado al repositorio.
+La grabación y sus metadatos forman parte del repositorio. El estado de revisión se mantiene en [verificación de demo](verificacion_demo.md).

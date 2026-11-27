@@ -48,6 +48,6 @@ Todas las rutas de la tabla incluyen el prefijo real `/api`. Las pruebas `I`, `Q
 | A | [test_acceptance_s11.py](../backend/tests/test_acceptance_s11.py) | Último administrador, rechazo, cambio/retiro de relaciones y revalidación antes de aprobar. |
 | F | [ElementFormPage.test.tsx](../frontend/src/pages/ElementFormPage.test.tsx) | Validación, captura de cuatro tipos, edición con vaciado opcional, error conservador y permiso por capa. |
 
-Resultados S11: **88 casos pytest aprobados**, **19 casos frontend aprobados**, y **22 aserciones Postman aprobadas**. Reportes: [evidencias](evidencias/). La auditoría S09 conservó 84 casos; los cuatro casos adicionales corresponden al archivo A. No se confunden casos parametrizados, operaciones HTTP y criterios de aceptación.
+Resultados S11: **88 casos pytest aprobados**, **19 casos frontend aprobados**, y **22 aserciones Postman aprobadas**. Reportes: [evidencias](evidencias/). La auditoría S09 conservó 84 casos; los cuatro casos adicionales corresponden al archivo A.
 
 **Resultado de producto:** 19 RF trazados, 21 US relacionadas; **6 completos y 13 parcialmente implementados**. Las principales brechas son pantallas administrativas, gestión visual de relaciones, mapa interactivo y despliegue público. No se declara cobertura del 100% de los 56 criterios ni cumplimiento integral de los RNF.

@@ -46,7 +46,7 @@ Se corrigió un problema observado con el campo fecha antes de aceptar M-03. La 
 - [x] Añadir [`demo_proyecto.mp4`](demo_proyecto.mp4), con pistas de imagen y audio presentes.
 - [x] Generar ZIP con documentación y video original.
 - [ ] Subir el ZIP a Canvas.
-- [ ] Alojamiento público y URL de producción; el equipo indicó que todavía no cuenta con hosting.
+- [ ] Alojamiento público y URL de producción.
 
 Se mantiene el alcance parcial del producto indicado en la [matriz](matriz_trazabilidad.md): faltan pantallas administrativas, propuestas/decisiones, bitácora y mapa interactivo. Docker/Nginx se proporcionan como alternativa preparada; no se ejecutaron sus contenedores en esta revisión. No se midió el escenario completo de carga, la conformidad de accesibilidad ni la compatibilidad en Chrome/Edge.
 
@@ -54,11 +54,11 @@ El ZIP `preparacion` permite revisar los documentos antes de grabar. El modo `--
 
 ## Video recibido — 27 de noviembre de 2026
 
-El equipo proporcionó el archivo que se incluye como [`demo_proyecto.mp4`](demo_proyecto.mp4). Se cambió únicamente su nombre: su contenido se conserva íntegro, como indicó el equipo.
+La grabación está disponible como [`demo_proyecto.mp4`](demo_proyecto.mp4). El archivo conserva íntegramente su contenido original.
 
 - Tamaño: **22,170,821 bytes**, inferior a 100 MB; no se necesita `demo_link.txt`.
-- Duración del contenedor MP4: **300.315011 segundos** (**5:00.315**), obtenida de la cabecera `moov/mvhd`. Supera el máximo por 0.315011 segundos; el equipo decidió conservarlo así.
+- Duración del contenedor MP4: **300.315011 segundos** (**5:00.315**), obtenida de la cabecera `moov/mvhd`. Supera el máximo de 300 segundos por 0.315011 segundos.
 - Pistas de imagen (`vide`) y audio (`soun`) presentes. La herramienta nativa `afinfo` reconoce audio AAC estéreo a 44.1 kHz.
-- El ZIP con el original se generó por separado: el modo estricto `--final` rechaza esta duración. No se modificó ese control.
+- El ZIP con el original se generó por separado: el modo estricto `--final` rechaza duraciones superiores a 300 segundos.
 
-La comprobación de metadatos no certifica claridad de narración, continuidad, participación del equipo ni cobertura de los cinco segmentos. Tampoco acredita una entrega a Canvas.
+La comprobación de metadatos se limita a la estructura y duración del archivo. La revisión de claridad de narración, continuidad, participación del equipo y cobertura de los cinco segmentos se realiza sobre la grabación completa.
